@@ -169,6 +169,7 @@ mutable struct zarray
     size::Cint
     alloc::Cint
     data::Ptr{UInt8}
+    zarray() = new()
 end
 
 const zarray_t = zarray
@@ -258,6 +259,7 @@ mutable struct apriltag_detection
     H::Ptr{matd_t}
     c::NTuple{2, Cdouble}
     p::NTuple{4, NTuple{2, Cdouble}}
+    apriltag_detection() = new()
 end
 
 const apriltag_detection_t = apriltag_detection
@@ -273,11 +275,11 @@ const apriltag_detection_t = apriltag_detection
 #
 # memcpy(p, &za->data[idx*za->el_sz], za->el_sz);
 
-function zarray_get(za::zarray_t, idx::Int, p::apriltag_detection_t)
-    # unsafe_copy!(,  Base.unsafe_convert(Ptr{Void}, Ref(za)), za.el_sz)
-    p = unsafe_load( Base.unsafe_convert(Ptr{AprilTags.apriltag_detection_t}, detzarray.data),  idx)
-
-end
+# function zarray_get(za::zarray_t, idx::Int, p::apriltag_detection_t)
+#     # unsafe_copy!(,  Base.unsafe_convert(Ptr{Void}, Ref(za)), za.el_sz)
+#     p = unsafe_load( Base.unsafe_convert(Ptr{AprilTags.apriltag_detection_t}, detzarray.data),  idx)
+#
+# end
 
 
 function tag36h11_create()
@@ -312,7 +314,7 @@ function apriltag_detector_destroy(td)
 end
 
 function apriltag_detector_detect(td, im_orig)
-    ccall((:apriltag_detector_detect, :libapriltag), Ptr{zarray_t}, (Ptr{apriltag_detector_t}, Ptr{image_u8_t}), td, im_orig)
+    ccall((:apriltag_detector_detect, :libapriltag), Ptr{zarray_t}, (Ptr{apriltag_detector_t}, Ptr{image_u8_t}), td, Ref(im_orig))
 end
 
 function apriltag_detection_destroy(det)
