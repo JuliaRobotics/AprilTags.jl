@@ -1,5 +1,7 @@
 ## Documentation: http://docs.travis-ci.com/user/languages/julia/
 language: julia
+# dist: trusty  # for a more recent ImageMagick from Images.jl build script
+
 os:
   - linux
   # - osx
@@ -17,13 +19,12 @@ matrix:
  allow_failures:
  - julia: nightly
 
-dist: trusty  # for a more recent ImageMagick from Images.jl build script 
 ## uncomment and modify the following lines to manually install system packages
-# addons:
- # apt: # apt-get for linux
-  #  packages:
-    #  - imagemagick
-#    - gfortran
+addons:
+  apt: # apt-get for linux
+    packages:
+      - imagemagick
+      - gfortran
 #before_script: # homebrew for mac
 #  - if [ $TRAVIS_OS_NAME = osx ]; then brew install gcc; fi
 
