@@ -1,7 +1,33 @@
 using Images, ImageDraw
 
 using AprilTags
-##
+
+#-------------------------------------------------------------------------------
+## Example AprilTags.jl detection from an image using the default setup
+
+
+cd(dirname(@__FILE__))
+
+image = load("../data/tagtest.jpg")
+
+# create default detector and run on image
+detector = AprilTagDetector()
+tags = detector(image)
+
+# do some plotting
+cpoints = map(tag->CartesianIndex(round.(Int,[tag.c[2],tag.c[1]])...),tags)
+length = 3
+foreach(point->draw!(image, LineSegment( point - CartesianIndex(0,length), point + CartesianIndex(0,length))), cpoints)
+foreach(point->draw!(image, LineSegment( point - CartesianIndex(length,0), point + CartesianIndex(length,0))), cpoints)
+image
+
+## free memmory
+freeDetector!(detector)
+
+
+
+#-------------------------------------------------------------------------------
+## Example Using the wrappers directly
 
 cd(dirname(@__FILE__))
 
@@ -33,14 +59,11 @@ foreach(point->draw!(image, LineSegment( point - CartesianIndex(length,0), point
 image
 
 
-
 apriltag_detections_destroy(detections)
 
-##
+#
 #clean up C
 
 # Cleanup: free the detector and tag family when done.
 apriltag_detector_destroy(td)
-
-#TODO: implement destroy of tags void tag36h11_destroy(apriltag_family_t *tf)
-# AprilTags.tag36h11_destroy(tf)
+tag36h11_destroy(tf)

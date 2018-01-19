@@ -5,16 +5,22 @@ isfile(depfile) ? include(depfile) : error("AprilTags.jl not properly installed.
 
 
 export
+#helpers
+AprilTagDetector,
+freeDetector!,
+convert2image_u8,
+getTagDetections,
+
 # wrappers
 apriltag_detector_create,
 tag36h11_create,
+tag36h11_destroy,
+
 apriltag_detector_add_family,
 apriltag_detector_detect,
 apriltag_detections_destroy,
-apriltag_detector_destroy,
-#helpers
-convert2image_u8,
-getTagDetections
+apriltag_detector_destroy
+
 
 include("wrapper.jl")
 include("helpers.jl")
