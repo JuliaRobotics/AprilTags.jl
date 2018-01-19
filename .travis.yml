@@ -33,6 +33,10 @@ addons:
 #  - julia -e 'Pkg.clone(pwd()); Pkg.build("AprilTags"); Pkg.test("AprilTags"; coverage=true)'
 after_success:
   # push coverage results to Coveralls
-  - julia -e 'cd(Pkg.dir("AprilTags")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
+  # - julia -e 'cd(Pkg.dir("AprilTags")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
   # push coverage results to Codecov
   - julia -e 'cd(Pkg.dir("AprilTags")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
+
+  #run documenter
+  - julia -e 'Pkg.add("Documenter")'
+  - julia -e 'cd(Pkg.dir("AprilTags")); include(joinpath("docs", "make.jl"))'
