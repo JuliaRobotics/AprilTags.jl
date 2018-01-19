@@ -5,9 +5,14 @@ using Base.Test
 
 @testset "AprilTags" begin
 
+
     cd(dirname(@__FILE__))
     image = load("../data/tagtest.jpg")
+    refpoints = [[404.5, 176.1],
+                [134.0, 216.1],
+                [412.0, 130.1]]
 
+    # test wrappers
     #create april tag detector
     td = apriltag_detector_create()
 
@@ -28,14 +33,19 @@ using Base.Test
 
     #extract tag centres
     cpoints = map(tag->[tag.c[2],tag.c[1]],tags)
-    refpoints = [[404.5, 176.1],
-                [134.0, 216.1],
-                [412.0, 130.1]]
 
     @test cpoints ≈ refpoints atol=0.5
 
     apriltag_detections_destroy(detections)
-# Cleanup: free the detector and tag family when done.
+    # Cleanup: free the detector and tag family when done.
     apriltag_detector_destroy(td)
+    tag36h11_destroy(tf)
+
+    #
+    detector = AprilTagDetector()
+    tags2 = detector(image)
+    cpoints = map(tag->[tag.c[2],tag.c[1]],tags2)
+    freeDetector!(detector)
+    @test cpoints ≈ refpoints atol=0.5
 
 end

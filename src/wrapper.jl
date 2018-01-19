@@ -264,28 +264,47 @@ end
 
 const apriltag_detection_t = apriltag_detection
 
-
-## functions
-# AprilTags.zarray_get(detections, Int32(0), Ref(apdet))
-# function zarray_get(detections, size, detect)
-# assert(za != NULL);
-# assert(p != NULL);
-# assert(idx >= 0);
-# assert(idx < za->size);
-#
-# memcpy(p, &za->data[idx*za->el_sz], za->el_sz);
-
-# function zarray_get(za::zarray_t, idx::Int, p::apriltag_detection_t)
-#     # unsafe_copy!(,  Base.unsafe_convert(Ptr{Void}, Ref(za)), za.el_sz)
-#     p = unsafe_load( Base.unsafe_convert(Ptr{AprilTags.apriltag_detection_t}, detzarray.data),  idx)
-#
-# end
-
+# Tag families constructors and destructors
 
 function tag36h11_create()
     ccall((:tag36h11_create, :libapriltag), Ptr{apriltag_family_t}, ())
 end
 
+function tag36h11_destroy(tf)
+    ccall((:tag36h11_destroy, :libapriltag), Void, (Ptr{apriltag_family_t},), tf)
+end
+
+function tag36h10_create()
+    ccall((:tag36h10_create, :libapriltag), Ptr{apriltag_family_t}, ())
+end
+
+function tag36h10_destroy(tf)
+    ccall((:tag36h10_destroy, :libapriltag), Void, (Ptr{apriltag_family_t},), tf)
+end
+
+function tag25h9_create()
+    ccall((:tag25h9_create, :libapriltag), Ptr{apriltag_family_t}, ())
+end
+
+function tag25h9_destroy(tf)
+    ccall((:tag25h9_destroy, :libapriltag), Void, (Ptr{apriltag_family_t},), tf)
+end
+
+function tag25h7_create()
+    ccall((:tag25h7_create, :libapriltag), Ptr{apriltag_family_t}, ())
+end
+
+function tag25h7_destroy(tf)
+    ccall((:tag25h7_destroy, :libapriltag), Void, (Ptr{apriltag_family_t},), tf)
+end
+
+function tag16h5_create()
+    ccall((:tag16h5_create, :libapriltag), Ptr{apriltag_family_t}, ())
+end
+
+function tag16h5_destroy(tf)
+    ccall((:tag16h5_destroy, :libapriltag), Void, (Ptr{apriltag_family_t},), tf)
+end
 
 function apriltag_detector_create()
     ccall((:apriltag_detector_create, :libapriltag), Ptr{apriltag_detector_t}, ())
