@@ -1,4 +1,14 @@
 
+struct AprilTag
+    family::Symbol
+    id::Int
+    hamming::Int
+    goodness::Float32
+    decision_margin::Float32
+    H::Matrix{Float64}
+    c::NTuple{2, Cdouble}
+    p::NTuple{4, NTuple{2, Cdouble}}
+end
 
 mutable struct AprilTagDetector
     #pointers to c managed memmory
@@ -43,8 +53,10 @@ function (detector::AprilTagDetector)(image)
     # run detector on image
     detections =  apriltag_detector_detect(detector.td, image8)
 
-    # copy and return detections
-    tags = getTagDetections(detections)
+    # copy and return detections julia struct
+    tags = AprilTags.copyAprilTagDetections(detections)
+    # copy and return detections c struct
+    # tags = getTagDetections(detections)
 
     #distroy detections memmory
     apriltag_detections_destroy(detections)
@@ -86,8 +98,37 @@ function getTagDetections(detections::Ptr{zarray})
         for i=1:detzarray.size
             pointer_to_apriltag_detection_t = unsafe_load(convert(Ptr{Ptr{AprilTags.apriltag_detection_t}}, detzarray.data),i)
             dettags[i] = unsafe_load(pointer_to_apriltag_detection_t)
+
         end
         return dettags
+    else
+        return nothing
+    end
+end
+
+
+function copyAprilTagDetections(detections::Ptr{zarray})
+    detzarray = unsafe_load(detections)
+    if detzarray.size > 0
+        apriltags = Vector{AprilTag}(detzarray.size)
+        for i=1:detzarray.size
+            pointer_to_apriltag_detection_t = unsafe_load(convert(Ptr{Ptr{AprilTags.apriltag_detection_t}}, detzarray.data),i)
+            dettag = unsafe_load(pointer_to_apriltag_detection_t)
+
+            #TODO: implement tag family stuff, hardcode a family for now as a symbol
+            family = :tag36h11
+
+            #Readign homography of tag 1 (deepcopy since memory is destoyed by c)
+            voidpointertoH = Base.unsafe_convert(Ptr{Void}, dettag.H)
+            # pointer to H matrix
+            nrows = unsafe_load(Ptr{UInt32}(voidpointertoH),1)
+            ncols = unsafe_load(Ptr{UInt32}(voidpointertoH),2)
+            H = deepcopy(unsafe_wrap(Array, Ptr{Cdouble}(voidpointertoH+8), (3,3)))
+
+            apriltags[i] = AprilTags.AprilTag(family, dettag.id, dettag.hamming, dettag.goodness, dettag.decision_margin, H, dettag.c, dettag.p)
+
+        end
+        return apriltags
     else
         return nothing
     end
