@@ -5,7 +5,7 @@
 *.so
 *.a
 
-
+docs/build
 sandbox
 deps/loadpath.jl
 deps/apriltag-2016-12-01/example/apriltag_demo
