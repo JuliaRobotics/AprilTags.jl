@@ -118,12 +118,12 @@ function copyAprilTagDetections(detections::Ptr{zarray})
             #TODO: implement tag family stuff, hardcode a family for now as a symbol
             family = :tag36h11
 
-            #Readign homography of tag 1 (deepcopy since memory is destoyed by c)
+            #Reading homography of tag 1 (transpose for c row major and deepcopy since memory is destoyed by c)
             voidpointertoH = Base.unsafe_convert(Ptr{Void}, dettag.H)
             # pointer to H matrix
             nrows = unsafe_load(Ptr{UInt32}(voidpointertoH),1)
             ncols = unsafe_load(Ptr{UInt32}(voidpointertoH),2)
-            H = deepcopy(unsafe_wrap(Array, Ptr{Cdouble}(voidpointertoH+8), (3,3)))
+            H = deepcopy(unsafe_wrap(Array, Ptr{Cdouble}(voidpointertoH+8), (3,3))')
 
             apriltags[i] = AprilTags.AprilTag(family, dettag.id, dettag.hamming, dettag.goodness, dettag.decision_margin, H, dettag.c, dettag.p)
 

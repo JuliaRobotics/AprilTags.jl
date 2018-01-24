@@ -6,6 +6,7 @@ isfile(depfile) ? include(depfile) : error("AprilTags.jl not properly installed.
 
 export
 #helpers
+AprilTag,
 AprilTagDetector,
 freeDetector!,
 convert2image_u8,
