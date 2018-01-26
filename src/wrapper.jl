@@ -370,3 +370,11 @@ end
 function apriltag_to_image(fam, idx::Cint)
     ccall((:apriltag_to_image, :libapriltag), Ptr{image_u8_t}, (Ptr{apriltag_family_t}, Cint), fam, idx)
 end
+
+
+#common
+
+# matd_t *homography_to_pose(const matd_t *H, double fx, double fy, double cx, double cy)
+function homography_to_pose(H, fx, fy, cx, cy)
+    ccall((:homography_to_pose, :libapriltag), Ptr{matd_t}, (Ptr{matd_t}, Cdouble, Cdouble, Cdouble, Cdouble), H, fx, fy, cx, cy)
+end

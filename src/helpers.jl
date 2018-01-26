@@ -133,3 +133,68 @@ function copyAprilTagDetections(detections::Ptr{zarray})
         return nothing
     end
 end
+
+
+"""
+    homography_to_pose(H, fx, fy, cx, cy)
+Given a 3x3 homography matrix and the focal lengths of the camera, compute the pose of the tag.
+The focal lengths should be given in pixels
+"""
+function homography_to_pose(H, fx, fy, cx, cy)
+    # Note that every variable that we compute is proportional to the scale factor of H.
+    R31 = H[3, 1]
+    R32 = H[3, 2]
+    TZ  = H[3, 3]
+    R11 = (H[1, 1] - cx*R31) / fx
+    R12 = (H[1, 2] - cx*R32) / fx
+    TX  = (H[1, 3] - cx*TZ)  / fx
+    R21 = (H[2, 1] - cy*R31) / fy
+    R22 = (H[2, 2] - cy*R32) / fy
+    TY  = (H[2, 3] - cy*TZ)  / fy
+
+    # compute the scale by requiring that the rotation columns are unit length
+    # (Use geometric average of the two length vectors we have)
+    length1 = sqrt(R11*R11 + R21*R21 + R31*R31)
+    length2 = sqrt(R12*R12 + R22*R22 + R32*R32)
+    s = 1.0 / sqrt(length1 * length2)
+
+    # get sign of S by requiring the tag to be in front the camera
+    # we assume camera looks in the -Z direction.
+    if (TZ > 0)
+        s *= -1.0
+    end
+
+    R31 *= s
+    R32 *= s
+    TZ  *= s
+    R11 *= s
+    R12 *= s
+    TX  *= s
+    R21 *= s
+    R22 *= s
+    TY  *= s
+
+    # now recover [R13 R23 R3] by noting that it is the cross product of the other two columns.
+    R13 = R21*R32 - R31*R22
+    R23 = R31*R12 - R11*R32
+    R33 = R11*R22 - R21*R12
+
+    # Improve rotation matrix by applying polar decomposition.
+    if (true)
+        # do polar decomposition. This makes the rotation matrix
+        # "proper", but probably increases the reprojection error. An
+        # iterative alignment step would be superior.
+        R = [R11 R12 R13;
+             R21 R22 R23;
+             R31 R32 R33]
+
+        U, S, V = svd(R)
+        @show S
+        R = U * V
+    end
+
+    return  [R    [TX;
+                   TY;
+                   TZ];
+            [0 0 0 1.0]]
+end
