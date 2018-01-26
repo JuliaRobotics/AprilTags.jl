@@ -11,6 +11,7 @@ AprilTagDetector,
 freeDetector!,
 convert2image_u8,
 getTagDetections,
+homography_to_pose,
 
 # wrappers
 apriltag_detector_create,

@@ -137,10 +137,10 @@ end
 
 """
     homography_to_pose(H, fx, fy, cx, cy)
-Given a 3x3 homography matrix and the focal lengths of the camera, compute the pose of the tag.
+Given a 3x3 homography matrix and the camera model (focal length and centre), compute the pose of the tag.
 The focal lengths should be given in pixels
 """
-function homography_to_pose(H, fx, fy, cx, cy)
+function homography_to_pose(H::Matrix{Float64}, fx::Float64, fy::Float64, cx::Float64, cy::Float64)
     # Note that every variable that we compute is proportional to the scale factor of H.
     R31 = H[3, 1]
     R32 = H[3, 2]
@@ -189,7 +189,6 @@ function homography_to_pose(H, fx, fy, cx, cy)
              R31 R32 R33]
 
         U, S, V = svd(R)
-        @show S
         R = U * V
     end
 
