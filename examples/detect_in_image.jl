@@ -39,6 +39,9 @@ finally
 end
 
 ##-------------------------------------------------------------------------------
+detections = nothing
+td = nothing
+tf = nothing
 
 try
     # 3. Use low-level methods and direct access to wrapper
