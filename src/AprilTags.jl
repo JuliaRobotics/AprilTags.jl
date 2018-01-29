@@ -23,8 +23,11 @@ apriltag_detector_detect,
 apriltag_detections_destroy,
 apriltag_detector_destroy
 
+#drawing and plotting
+drawTagBox!
 
 include("wrapper.jl")
 include("helpers.jl")
+include("tagdraw.jl")
 
 end # module
