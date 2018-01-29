@@ -65,11 +65,27 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "func_ref.html#AprilTags.homography_to_pose",
+    "page": "Functions",
+    "title": "AprilTags.homography_to_pose",
+    "category": "Function",
+    "text": "homography_to_pose(H, fx, fy, cx, cy)\n\nGiven a 3x3 homography matrix and the camera model (focal length and centre), compute the pose of the tag. The focal lengths should be given in pixels\n\n\n\n"
+},
+
+{
+    "location": "func_ref.html#AprilTags.drawTagBox!",
+    "page": "Functions",
+    "title": "AprilTags.drawTagBox!",
+    "category": "Function",
+    "text": "drawTagBox!(image, tag)\n\nDraw a box around the tag. imageCol = RGB.(image) foreach(tag->drawTagBox!(imageCol, tag), tags)\n\n\n\n"
+},
+
+{
     "location": "func_ref.html#AprilTags.jl-functions-1",
     "page": "Functions",
     "title": "AprilTags.jl functions",
     "category": "section",
-    "text": "AprilTags.AprilTagDetector\nAprilTags.freeDetector!"
+    "text": "AprilTags.AprilTagDetector\nAprilTags.freeDetector!\nhomography_to_pose\ndrawTagBox!"
 },
 
 {
