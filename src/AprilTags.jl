@@ -6,10 +6,12 @@ isfile(depfile) ? include(depfile) : error("AprilTags.jl not properly installed.
 
 export
 #helpers
+AprilTag,
 AprilTagDetector,
 freeDetector!,
 convert2image_u8,
 getTagDetections,
+homography_to_pose,
 
 # wrappers
 apriltag_detector_create,
@@ -19,10 +21,13 @@ tag36h11_destroy,
 apriltag_detector_add_family,
 apriltag_detector_detect,
 apriltag_detections_destroy,
-apriltag_detector_destroy
+apriltag_detector_destroy,
 
+#drawing and plotting
+drawTagBox!
 
 include("wrapper.jl")
 include("helpers.jl")
+include("tagdraw.jl")
 
 end # module

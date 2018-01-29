@@ -1,69 +1,75 @@
-using Images, ImageDraw
+using Images, ImageDraw, ImageMagick
 
 using AprilTags
 
 #-------------------------------------------------------------------------------
 ## Example AprilTags.jl detection from an image using the default setup
 
+# Simple method to show the image with the tags
+function showImage(image, tags)
+    # Convert image to RGB
+    imageCol = RGB.(image)
+    #traw color box on tag corners
+    foreach(tag->drawTagBox!(imageCol, tag), tags)
 
-cd(dirname(@__FILE__))
+    imageCol
+end
 
-image = load("../data/tagtest.jpg")
+detector = nothing
+try
+    # Create default detector
+    detector = AprilTagDetector()
 
-# create default detector and run on image
-detector = AprilTagDetector()
-tags = detector(image)
+    # 1. Run against a file
+    image = load(dirname(Base.source_path()) *"/../data/tagtest.jpg")
+    tags = detector(image)
+    showImage(image, tags)
 
-# do some plotting
-cpoints = map(tag->CartesianIndex(round.(Int,[tag.c[2],tag.c[1]])...),tags)
-length = 3
-foreach(point->draw!(image, LineSegment( point - CartesianIndex(0,length), point + CartesianIndex(0,length))), cpoints)
-foreach(point->draw!(image, LineSegment( point - CartesianIndex(length,0), point + CartesianIndex(length,0))), cpoints)
-image
+    # 2. Run against an image from memory
+    file = open(dirname(Base.source_path()) *"/../data/tagtest.jpg")
+    imgBytes = read(file)
+    close(file)
+    # Here's where we pretend it came from a stream
+    image = readblob(imgBytes) #ImageMagick function
+    tags = detector(image)
+    showImage(image, tags)
+finally
+    ## free memmory
+    freeDetector!(detector)
+end
 
-## free memmory
-freeDetector!(detector)
+##-------------------------------------------------------------------------------
+detections = nothing
+td = nothing
+tf = nothing
 
+try
+    # 3. Use low-level methods and direct access to wrapper
+    image = load(dirname(Base.source_path()) *"/../data/tagtest.jpg")
+    # Create april tag detector
+    td = apriltag_detector_create()
+    # Create tag family
+    tf = tag36h11_create()
+    # add family to detector
+    apriltag_detector_add_family(td, tf)
+    # create image8 object for april tags
+    image8 = convert2image_u8(image)
+    # run detector on image
+    detections =  apriltag_detector_detect(td, image8)
+    # copy detections
+    tags = getTagDetections(detections)
+    # Reading homography of tag 1 (deepcopy since memory is destoyed by c)
+    voidpointertoH = Base.unsafe_convert(Ptr{Void}, tags[1].H)
+    # pointer to H matrix
+    nrows = unsafe_load(Ptr{UInt32}(voidpointertoH),1)
+    ncols = unsafe_load(Ptr{UInt32}(voidpointertoH),2)
+    H = deepcopy(unsafe_wrap(Array, Ptr{Cdouble}(voidpointertoH+8), (3,3)))
 
-
-#-------------------------------------------------------------------------------
-## Example Using the wrappers directly
-
-cd(dirname(@__FILE__))
-
-image = load("../data/tagtest.jpg")
-
-#create april tag detector
-td = apriltag_detector_create()
-
-#create tag family
-tf = tag36h11_create()
-
-#add family to detector
-apriltag_detector_add_family(td, tf)
-
-#create image8 opject for april tags
-image8 = convert2image_u8(image)
-
-# run detector on image
-detections =  apriltag_detector_detect(td, image8)
-
-# copy detections
-tags = getTagDetections(detections)
-
-#extract tag centres and draw some crosses on it
-cpoints = map(tag->CartesianIndex(round.(Int,[tag.c[2],tag.c[1]])...),tags)
-length = 3
-foreach(point->draw!(image, LineSegment( point - CartesianIndex(0,length), point + CartesianIndex(0,length))), cpoints)
-foreach(point->draw!(image, LineSegment( point - CartesianIndex(length,0), point + CartesianIndex(length,0))), cpoints)
-image
-
-
-apriltag_detections_destroy(detections)
-
-#
-#clean up C
-
-# Cleanup: free the detector and tag family when done.
-apriltag_detector_destroy(td)
-tag36h11_destroy(tf)
+    # Show the image
+    showImage(image, tags)
+finally
+    # Cleanup: free the detector and tag family when done.
+    apriltag_detections_destroy(detections)
+    apriltag_detector_destroy(td)
+    tag36h11_destroy(tf)
+end

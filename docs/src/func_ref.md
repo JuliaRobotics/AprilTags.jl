@@ -10,6 +10,8 @@ Depth = 3
 ```@docs
 AprilTags.AprilTagDetector
 AprilTags.freeDetector!
+homography_to_pose
+drawTagBox!
 ```
 ### Wrappers
 ```@docs
