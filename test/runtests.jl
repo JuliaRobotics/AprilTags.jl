@@ -4,10 +4,7 @@ using Base.Test
 
 
 @testset "AprilTags" begin
-
-
-    cd(dirname(@__FILE__))
-    image = load("../data/tagtest.jpg")
+    image = load(dirname(Base.source_path()) *"/../data/tagtest.jpg")
     refpoints = [[404.5, 176.1],
                 [134.0, 216.1],
                 [412.0, 130.1]]
