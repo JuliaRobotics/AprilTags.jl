@@ -41,8 +41,19 @@ using Base.Test
     #
     detector = AprilTagDetector()
     tags2 = detector(image)
+
+    #setters -- just run for now
+    AprilTags.setnThreads(detector, 4)
+    AprilTags.setquad_decimate(detector, 1.0)
+    AprilTags.setquad_sigma(detector,0.0)
+    AprilTags.setrefine_edges(detector,1)
+    AprilTags.setrefine_decode(detector,1)
+    AprilTags.setrefine_pose(detector,1)
+
     cpoints = map(tag->[tag.c[2],tag.c[1]],tags2)
     freeDetector!(detector)
     @test cpoints ≈ refpoints atol=0.5
+
+
 
 end

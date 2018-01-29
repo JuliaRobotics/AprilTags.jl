@@ -139,6 +139,59 @@ function copyAprilTagDetections(detections::Ptr{zarray})
 end
 
 
+##Setters
+function setnThreads(detector, nthreads)
+    if detector.td == C_NULL
+        error("AprilTags Detector does not exist")
+    end
+    if 0 < nthreads < 100 # basic bound check
+        unsafe_store!(Ptr{Int32}(detector.td), Int32(nthreads), 1) #first Int
+    end
+    return nothing
+end
+
+function setquad_decimate(detector, quad_decimate)
+    if detector.td == C_NULL
+        error("AprilTags Detector does not exist")
+    end
+    unsafe_store!(Ptr{Cfloat}(detector.td), Float32(quad_decimate), 2)
+    return nothing
+end
+
+function setquad_sigma(detector, quad_sigma)
+    if detector.td == C_NULL
+        error("AprilTags Detector does not exist")
+    end
+    unsafe_store!(Ptr{Cfloat}(detector.td), Float32(quad_sigma), 3)
+    return nothing
+end
+
+function setrefine_edges(detector, refine_edges)
+    if detector.td == C_NULL
+        error("AprilTags Detector does not exist")
+    end
+    unsafe_store!(Ptr{Int32}(detector.td), Int32(refine_edges), 4)
+    return nothing
+end
+
+
+function setrefine_decode(detector, refine_decode)
+    if detector.td == C_NULL
+        error("AprilTags Detector does not exist")
+    end
+    unsafe_store!(Ptr{Int32}(detector.td), Int32(refine_decode), 5)
+    return nothing
+end
+
+function setrefine_pose(detector, refine_pose)
+    if detector.td == C_NULL
+        error("AprilTags Detector does not exist")
+    end
+    unsafe_store!(Ptr{Int32}(detector.td), Int32(refine_pose), 6)
+    return nothing
+end
+
+
 """
     homography_to_pose(H, fx, fy, cx, cy)
 Given a 3x3 homography matrix and the camera model (focal length and centre), compute the pose of the tag.

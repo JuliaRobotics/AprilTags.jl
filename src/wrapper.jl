@@ -228,22 +228,67 @@ mutable struct apriltag_quad_thresh_params
     deglitch::Cint
 end
 
+
 mutable struct apriltag_detector
+# #############################################################################
+# User-configurable parameters.
+    # How many threads should be used?
     nthreads::Cint
+    # // detection of quads can be done on a lower-resolution image,
+    # // improving speed at a cost of pose accuracy and a slight
+    # // decrease in detection rate. Decoding the binary payload is
+    # // still done at full resolution. .
     quad_decimate::Cfloat
+    #  What Gaussian blur should be applied to the segmented image
+    #  (used for quad detection?)  Parameter is the standard deviation
+    #  in pixels.  Very noisy images benefit from non-zero values
+    #  (e.g. 0.8).
     quad_sigma::Cfloat
+    #  When non-zero, the edges of the each quad are adjusted to "snap
+    #  to" strong gradients nearby. This is useful when decimation is
+    #  employed, as it can increase the quality of the initial quad
+    #  estimate substantially. Generally recommended to be on (1).
+    #  Very computationally inexpensive. Option is ignored if quad_decimate = 1.
     refine_edges::Cint
+    #  when non-zero, detections are refined in a way intended to
+    #  increase the number of detected tags. Especially effective for
+    #  very small tags near the resolution threshold (e.g. 10px on a
+    #  side).
     refine_decode::Cint
+    #  when non-zero, detections are refined in a way intended to
+    #  increase the accuracy of the extracted pose. This is done by
+    #  maximizing the contrast around the black and white border of
+    #  the tag. This generally increases the number of successfully
+    #  detected tags, though not as effectively (or quickly) as
+    #  refine_decode.
+    #
+    #  This option must be enabled in order for "goodness" to be
+    #  computed.
     refine_pose::Cint
+    #  When non-zero, write a variety of debugging images to the
+    #  current working directory at various stages through the
+    #  detection process. (Somewhat slow).
+    # int debug;
     debug::Cint
-    qtp::apriltag_quad_thresh_params
+
+    # qtp::apriltag_quad_thresh_params
+        min_cluster_pixels::Cint
+        max_nmaxima::Cint
+        critical_rad::Cfloat
+        max_line_fit_mse::Cfloat
+        min_white_black_diff::Cint
+        deglitch::Cint
+
+
     tp::Ptr{timeprofile_t}
     nedges::UInt32
     nsegments::UInt32
     nquads::UInt32
     tag_families::Ptr{zarray_t}
     wp::Ptr{workerpool_t}
-    mutex::pthread_mutex_t
+    
+    # mutex::pthread_mutex_t
+        mutex::NTuple{40, UInt8}
 
     apriltag_detector() = new()
 end
