@@ -2,17 +2,29 @@ using Images, ImageDraw, ImageMagick
 
 using AprilTags
 
+# A few constants
+IMGBOXSIZE = 10
+IMGBOXCOL = RGB{N0f8}(1.0, 0.4, 0.4)
+
 #-------------------------------------------------------------------------------
 ## Example AprilTags.jl detection from an image using the default setup
 
 # Simple method to show the image with the tags
 function showImage(image, tags)
-    # Show the captured points
+    # Convert image to
+    imageCol = RGB.(image)
+    # Show the captured tags
     cpoints = map(tag->CartesianIndex(round.(Int,[tag.c[2],tag.c[1]])...),tags)
-    length = 3
-    foreach(point->draw!(image, LineSegment( point - CartesianIndex(0,length), point + CartesianIndex(0,length))), cpoints)
-    foreach(point->draw!(image, LineSegment( point - CartesianIndex(length,0), point + CartesianIndex(length,0))), cpoints)
-    image
+    # Make a box around the tag
+    drawBox = (imageCol, point, boxSize) -> begin
+        draw!(imageCol, LineSegment( point - CartesianIndex(boxSize,boxSize), point + CartesianIndex(-boxSize,boxSize)), IMGBOXCOL)
+        draw!(imageCol, LineSegment( point - CartesianIndex(-boxSize,boxSize), point + CartesianIndex(boxSize,boxSize)), IMGBOXCOL)
+        draw!(imageCol, LineSegment( point - CartesianIndex(boxSize,boxSize), point + CartesianIndex(boxSize,-boxSize)), IMGBOXCOL)
+        draw!(imageCol, LineSegment( point - CartesianIndex(boxSize,-boxSize), point + CartesianIndex(boxSize,boxSize)), IMGBOXCOL)
+    end
+    foreach(point->drawBox(imageCol, point, IMGBOXSIZE), cpoints)
+    foreach(point->drawBox(imageCol, point, IMGBOXSIZE-1), cpoints)
+    imageCol
 end
 
 try
