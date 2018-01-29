@@ -55,5 +55,8 @@ using Base.Test
     @test cpoints ≈ refpoints atol=0.5
 
 
+    pose = homography_to_pose(tags2[1].H, -520., 520., 320., 240.)
+    # TODO create ref pose
+    # @test pose ≈ refpose atol=0.1
 
 end
