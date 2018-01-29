@@ -6,8 +6,8 @@ struct AprilTag
     goodness::Float32
     decision_margin::Float32
     H::Matrix{Float64}
-    c::NTuple{2, Cdouble}
-    p::NTuple{4, NTuple{2, Cdouble}}
+    c::Vector{Float64}
+    p::Vector{Vector{Float64}}
 end
 
 mutable struct AprilTagDetector
@@ -125,7 +125,11 @@ function copyAprilTagDetections(detections::Ptr{zarray})
             ncols = unsafe_load(Ptr{UInt32}(voidpointertoH),2)
             H = deepcopy(unsafe_wrap(Array, Ptr{Cdouble}(voidpointertoH+8), (3,3))')
 
-            apriltags[i] = AprilTags.AprilTag(family, dettag.id, dettag.hamming, dettag.goodness, dettag.decision_margin, H, dettag.c, dettag.p)
+            #convert tuples to arrays
+            tagc = collect(dettag.c)
+            tagp = [collect(i) for i in dettag.p]
+
+            apriltags[i] = AprilTags.AprilTag(family, dettag.id, dettag.hamming, dettag.goodness, dettag.decision_margin, H, tagc, tagp)
 
         end
         return apriltags
