@@ -21,7 +21,7 @@ tag36h11_destroy,
 apriltag_detector_add_family,
 apriltag_detector_detect,
 apriltag_detections_destroy,
-apriltag_detector_destroy
+apriltag_detector_destroy,
 
 #drawing and plotting
 drawTagBox!
