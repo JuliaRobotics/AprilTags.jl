@@ -4,7 +4,7 @@
 [![codecov.io](http://codecov.io/github/Affie/AprilTags.jl/coverage.svg?branch=master)](http://codecov.io/github/Affie/AprilTags.jl?branch=master)
 [![docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://Affie.github.io/AprilTags.jl/latest/)
 
-This package is a ccall wrapper for the [AprilTags](https://april.eecs.umich.edu/software/apriltag.html) library.
+This package is a ccall wrapper for the [AprilTags](https://april.eecs.umich.edu/software/apriltag.html) library tailored for Julia.
 
 # Installation
 
@@ -14,4 +14,4 @@ Pkg.clone("https://github.com/Affie/AprilTags.jl.git")
 Pkg.build("AprilTags")
 ```
 
-See examples and test folder for usage.
+See documentation, examples, and test folder for usage.
