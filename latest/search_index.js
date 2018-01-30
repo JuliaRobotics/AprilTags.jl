@@ -13,7 +13,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "AprilTags",
     "category": "section",
-    "text": "(Image: Build Status)(Image: codecov.io)This package is a ccall wrapper for the AprilTags library."
+    "text": "(Image: Build Status)(Image: codecov.io)This package is a ccall wrapper for the AprilTags library tailored for Julia."
 },
 
 {
@@ -21,7 +21,39 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Installation",
     "category": "section",
-    "text": "This package is not yet registered with JuliaLang/METADATA.jl, but can be easily installed in Julia 0.6 with:Pkg.clone(\"https://github.com/Affie/AprilTags.jl.git\")\nPkg.build(\"AprilTags\")See examples and test folder for usage."
+    "text": "This package is not yet registered with JuliaLang/METADATA.jl, but can be easily installed in Julia 0.6 with:Pkg.clone(\"https://github.com/Affie/AprilTags.jl.git\")\nPkg.build(\"AprilTags\")"
+},
+
+{
+    "location": "index.html#Usage-1",
+    "page": "Home",
+    "title": "Usage",
+    "category": "section",
+    "text": ""
+},
+
+{
+    "location": "index.html#Examples-1",
+    "page": "Home",
+    "title": "Examples",
+    "category": "section",
+    "text": "See examples and test folder for basic AprilTag usage examples."
+},
+
+{
+    "location": "index.html#Initialization-1",
+    "page": "Home",
+    "title": "Initialization",
+    "category": "section",
+    "text": "Initialize a detector with the default (tag36h11) tag family.# Create default detector\ndetector = AprilTagDetector()Some tag detector parameters can be set at this time. The default parameters are the recommended starting point.AprilTags.setnThreads(detector, 4)\nAprilTags.setquad_decimate(detector, 1.0)\nAprilTags.setquad_sigma(detector,0.0)\nAprilTags.setrefine_edges(detector,1)\nAprilTags.setrefine_decode(detector,0)\nAprilTags.setrefine_pose(detector,0)Increase the image decimation if faster processing is required; the trade-off is a slight decrease in detection range. A factor of 1.0 means the full-size input image is used.Some Gaussian blur (quad_sigma) may help with noisy input images."
+},
+
+{
+    "location": "index.html#Detection-1",
+    "page": "Home",
+    "title": "Detection",
+    "category": "section",
+    "text": "Process an input image and return a vector of detections. The input image can be loaded with the Images package.image = load(\"example_image.jpg\")\ntags = detector(image)\n#do something with tags hereThe caller is responsible for freeing the memmory by callingfreeDetector!(detector)"
 },
 
 {
