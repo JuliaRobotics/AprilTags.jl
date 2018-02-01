@@ -71,8 +71,17 @@ Free the allocated memmory
 """
 function freeDetector!(detector::AprilTagDetector)
 
-    apriltag_detector_destroy(detector.td)
-    tag36h11_destroy(detector.tf) #gebruik die ene sommer vir almal vir nou, dit lyk inelkgeval dieselfde in c kode
+    if detector.td == C_NULL
+        error("AprilTags Detector does not exist")
+    else
+        apriltag_detector_destroy(detector.td)
+    end
+
+    if detector.tf == C_NULL
+        error("AprilTags family does not exist")
+    else
+        tag36h11_destroy(detector.tf) #gebruik die ene sommer vir almal vir nou, dit lyk inelkgeval dieselfde in c kode
+    end
 
     #TODO: how do I destroy the detector itself, for now just nulls
     # eg. somethin like detector = nothing but modify input
@@ -246,7 +255,7 @@ function homography_to_pose(H::Matrix{Float64}, fx::Float64, fy::Float64, cx::Fl
              R31 R32 R33]
 
         U, S, V = svd(R)
-        R = U * V
+        R = U * V'
     end
 
     return  [R    [TX;
