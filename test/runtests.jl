@@ -56,7 +56,12 @@ using Base.Test
 
 
     pose = homography_to_pose(tags2[1].H, -520., 520., 320., 240.)
-    # TODO create ref pose
-    # @test pose ≈ refpose atol=0.1
+    # TODO create better ref pose
+    refpose = [0.65  0.12 -0.75  -5.43;
+               0.39 -0.90  0.19  -6.20;
+              -0.65 -0.41 -0.63 -19.62;
+               0.0   0.0   0.0    1.0]
+    @test pose[1:3,1:3] ≈ refpose[1:3,1:3] atol = 0.05
+    @test pose[1:3,4] ≈ refpose[1:3,4] atol = 0.1
 
 end
