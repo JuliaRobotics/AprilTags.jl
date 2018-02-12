@@ -21,7 +21,7 @@ end
 	AprilTagDetector()
 Create a default AprilTag detector with tha 36h11 tag family
 """
-function AprilTagDetector()
+function AprilTagDetector()::AprilTagDetector
     #create tag detector
     td = apriltag_detector_create()
     #create tag family 36h11 by default
@@ -38,7 +38,7 @@ end
 	AprilTagDetector(img)
 Run the april tag detector on a image
 """
-function (detector::AprilTagDetector)(image)
+function (detector::AprilTagDetector)(image)::Vector{AprilTag}
 
     if detector.td == C_NULL
         error("AprilTags Detector does not exist")
@@ -69,7 +69,7 @@ end
 	freeDetector!(apriltagdetector)
 Free the allocated memmory
 """
-function freeDetector!(detector::AprilTagDetector)
+function freeDetector!(detector::AprilTagDetector)::Void
 
     if detector.td == C_NULL
         error("AprilTags Detector does not exist")
@@ -92,7 +92,7 @@ end
 
 
 # TODO overload convert
-function convert2image_u8(image)
+function convert2image_u8(image)::image_u8_t
 #create image8 opject for april tags
     (rows,cols) = size(image)
     imbuf = reinterpret(UInt8, image'[:])
@@ -100,7 +100,7 @@ function convert2image_u8(image)
 end
 
 
-function getTagDetections(detections::Ptr{zarray})
+function getTagDetections(detections::Ptr{zarray})::Vector{AprilTags.apriltag_detection}
     detzarray = unsafe_load(detections)
     if detzarray.size > 0
         dettags = Vector{AprilTags.apriltag_detection_t}(detzarray.size)
@@ -111,12 +111,12 @@ function getTagDetections(detections::Ptr{zarray})
         end
         return dettags
     else
-        return nothing
+        return Vector{AprilTags.apriltag_detection}()
     end
 end
 
 
-function copyAprilTagDetections(detections::Ptr{zarray})
+function copyAprilTagDetections(detections::Ptr{zarray})::Vector{AprilTag}
     detzarray = unsafe_load(detections)
     if detzarray.size > 0
         apriltags = Vector{AprilTag}(detzarray.size)
@@ -143,13 +143,13 @@ function copyAprilTagDetections(detections::Ptr{zarray})
         end
         return apriltags
     else
-        return nothing
+        return Vector{AprilTag}()
     end
 end
 
 
 ##Setters
-function setnThreads(detector, nthreads)
+function setnThreads(detector, nthreads)::Void
     if detector.td == C_NULL
         error("AprilTags Detector does not exist")
     end
@@ -159,7 +159,7 @@ function setnThreads(detector, nthreads)
     return nothing
 end
 
-function setquad_decimate(detector, quad_decimate)
+function setquad_decimate(detector, quad_decimate)::Void
     if detector.td == C_NULL
         error("AprilTags Detector does not exist")
     end
@@ -167,7 +167,7 @@ function setquad_decimate(detector, quad_decimate)
     return nothing
 end
 
-function setquad_sigma(detector, quad_sigma)
+function setquad_sigma(detector, quad_sigma)::Void
     if detector.td == C_NULL
         error("AprilTags Detector does not exist")
     end
@@ -175,7 +175,7 @@ function setquad_sigma(detector, quad_sigma)
     return nothing
 end
 
-function setrefine_edges(detector, refine_edges)
+function setrefine_edges(detector, refine_edges)::Void
     if detector.td == C_NULL
         error("AprilTags Detector does not exist")
     end
@@ -184,7 +184,7 @@ function setrefine_edges(detector, refine_edges)
 end
 
 
-function setrefine_decode(detector, refine_decode)
+function setrefine_decode(detector, refine_decode)::Void
     if detector.td == C_NULL
         error("AprilTags Detector does not exist")
     end
@@ -192,7 +192,7 @@ function setrefine_decode(detector, refine_decode)
     return nothing
 end
 
-function setrefine_pose(detector, refine_pose)
+function setrefine_pose(detector, refine_pose)::Void
     if detector.td == C_NULL
         error("AprilTags Detector does not exist")
     end
@@ -206,7 +206,7 @@ end
 Given a 3x3 homography matrix and the camera model (focal length and centre), compute the pose of the tag.
 The focal lengths should be given in pixels
 """
-function homography_to_pose(H::Matrix{Float64}, fx::Float64, fy::Float64, cx::Float64, cy::Float64)
+function homography_to_pose(H::Matrix{Float64}, fx::Float64, fy::Float64, cx::Float64, cy::Float64)::Matrix{Float64}
     # Note that every variable that we compute is proportional to the scale factor of H.
     R31 = H[3, 1]
     R32 = H[3, 2]
