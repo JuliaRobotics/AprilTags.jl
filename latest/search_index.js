@@ -85,7 +85,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Functions",
     "title": "AprilTags.AprilTagDetector",
     "category": "Type",
-    "text": "AprilTagDetector()\n\nCreate a default AprilTag detector with tha 36h11 tag family\n\n\n\n"
+    "text": "AprilTagDetector()\n\nCreate a default AprilTag detector with the 36h11 tag family\n\n\n\nAprilTagDetector(tagfamily)\n\nCreate an AprilTag detector with tag family in tagfamily::TagFamilies @enum TagFamilies tag36h11 tag36h10 tag25h9 tag16h5\n\n\n\n"
 },
 
 {
