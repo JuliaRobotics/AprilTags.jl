@@ -1,6 +1,8 @@
 
+@enum TagFamilies tag36h11 tag36h10 tag25h9 tag16h5
+
 struct AprilTag
-    family::Symbol
+    family::String
     id::Int
     hamming::Int
     goodness::Float32
@@ -19,7 +21,7 @@ end
 
 """
 	AprilTagDetector()
-Create a default AprilTag detector with tha 36h11 tag family
+Create a default AprilTag detector with the 36h11 tag family
 """
 function AprilTagDetector()::AprilTagDetector
     #create tag detector
@@ -33,6 +35,37 @@ function AprilTagDetector()::AprilTagDetector
     return AprilTagDetector(td,tf)
 
 end
+
+
+"""
+	AprilTagDetector(tagfamily)
+Create an AprilTag detector with tag family in `tagfamily::TagFamilies
+@enum TagFamilies tag36h11 tag36h10 tag25h9 tag16h5`
+"""
+function AprilTagDetector(tagfamily::TagFamilies)
+    #create tag detector
+    td = apriltag_detector_create()
+    #create tag family
+    if tagfamily == tag36h11
+        tf = tag36h11_create()
+    elseif tagfamily == tag36h10
+        tf = tag36h10_create()
+    elseif tagfamily == tag25h9
+        tf = tag25h9_create()
+    elseif tagfamily == tag16h5
+        tf = tag16h5_create()
+    else
+        warn("Tag family $tagfamily does not exist, creating default tag36h11")
+        tf = tag36h11_create()
+    end
+
+    #add family to detector
+    apriltag_detector_add_family(td, tf)
+
+    return AprilTagDetector(td,tf)
+
+end
+
 
 """
 	AprilTagDetector(img)
@@ -124,8 +157,8 @@ function copyAprilTagDetections(detections::Ptr{zarray})::Vector{AprilTag}
             pointer_to_apriltag_detection_t = unsafe_load(convert(Ptr{Ptr{AprilTags.apriltag_detection_t}}, detzarray.data),i)
             dettag = unsafe_load(pointer_to_apriltag_detection_t)
 
-            #TODO: implement tag family stuff, hardcode a family for now as a symbol
-            family = :tag36h11
+            #TODO: implement more tag family stuff, just return family name as a string for now
+            family = unsafe_string(unsafe_load(dettag.family).name)
 
             #Reading homography of tag 1 (transpose for c row major and deepcopy since memory is destoyed by c)
             voidpointertoH = Base.unsafe_convert(Ptr{Void}, dettag.H)

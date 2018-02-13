@@ -64,4 +64,17 @@ using Base.Test
     @test pose[1:3,1:3] ≈ refpose[1:3,1:3] atol = 0.05
     @test pose[1:3,4] ≈ refpose[1:3,4] atol = 0.1
 
+    # test constructors for other families
+    detector2 = AprilTagDetector(AprilTags.tag25h9)
+    freeDetector!(detector2)
+
+    detector2 = AprilTagDetector(AprilTags.tag16h5)
+    freeDetector!(detector2)
+
+    detector2 = AprilTagDetector(AprilTags.tag36h11)
+    freeDetector!(detector2)
+
+    detector2 = AprilTagDetector(AprilTags.tag36h10)
+    freeDetector!(detector2)
+
 end
