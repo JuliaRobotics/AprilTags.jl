@@ -84,7 +84,7 @@ var documenterSearchIndex = {"docs": [
     "location": "func_ref.html#AprilTags.AprilTagDetector",
     "page": "Functions",
     "title": "AprilTags.AprilTagDetector",
-    "category": "Type",
+    "category": "type",
     "text": "AprilTagDetector()\n\nCreate a default AprilTag detector with the 36h11 tag family\n\n\n\nAprilTagDetector(tagfamily)\n\nCreate an AprilTag detector with tag family in tagfamily::TagFamilies @enum TagFamilies tag36h11 tag36h10 tag25h9 tag16h5\n\n\n\n"
 },
 
@@ -92,7 +92,7 @@ var documenterSearchIndex = {"docs": [
     "location": "func_ref.html#AprilTags.freeDetector!",
     "page": "Functions",
     "title": "AprilTags.freeDetector!",
-    "category": "Function",
+    "category": "function",
     "text": "freeDetector!(apriltagdetector)\n\nFree the allocated memmory\n\n\n\n"
 },
 
@@ -100,7 +100,7 @@ var documenterSearchIndex = {"docs": [
     "location": "func_ref.html#AprilTags.homography_to_pose",
     "page": "Functions",
     "title": "AprilTags.homography_to_pose",
-    "category": "Function",
+    "category": "function",
     "text": "homography_to_pose(H, fx, fy, cx, cy)\n\nGiven a 3x3 homography matrix and the camera model (focal length and centre), compute the pose of the tag. The focal lengths should be given in pixels\n\n\n\n"
 },
 
@@ -108,7 +108,7 @@ var documenterSearchIndex = {"docs": [
     "location": "func_ref.html#AprilTags.drawTagBox!",
     "page": "Functions",
     "title": "AprilTags.drawTagBox!",
-    "category": "Function",
+    "category": "function",
     "text": "drawTagBox!(image, tag)\n\nDraw a box around the tag. imageCol = RGB.(image) foreach(tag->drawTagBox!(imageCol, tag), tags)\n\n\n\n"
 },
 
@@ -124,7 +124,7 @@ var documenterSearchIndex = {"docs": [
     "location": "func_ref.html#AprilTags.apriltag_detector_create",
     "page": "Functions",
     "title": "AprilTags.apriltag_detector_create",
-    "category": "Function",
+    "category": "function",
     "text": "apriltag_detector_create()\n\nCreate a AprilTag Detector object with all fields set to default value.\n\n\n\n"
 },
 
@@ -132,7 +132,7 @@ var documenterSearchIndex = {"docs": [
     "location": "func_ref.html#AprilTags.tag36h11_create",
     "page": "Functions",
     "title": "AprilTags.tag36h11_create",
-    "category": "Function",
+    "category": "function",
     "text": "tag36h11_create()\n\nCreate a AprilTag family object for tag36h11 with all fields set to default value.\n\n\n\n"
 },
 
@@ -140,7 +140,7 @@ var documenterSearchIndex = {"docs": [
     "location": "func_ref.html#AprilTags.tag36h11_destroy",
     "page": "Functions",
     "title": "AprilTags.tag36h11_destroy",
-    "category": "Function",
+    "category": "function",
     "text": "tag36h11_destroy(tf)\n\nDestroy the AprilTag family object.\n\n\n\n"
 },
 
@@ -148,7 +148,7 @@ var documenterSearchIndex = {"docs": [
     "location": "func_ref.html#AprilTags.apriltag_detector_add_family",
     "page": "Functions",
     "title": "AprilTags.apriltag_detector_add_family",
-    "category": "Function",
+    "category": "function",
     "text": "apriltag_detector_add_family(tag_detector, tag_family)\n\nAdd a tag family to an AprilTag Detector object. The caller still \"owns\" the family and a single instance should only be provided to one apriltag detector instance.\n\n\n\n"
 },
 
@@ -156,7 +156,7 @@ var documenterSearchIndex = {"docs": [
     "location": "func_ref.html#AprilTags.apriltag_detector_detect",
     "page": "Functions",
     "title": "AprilTags.apriltag_detector_detect",
-    "category": "Function",
+    "category": "function",
     "text": "apriltag_detector_detect(tag_detector, image)\n\nDetect tags from an image and return an array of apriltag_detection_t*. You can use apriltag_detections_destroy to free the array and the detections it contains, or call detection_destroy and zarray_destroy yourself.\n\n\n\n"
 },
 
