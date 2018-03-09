@@ -13,7 +13,7 @@ makedocs(
 
 
 deploydocs(
-    repo   = "github.com/Affie/AprilTags.jl.git",
+    repo   = "github.com/JuliaRobotics/AprilTags.jl.git",
     target = "build",
     deps   = nothing,
     make   = nothing,
@@ -21,11 +21,3 @@ deploydocs(
     osname = "linux"
 )
 
-
-
-
-# deploydocs(
-#     deps   = Deps.pip("mkdocs", "python-markdown-math", "mkdocs-material"),
-#     repo   = "github.com/Affie/Video4Linux.jl.git",
-#     julia  = "release",
-# )
