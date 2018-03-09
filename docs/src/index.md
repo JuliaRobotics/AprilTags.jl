@@ -1,8 +1,8 @@
 # AprilTags
 
-[![Build Status](https://travis-ci.org/Affie/AprilTags.jl.svg?branch=master)](https://travis-ci.org/Affie/AprilTags.jl)
+[![Build Status](https://travis-ci.org/JuliaRobotics/AprilTags.jl.svg?branch=master)](https://travis-ci.org/JuliaRobotics/AprilTags.jl)
 
-[![codecov.io](http://codecov.io/github/Affie/AprilTags.jl/coverage.svg?branch=master)](http://codecov.io/github/Affie/AprilTags.jl?branch=master)
+[![codecov.io](http://codecov.io/github/JuliaRobotics/AprilTags.jl/coverage.svg?branch=master)](http://codecov.io/github/JuliaRobotics/AprilTags.jl?branch=master)
 
 This package is a ccall wrapper for the [AprilTags](https://april.eecs.umich.edu/software/apriltag.html) library tailored for Julia.
 
