@@ -12,7 +12,7 @@ function showImage(image, tags)
     imageCol
 end
 
-# This colour mapping may be wrong for the PS3eye.
+# Use this colour mapping for the PS3eye.
 ycrcb = Video4Linux.YUYV(640,480)
 vidchan = Channel((c::Channel) -> videoproducer(c, ycrcb, devicename = "/dev/video1",
                                          iomethod = Video4Linux.IO_METHOD_MMAP, N=100*1000 ))
