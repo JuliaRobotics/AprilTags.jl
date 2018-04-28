@@ -34,11 +34,19 @@ function AprilTagDetector()
 
 end
 
+function (detector::AprilTagDetector)(image::Array{ColorTypes.RGB{T}, 2}) where T
+    # Converting to greyscale
+    image = Gray.(image)
+    # Call internal
+    return detector(image)
+end
+
+
 """
 	AprilTagDetector(img)
 Run the april tag detector on a image
 """
-function (detector::AprilTagDetector)(image)
+function (detector::AprilTagDetector)(image::Array{ColorTypes.Gray{T}, 2}) where T
 
     if detector.td == C_NULL
         error("AprilTags Detector does not exist")

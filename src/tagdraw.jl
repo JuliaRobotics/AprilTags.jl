@@ -1,5 +1,3 @@
-using Images, ImageDraw
-
 """
     drawTagBox!(image, tag)
 

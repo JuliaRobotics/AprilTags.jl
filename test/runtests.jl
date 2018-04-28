@@ -1,10 +1,11 @@
 using AprilTags
 using Images
 using Base.Test
+using FactCheck
 
-
-@testset "AprilTags" begin
+facts("AprilTags") do
     image = load(dirname(Base.source_path()) *"/../data/tagtest.jpg")
+    imageCol = load(dirname(Base.source_path()) *"/../data/colortag.jpg")
     refpoints = [[404.5, 176.1],
                 [134.0, 216.1],
                 [412.0, 130.1]]
@@ -19,49 +20,58 @@ using Base.Test
     #add family to detector
     apriltag_detector_add_family(td, tf)
 
-    #create image8 opject for april tags
-    image8 = convert2image_u8(image)
+    context("Low-level API") do
+        #create image8 opject for april tags
+        image8 = convert2image_u8(image)
 
-    # run detector on image
-    detections =  apriltag_detector_detect(td, image8)
+        # run detector on image
+        detections =  apriltag_detector_detect(td, image8)
 
-    # copy detections
-    tags = getTagDetections(detections)
+        # copy detections
+        tags = getTagDetections(detections)
 
-    #extract tag centres
-    cpoints = map(tag->[tag.c[2],tag.c[1]],tags)
+        #extract tag centres
+        cpoints = map(tag->[tag.c[2],tag.c[1]],tags)
 
-    @test cpoints ≈ refpoints atol=0.5
+        @test cpoints ≈ refpoints atol=0.5
+        apriltag_detections_destroy(detections)
+        # Cleanup: free the detector and tag family when done.
+        apriltag_detector_destroy(td)
+        tag36h11_destroy(tf)
+    end
 
-    apriltag_detections_destroy(detections)
-    # Cleanup: free the detector and tag family when done.
-    apriltag_detector_destroy(td)
-    tag36h11_destroy(tf)
+    context("High-level API") do
+        detector = AprilTagDetector()
+        tags2 = detector(image)
 
-    #
-    detector = AprilTagDetector()
-    tags2 = detector(image)
+        #setters -- just run for now
+        AprilTags.setnThreads(detector, 4)
+        AprilTags.setquad_decimate(detector, 1.0)
+        AprilTags.setquad_sigma(detector,0.0)
+        AprilTags.setrefine_edges(detector,1)
+        AprilTags.setrefine_decode(detector,1)
+        AprilTags.setrefine_pose(detector,1)
 
-    #setters -- just run for now
-    AprilTags.setnThreads(detector, 4)
-    AprilTags.setquad_decimate(detector, 1.0)
-    AprilTags.setquad_sigma(detector,0.0)
-    AprilTags.setrefine_edges(detector,1)
-    AprilTags.setrefine_decode(detector,1)
-    AprilTags.setrefine_pose(detector,1)
-
-    cpoints = map(tag->[tag.c[2],tag.c[1]],tags2)
-    freeDetector!(detector)
-    @test cpoints ≈ refpoints atol=0.5
+        cpoints = map(tag->[tag.c[2],tag.c[1]],tags2)
+        freeDetector!(detector)
+        @test cpoints ≈ refpoints atol=0.5
 
 
-    pose = homography_to_pose(tags2[1].H, -520., 520., 320., 240.)
-    # TODO create better ref pose
-    refpose = [0.65  0.12 -0.75  -5.43;
-               0.39 -0.90  0.19  -6.20;
-              -0.65 -0.41 -0.63 -19.62;
-               0.0   0.0   0.0    1.0]
-    @test pose[1:3,1:3] ≈ refpose[1:3,1:3] atol = 0.05
-    @test pose[1:3,4] ≈ refpose[1:3,4] atol = 0.1
+        pose = homography_to_pose(tags2[1].H, -520., 520., 320., 240.)
+        # TODO create better ref pose
+        refpose = [0.65  0.12 -0.75  -5.43;
+                   0.39 -0.90  0.19  -6.20;
+                  -0.65 -0.41 -0.63 -19.62;
+                   0.0   0.0   0.0    1.0]
+        @test pose[1:3,1:3] ≈ refpose[1:3,1:3] atol = 0.05
+        @test pose[1:3,4] ≈ refpose[1:3,4] atol = 0.1
+    end
 
+    context("Color Image Conversion") do
+        detector = AprilTagDetector()
+        @show tags = detector(imageCol)
+        @fact length(tags) --> 1
+        freeDetector!(detector)
+        # @test cpoints ≈ refpoints atol=0.5
+    end
 end
