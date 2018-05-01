@@ -65,12 +65,12 @@ function AprilTagDetector(tagfamily::TagFamilies)
     return AprilTagDetector(td,tf)
 end
 
-
+const U8Types = Union{UInt8, N0f8, Gray{N0f8}}
 """
 	AprilTagDetector(img)
 Run the april tag detector on a image
 """
-function (detector::AprilTagDetector)(image::Array{ColorTypes.Gray{T}, 2}) where T
+function (detector::AprilTagDetector)(image::Array{T, 2}) where T <: U8Types
 
     if detector.td == C_NULL
         error("AprilTags Detector does not exist")
