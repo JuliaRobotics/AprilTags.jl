@@ -1,10 +1,11 @@
 using AprilTags
 using Images
 using Base.Test
+using FactCheck
 
-
-@testset "AprilTags" begin
+facts("AprilTags") do
     image = load(dirname(Base.source_path()) *"/../data/tagtest.jpg")
+    imageCol = load(dirname(Base.source_path()) *"/../data/colortag.jpg")
     refpoints = [[404.5, 176.1],
                 [134.0, 216.1],
                 [412.0, 130.1]]
