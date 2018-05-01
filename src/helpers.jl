@@ -63,12 +63,6 @@ function AprilTagDetector(tagfamily::TagFamilies)
     apriltag_detector_add_family(td, tf)
 
     return AprilTagDetector(td,tf)
-
-function (detector::AprilTagDetector)(image::Array{ColorTypes.RGB{T}, 2}) where T
-    # Converting to greyscale
-    image = Gray.(image)
-    # Call internal
-    return detector(image)
 end
 
 
@@ -85,7 +79,7 @@ function (detector::AprilTagDetector)(image::Array{ColorTypes.Gray{T}, 2}) where
     if detector.tf == C_NULL
         error("AprilTags family does not exist")
     end
-    #create image8 opject for april tags
+    #create image8 object for april tags
     image8 = convert2image_u8(image)
 
     # run detector on image
@@ -101,6 +95,13 @@ function (detector::AprilTagDetector)(image::Array{ColorTypes.Gray{T}, 2}) where
 
     return tags
 
+end
+
+function (detector::AprilTagDetector)(image::Array{ColorTypes.RGB{T}, 2}) where T
+    # Converting to greyscale
+    image = Gray.(image)
+    # Call internal
+    return detector(image)
 end
 
 """

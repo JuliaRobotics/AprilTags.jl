@@ -1,4 +1,7 @@
 using Images, ImageDraw, ImageMagick
+#Additional required packages to run this example.
+#Pkg.add("Images")
+#Pkg.add("ImageMagick")
 
 using AprilTags
 
