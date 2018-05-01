@@ -4,13 +4,13 @@ depfile = joinpath(dirname(@__FILE__),"../deps/loadpath.jl")
 isfile(depfile) ? include(depfile) : error("AprilTags.jl not properly installed. Please run: Pkg.build(\"AprilTags\")")
 
 using Colors, ImageDraw, FixedPointNumbers
+import Base.convert
 
 export
 #helpers
 AprilTag,
 AprilTagDetector,
 freeDetector!,
-convert2image_u8,
 getTagDetections,
 homography_to_pose,
 

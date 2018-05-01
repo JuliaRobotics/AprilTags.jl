@@ -22,8 +22,15 @@ using Base.Test
         #add family to detector
         apriltag_detector_add_family(td, tf)
 
-        #create image8 opject for april tags
-        image8 = convert2image_u8(image)
+        #create image8 object for april tags
+        image8 = convert(AprilTags.image_u8_t, image)
+
+        # test convertions
+        image8_from_u8 = convert(AprilTags.image_u8_t, reinterpret(UInt8, image))
+        @test image8_from_u8.width == image8.width
+        @test image8_from_u8.height == image8.height
+        @test image8_from_u8.stride == image8.stride
+        #TODO: maybe add test for content of pointer
 
         # run detector on image
         detections =  apriltag_detector_detect(td, image8)

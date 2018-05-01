@@ -80,7 +80,7 @@ function (detector::AprilTagDetector)(image::Array{ColorTypes.Gray{T}, 2}) where
         error("AprilTags family does not exist")
     end
     #create image8 object for april tags
-    image8 = convert2image_u8(image)
+    image8 = convert(AprilTags.image_u8_t, image)
 
     # run detector on image
     detections =  apriltag_detector_detect(detector.td, image8)
@@ -130,14 +130,27 @@ function freeDetector!(detector::AprilTagDetector)::Void
 end
 
 
-# TODO overload convert
-function convert2image_u8(image)::image_u8_t
+# # TODO overload convert
+# function convert2image_u8(image)::image_u8_t
+# #create image8 opject for april tags
+#     (rows,cols) = size(image)
+#     imbuf = reinterpret(UInt8, image'[:])
+#     return AprilTags.image_u8_t(Int32(cols), Int32(rows), Int32(cols), Base.unsafe_convert(Ptr{UInt8}, imbuf))
+# end
+
+function convert(::Type{image_u8_t}, image::Array{ColorTypes.Gray{T}, 2}) where T
 #create image8 opject for april tags
     (rows,cols) = size(image)
     imbuf = reinterpret(UInt8, image'[:])
     return AprilTags.image_u8_t(Int32(cols), Int32(rows), Int32(cols), Base.unsafe_convert(Ptr{UInt8}, imbuf))
 end
 
+function convert(::Type{image_u8_t}, image::Array{UInt8, 2})
+#create image8 opject for april tags
+    (rows,cols) = size(image)
+    imbuf = image'[:]
+    return AprilTags.image_u8_t(Int32(cols), Int32(rows), Int32(cols), Base.unsafe_convert(Ptr{UInt8}, imbuf))
+end
 
 function getTagDetections(detections::Ptr{zarray})::Vector{AprilTags.apriltag_detection}
     detzarray = unsafe_load(detections)
