@@ -137,20 +137,20 @@ end
 #     imbuf = reinterpret(UInt8, image'[:])
 #     return AprilTags.image_u8_t(Int32(cols), Int32(rows), Int32(cols), Base.unsafe_convert(Ptr{UInt8}, imbuf))
 # end
-
-function convert(::Type{image_u8_t}, image::Array{ColorTypes.Gray{T}, 2}) where T
-#create image8 opject for april tags
-    (rows,cols) = size(image)
-    imbuf = reinterpret(UInt8, image'[:])
-    return AprilTags.image_u8_t(Int32(cols), Int32(rows), Int32(cols), Base.unsafe_convert(Ptr{UInt8}, imbuf))
-end
-
 function convert(::Type{image_u8_t}, image::Array{UInt8, 2})
 #create image8 opject for april tags
     (rows,cols) = size(image)
     imbuf = image'[:]
     return AprilTags.image_u8_t(Int32(cols), Int32(rows), Int32(cols), Base.unsafe_convert(Ptr{UInt8}, imbuf))
 end
+
+function convert(::Type{image_u8_t}, image::Array{T, 2}) where T <: U8Types
+#create image8 opject for april tags
+    (rows,cols) = size(image)
+    imbuf = reinterpret(UInt8, image'[:])
+    return AprilTags.image_u8_t(Int32(cols), Int32(rows), Int32(cols), Base.unsafe_convert(Ptr{UInt8}, imbuf))
+end
+
 
 function getTagDetections(detections::Ptr{zarray})::Vector{AprilTags.apriltag_detection}
     detzarray = unsafe_load(detections)
