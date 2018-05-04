@@ -1,4 +1,7 @@
 using Images, ImageDraw, ImageMagick
+#Additional required packages to run this example.
+#Pkg.add("Images")
+#Pkg.add("ImageMagick")
 
 using AprilTags
 
@@ -53,7 +56,7 @@ try
     # add family to detector
     apriltag_detector_add_family(td, tf)
     # create image8 object for april tags
-    image8 = convert2image_u8(image)
+    image8 = convert(AprilTags.image_u8, image)
     # run detector on image
     detections =  apriltag_detector_detect(td, image8)
     # copy detections

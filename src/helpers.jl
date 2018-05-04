@@ -63,15 +63,14 @@ function AprilTagDetector(tagfamily::TagFamilies)
     apriltag_detector_add_family(td, tf)
 
     return AprilTagDetector(td,tf)
-
 end
 
-
+const U8Types = Union{UInt8, N0f8, Gray{N0f8}}
 """
 	AprilTagDetector(img)
 Run the april tag detector on a image
 """
-function (detector::AprilTagDetector)(image)::Vector{AprilTag}
+function (detector::AprilTagDetector)(image::Array{T, 2}) where T <: U8Types
 
     if detector.td == C_NULL
         error("AprilTags Detector does not exist")
@@ -80,8 +79,8 @@ function (detector::AprilTagDetector)(image)::Vector{AprilTag}
     if detector.tf == C_NULL
         error("AprilTags family does not exist")
     end
-    #create image8 opject for april tags
-    image8 = convert2image_u8(image)
+    #create image8 object for april tags
+    image8 = convert(AprilTags.image_u8_t, image)
 
     # run detector on image
     detections =  apriltag_detector_detect(detector.td, image8)
@@ -96,6 +95,13 @@ function (detector::AprilTagDetector)(image)::Vector{AprilTag}
 
     return tags
 
+end
+
+function (detector::AprilTagDetector)(image::Array{ColorTypes.RGB{T}, 2}) where T
+    # Converting to greyscale
+    image = Gray.(image)
+    # Call internal
+    return detector(image)
 end
 
 """
@@ -124,8 +130,21 @@ function freeDetector!(detector::AprilTagDetector)::Void
 end
 
 
-# TODO overload convert
-function convert2image_u8(image)::image_u8_t
+# # TODO overload convert
+# function convert2image_u8(image)::image_u8_t
+# #create image8 opject for april tags
+#     (rows,cols) = size(image)
+#     imbuf = reinterpret(UInt8, image'[:])
+#     return AprilTags.image_u8_t(Int32(cols), Int32(rows), Int32(cols), Base.unsafe_convert(Ptr{UInt8}, imbuf))
+# end
+function convert(::Type{image_u8_t}, image::Array{UInt8, 2})
+#create image8 opject for april tags
+    (rows,cols) = size(image)
+    imbuf = image'[:]
+    return AprilTags.image_u8_t(Int32(cols), Int32(rows), Int32(cols), Base.unsafe_convert(Ptr{UInt8}, imbuf))
+end
+
+function convert(::Type{image_u8_t}, image::Array{T, 2}) where T <: U8Types
 #create image8 opject for april tags
     (rows,cols) = size(image)
     imbuf = reinterpret(UInt8, image'[:])
