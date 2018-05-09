@@ -79,6 +79,22 @@ using Base.Test
         @test pose[1:3,1:3] ≈ refpose[1:3,1:3] atol = 0.05
         @test pose[1:3,4] ≈ refpose[1:3,4] atol = 0.1
 
+        #test drawing functions
+        fx = 524.040
+        fy = 524.040
+        cy = 319.254
+        cx = 251.227
+        K = [fx 0  cx;
+              0 fy cy]
+        imCol = RGB.(image)
+        foreach(tag->drawTagBox!(imCol, tag), tags2)
+        # test one pixel to be correctly drawn
+        t1xy = round.(Int,tags2[1].p[1])
+        @test imCol[t1xy[2],t1xy[1]] == RGB{N0f8}(0.0, 1.0, 0.0)
+
+        foreach(tag->drawTagAxes!(imCol,tag, K), tags2)
+        #TODO: verify that drawing tag axis is correct
+
         # test constructors for other families
         detector2 = AprilTagDetector(AprilTags.tag25h9)
         freeDetector!(detector2)
@@ -93,7 +109,7 @@ using Base.Test
         freeDetector!(detector2)
     end
 
-    @testset "Color Image Conversion"begin
+    @testset "Color Image Conversion" begin
         detector = AprilTagDetector()
         tags = detector(imageCol)
         @test length(tags) == 1
