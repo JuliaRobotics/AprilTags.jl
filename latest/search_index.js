@@ -113,11 +113,19 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "func_ref.html#AprilTags.drawTagAxes!",
+    "page": "Functions",
+    "title": "AprilTags.drawTagAxes!",
+    "category": "function",
+    "text": "drawTagAxes!(image, tag, CameraMatrix)\n\nDraw the tag x, y, and z axes to show the orientation. imageCol = RGB.(image) foreach(tag->drawTagAxes!(imageCol, tag, K), tags)\n\n\n\n"
+},
+
+{
     "location": "func_ref.html#AprilTags.jl-functions-1",
     "page": "Functions",
     "title": "AprilTags.jl functions",
     "category": "section",
-    "text": "AprilTags.AprilTagDetector\nAprilTags.freeDetector!\nhomography_to_pose\ndrawTagBox!"
+    "text": "AprilTags.AprilTagDetector\nAprilTags.freeDetector!\nhomography_to_pose\ndrawTagBox!\ndrawTagAxes!"
 },
 
 {
