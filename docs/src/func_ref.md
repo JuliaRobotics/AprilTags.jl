@@ -12,6 +12,7 @@ AprilTags.AprilTagDetector
 AprilTags.freeDetector!
 homography_to_pose
 drawTagBox!
+drawTagAxes!
 ```
 ### Wrappers
 ```@docs

@@ -25,7 +25,8 @@ apriltag_detections_destroy,
 apriltag_detector_destroy,
 
 #drawing and plotting
-drawTagBox!
+drawTagBox!,
+drawTagAxes!
 
 include("wrapper.jl")
 include("helpers.jl")
