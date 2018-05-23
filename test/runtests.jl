@@ -57,6 +57,11 @@ using Base.Test
         @test length(detector(gray.(image))) == 3
         @test length(detector(reinterpret(UInt8,image))) == 3
 
+        @show Threads.nthreads()
+        if Threads.nthreads() > 1
+            tagsth = AprilTags.threadcalldetect(detector, image)
+            @test length(tagsth) == 3
+        end
         #setters -- just run for now
         AprilTags.setnThreads(detector, 4)
         AprilTags.setquad_decimate(detector, 1.0)
