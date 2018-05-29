@@ -26,8 +26,8 @@ image = load(dirname(Base.source_path()) *"/../data/tagtest.jpg")
     #call detector in thread
     @async global t1 = @timed begin
         println("time before detector $(Dates.value(now())-starttime) ms")
-        # global tags = AprilTags.threadcalldetect(detector, image)
-        # ↑ comment --- compare with this --- uncomment ↓ 
+        global tags = AprilTags.threadcalldetect(detector, image)
+        # ↑ comment --- compare with this --- uncomment ↓
         # global tags = detector(image)
         println("time after detector $(Dates.value(now())-starttime) ms")
 
