@@ -13,7 +13,7 @@ function showImage(image, tags, K)
     # Convert image to RGB
     imageCol = RGB.(image)
     #traw color box on tag corners
-    foreach(tag->drawTagBox!(imageCol, tag), tags)
+    foreach(tag->drawTagBox!(imageCol, tag, width = 2, drawReticle = false), tags)
     foreach(tag->drawTagAxes!(imageCol,tag, K), tags)
     imageCol
 end
