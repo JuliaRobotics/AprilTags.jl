@@ -91,6 +91,13 @@ using Base.Test
         # test one pixel to be correctly drawn
         t1xy = round.(Int,tags2[1].p[1])
         @test imCol[t1xy[2],t1xy[1]] == RGB{N0f8}(0.0, 1.0, 0.0)
+        #thicker lines also
+        foreach(tag->drawTagBox!(imCol,tag, width = 2, drawReticle = false), tags2)
+        foreach(tag->drawTagBox!(imCol,tag, width = 3, drawReticle = true), tags2)
+        #TODO: verify that drawing is correct
+
+        # test for bounds error in drawing functions with thicker lines
+        foreach(tag->drawTagBox!(imCol,tag, width = 1000, drawReticle = true), tags2)
 
         foreach(tag->drawTagAxes!(imCol,tag, K), tags2)
         #TODO: verify that drawing tag axis is correct
