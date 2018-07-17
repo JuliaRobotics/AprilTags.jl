@@ -1,5 +1,10 @@
 using AprilTags
-using Images
+using ImageCore
+using FileIO
+using ImageMagick
+using ImageDraw
+using ColorTypes
+using FixedPointNumbers
 using Base.Test
 
 
@@ -114,6 +119,19 @@ using Base.Test
 
         detector2 = AprilTagDetector(AprilTags.tag36h10)
         freeDetector!(detector2)
+
+        reftag36h11_0 = Gray{N0f8}[ 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0;
+                                    1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 1.0;
+                                    1.0 0.0 1.0 1.0 0.0 1.0 0.0 1.0 0.0 1.0;
+                                    1.0 0.0 0.0 1.0 1.0 1.0 0.0 1.0 0.0 1.0;
+                                    1.0 0.0 0.0 1.0 1.0 0.0 0.0 0.0 0.0 1.0;
+                                    1.0 0.0 1.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0;
+                                    1.0 0.0 0.0 1.0 0.0 1.0 1.0 0.0 0.0 1.0;
+                                    1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0;
+                                    1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 1.0;
+                                    1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0]
+        @test reftag36h11_0 == getAprilTagImage(0)
+
     end
 
     @testset "Color Image Conversion" begin

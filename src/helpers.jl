@@ -20,29 +20,12 @@ mutable struct AprilTagDetector
 end
 
 """
-	AprilTagDetector()
+	AprilTagDetector(tagfamily=tag36h11)
 Create a default AprilTag detector with the 36h11 tag family
-"""
-function AprilTagDetector()::AprilTagDetector
-    #create tag detector
-    td = apriltag_detector_create()
-    #create tag family 36h11 by default
-    tf = tag36h11_create()
-    #add family to detector
-    apriltag_detector_add_family(td, tf)
-
-
-    return AprilTagDetector(td,tf)
-
-end
-
-
-"""
-	AprilTagDetector(tagfamily)
 Create an AprilTag detector with tag family in `tagfamily::TagFamilies
 @enum TagFamilies tag36h11 tag36h10 tag25h9 tag16h5`
 """
-function AprilTagDetector(tagfamily::TagFamilies)
+function AprilTagDetector(tagfamily::TagFamilies = tag36h11)
     #create tag detector
     td = apriltag_detector_create()
     #create tag family
@@ -54,9 +37,6 @@ function AprilTagDetector(tagfamily::TagFamilies)
         tf = tag25h9_create()
     elseif tagfamily == tag16h5
         tf = tag16h5_create()
-    else
-        warn("Tag family $tagfamily does not exist, creating default tag36h11")
-        tf = tag36h11_create()
     end
 
     #add family to detector
@@ -198,6 +178,31 @@ function copyAprilTagDetections(detections::Ptr{zarray})::Vector{AprilTag}
         return Vector{AprilTag}()
     end
 end
+
+"""
+	getAprilTagImage(tagIndex, tagfamily=tag36h11)
+Return an image [Gray{N0f8}] for with tagIndex from tag family in `tagfamily::TagFamilies
+@enum TagFamilies tag36h11 tag36h10 tag25h9 tag16h5`
+"""
+function  getAprilTagImage(tagIndex::Int, tagfamily::TagFamilies = tag36h11)
+    #create tag family
+    if tagfamily == tag36h11
+        tf = tag36h11_create()
+    elseif tagfamily == tag36h10
+        tf = tag36h10_create()
+    elseif tagfamily == tag25h9
+        tf = tag25h9_create()
+    elseif tagfamily == tag16h5
+        tf = tag16h5_create()
+    end
+
+    tagptr = AprilTags.apriltag_to_image(tf, Int32(tagIndex))
+    tagimg = unsafe_load(tagptr)
+    imgbuf = deepcopy(unsafe_wrap(Array, tagimg.buf, (Int(tagimg.stride),Int(tagimg.height)))')
+
+    return reinterpret(Gray{N0f8},imgbuf[1:tagimg.height,1:tagimg.width])
+end
+
 
 
 ##Setters
