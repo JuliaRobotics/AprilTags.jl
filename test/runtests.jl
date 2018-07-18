@@ -62,6 +62,9 @@ using Base.Test
         @test length(detector(gray.(image))) == 3
         @test length(detector(reinterpret(UInt8,image))) == 3
 
+        #test on random image, should detect zero tags
+        @test length(detector(rand(Gray{N0f8},100,100))) == 0
+
         #setters -- just run for now
         AprilTags.setnThreads(detector, 4)
         AprilTags.setquad_decimate(detector, 1.0)
