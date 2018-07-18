@@ -167,6 +167,25 @@ using Base.Test
 
     end
 
+    @testset "Errors" begin
+        #testing freed detectors errors
+        detector = AprilTagDetector()
+        freeDetector!(detector)
+        @test_throws ErrorException tags = detector(image)
+        @test_throws ErrorException AprilTags.setnThreads(detector, 4)
+        @test_throws ErrorException AprilTags.setquad_decimate(detector, 1.0)
+        @test_throws ErrorException AprilTags.setquad_sigma(detector,0.0)
+        @test_throws ErrorException AprilTags.setrefine_edges(detector,1)
+        @test_throws ErrorException AprilTags.setrefine_decode(detector,1)
+        @test_throws ErrorException AprilTags.setrefine_pose(detector,1)
+        @test freeDetector!(detector) == nothing
+        #testing NULL tag families errors
+        detector = AprilTagDetector()
+        detector.tf = C_NULL
+        @test_throws ErrorException tags = detector(image)
+        @test freeDetector!(detector) == nothing
+    end
+
     @testset "Color Image Conversion" begin
         detector = AprilTagDetector()
         tags = detector(imageCol)

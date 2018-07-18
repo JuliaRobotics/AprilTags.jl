@@ -91,13 +91,13 @@ Free the allocated memmory
 function freeDetector!(detector::AprilTagDetector)::Void
 
     if detector.td == C_NULL
-        error("AprilTags Detector does not exist")
+        warn("AprilTags Detector does not exist")
     else
         apriltag_detector_destroy(detector.td)
     end
 
     if detector.tf == C_NULL
-        error("AprilTags family does not exist")
+        warn("AprilTags family does not exist")
     else
         tag36h11_destroy(detector.tf) #gebruik die ene sommer vir almal vir nou, dit lyk inelkgeval dieselfde in c kode
     end
