@@ -85,7 +85,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Functions",
     "title": "AprilTags.AprilTagDetector",
     "category": "type",
-    "text": "AprilTagDetector()\n\nCreate a default AprilTag detector with the 36h11 tag family\n\n\n\nAprilTagDetector(tagfamily)\n\nCreate an AprilTag detector with tag family in tagfamily::TagFamilies @enum TagFamilies tag36h11 tag36h10 tag25h9 tag16h5\n\n\n\n"
+    "text": "AprilTagDetector(tagfamily=tag36h11)\n\nCreate a default AprilTag detector with the 36h11 tag family Create an AprilTag detector with tag family in tagfamily::TagFamilies @enum TagFamilies tag36h11 tag36h10 tag25h9 tag16h5\n\n\n\n"
 },
 
 {
@@ -169,11 +169,19 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "func_ref.html#AprilTags.getAprilTagImage",
+    "page": "Functions",
+    "title": "AprilTags.getAprilTagImage",
+    "category": "function",
+    "text": "getAprilTagImage(tagIndex, tagfamily=tag36h11)\n\nReturn an image [Gray{N0f8}] for with tagIndex from tag family in tagfamily::TagFamilies @enum TagFamilies tag36h11 tag36h10 tag25h9 tag16h5\n\n\n\n"
+},
+
+{
     "location": "func_ref.html#Wrappers-1",
     "page": "Functions",
     "title": "Wrappers",
     "category": "section",
-    "text": "apriltag_detector_create\ntag36h11_create\ntag36h11_destroy\napriltag_detector_add_family\napriltag_detector_detect"
+    "text": "apriltag_detector_create\ntag36h11_create\ntag36h11_destroy\napriltag_detector_add_family\napriltag_detector_detect\ngetAprilTagImage"
 },
 
 {
