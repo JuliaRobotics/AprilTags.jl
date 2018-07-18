@@ -27,6 +27,8 @@ apriltag_detector_detect,
 apriltag_detections_destroy,
 apriltag_detector_destroy,
 
+getAprilTagImage,
+
 #drawing and plotting
 drawTagBox!,
 drawTagAxes!

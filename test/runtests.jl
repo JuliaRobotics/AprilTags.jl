@@ -1,5 +1,10 @@
 using AprilTags
-using Images
+using ImageCore
+using FileIO
+using ImageMagick
+using ImageDraw
+using ColorTypes
+using FixedPointNumbers
 using Base.Test
 
 
@@ -56,6 +61,9 @@ using Base.Test
 
         @test length(detector(gray.(image))) == 3
         @test length(detector(reinterpret(UInt8,image))) == 3
+
+        #test on random image, should detect zero tags
+        @test length(detector(rand(Gray{N0f8},100,100))) == 0
 
         #setters -- just run for now
         AprilTags.setnThreads(detector, 4)
@@ -114,6 +122,71 @@ using Base.Test
 
         detector2 = AprilTagDetector(AprilTags.tag36h10)
         freeDetector!(detector2)
+
+        reftag36h11_0 = Gray{N0f8}[ 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0;
+                                    1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 1.0;
+                                    1.0 0.0 1.0 1.0 0.0 1.0 0.0 1.0 0.0 1.0;
+                                    1.0 0.0 0.0 1.0 1.0 1.0 0.0 1.0 0.0 1.0;
+                                    1.0 0.0 0.0 1.0 1.0 0.0 0.0 0.0 0.0 1.0;
+                                    1.0 0.0 1.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0;
+                                    1.0 0.0 0.0 1.0 0.0 1.0 1.0 0.0 0.0 1.0;
+                                    1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0;
+                                    1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 1.0;
+                                    1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0]
+        @test reftag36h11_0 == getAprilTagImage(0)
+
+        reftag36h10_0 = Gray{N0f8}[ 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0;
+                                    1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 1.0;
+                                    1.0 0.0 0.0 0.0 0.0 1.0 1.0 1.0 0.0 1.0;
+                                    1.0 0.0 0.0 0.0 1.0 0.0 1.0 0.0 0.0 1.0;
+                                    1.0 0.0 1.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0;
+                                    1.0 0.0 1.0 0.0 1.0 0.0 1.0 0.0 0.0 1.0;
+                                    1.0 0.0 0.0 1.0 1.0 0.0 1.0 0.0 0.0 1.0;
+                                    1.0 0.0 0.0 0.0 0.0 1.0 1.0 1.0 0.0 1.0;
+                                    1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 1.0;
+                                    1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0]
+        @test reftag36h10_0 == getAprilTagImage(0, AprilTags.tag36h10)
+
+        reftag16h5_0 = Gray{N0f8}[  1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0;
+                                    1.0 0.0 0.0 0.0 0.0 0.0 0.0 1.0;
+                                    1.0 0.0 0.0 0.0 1.0 0.0 0.0 1.0;
+                                    1.0 0.0 0.0 0.0 1.0 1.0 0.0 1.0;
+                                    1.0 0.0 0.0 0.0 0.0 1.0 0.0 1.0;
+                                    1.0 0.0 1.0 0.0 1.0 1.0 0.0 1.0;
+                                    1.0 0.0 0.0 0.0 0.0 0.0 0.0 1.0;
+                                    1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0]
+        @test reftag16h5_0 == getAprilTagImage(0, AprilTags.tag16h5)
+
+        reftag25h9_0 = Gray{N0f8}[  1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0;
+                                    1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 1.0;
+                                    1.0 0.0 1.0 0.0 1.0 0.0 1.0 0.0 1.0;
+                                    1.0 0.0 0.0 1.0 0.0 1.0 1.0 0.0 1.0;
+                                    1.0 0.0 1.0 0.0 0.0 1.0 0.0 0.0 1.0;
+                                    1.0 0.0 1.0 1.0 1.0 1.0 1.0 0.0 1.0;
+                                    1.0 0.0 1.0 0.0 0.0 0.0 1.0 0.0 1.0;
+                                    1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 1.0;
+                                    1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0]
+        @test reftag25h9_0 == getAprilTagImage(0, AprilTags.tag25h9)
+
+    end
+
+    @testset "Errors" begin
+        #testing freed detectors errors
+        detector = AprilTagDetector()
+        freeDetector!(detector)
+        @test_throws ErrorException tags = detector(image)
+        @test_throws ErrorException AprilTags.setnThreads(detector, 4)
+        @test_throws ErrorException AprilTags.setquad_decimate(detector, 1.0)
+        @test_throws ErrorException AprilTags.setquad_sigma(detector,0.0)
+        @test_throws ErrorException AprilTags.setrefine_edges(detector,1)
+        @test_throws ErrorException AprilTags.setrefine_decode(detector,1)
+        @test_throws ErrorException AprilTags.setrefine_pose(detector,1)
+        @test freeDetector!(detector) == nothing
+        #testing NULL tag families errors
+        detector = AprilTagDetector()
+        detector.tf = C_NULL
+        @test_throws ErrorException tags = detector(image)
+        @test freeDetector!(detector) == nothing
     end
 
     @testset "Color Image Conversion" begin
