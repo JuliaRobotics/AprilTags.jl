@@ -21,6 +21,7 @@ tag36h11_create
 tag36h11_destroy
 apriltag_detector_add_family
 apriltag_detector_detect
+getAprilTagImage
 ```
 
 ## Index
