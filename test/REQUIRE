@@ -1,4 +1,4 @@
 ImageCore
-FileIO
-ImageMagick
+#FileIO
+#ImageMagick
 ImageDraw
