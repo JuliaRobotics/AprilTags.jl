@@ -20,29 +20,12 @@ mutable struct AprilTagDetector
 end
 
 """
-	AprilTagDetector()
+	AprilTagDetector(tagfamily=tag36h11)
 Create a default AprilTag detector with the 36h11 tag family
-"""
-function AprilTagDetector()::AprilTagDetector
-    #create tag detector
-    td = apriltag_detector_create()
-    #create tag family 36h11 by default
-    tf = tag36h11_create()
-    #add family to detector
-    apriltag_detector_add_family(td, tf)
-
-
-    return AprilTagDetector(td,tf)
-
-end
-
-
-"""
-	AprilTagDetector(tagfamily)
 Create an AprilTag detector with tag family in `tagfamily::TagFamilies
 @enum TagFamilies tag36h11 tag36h10 tag25h9 tag16h5`
 """
-function AprilTagDetector(tagfamily::TagFamilies)
+function AprilTagDetector(tagfamily::TagFamilies = tag36h11)
     #create tag detector
     td = apriltag_detector_create()
     #create tag family
@@ -54,24 +37,20 @@ function AprilTagDetector(tagfamily::TagFamilies)
         tf = tag25h9_create()
     elseif tagfamily == tag16h5
         tf = tag16h5_create()
-    else
-        warn("Tag family $tagfamily does not exist, creating default tag36h11")
-        tf = tag36h11_create()
     end
 
     #add family to detector
     apriltag_detector_add_family(td, tf)
 
     return AprilTagDetector(td,tf)
-
 end
 
-
+const U8Types = Union{UInt8, N0f8, Gray{N0f8}}
 """
 	AprilTagDetector(img)
 Run the april tag detector on a image
 """
-function (detector::AprilTagDetector)(image)::Vector{AprilTag}
+function (detector::AprilTagDetector)(image::Array{T, 2}) where T <: U8Types
 
     if detector.td == C_NULL
         error("AprilTags Detector does not exist")
@@ -80,8 +59,8 @@ function (detector::AprilTagDetector)(image)::Vector{AprilTag}
     if detector.tf == C_NULL
         error("AprilTags family does not exist")
     end
-    #create image8 opject for april tags
-    image8 = convert2image_u8(image)
+    #create image8 object for april tags
+    image8 = convert(AprilTags.image_u8_t, image)
 
     # run detector on image
     detections =  apriltag_detector_detect(detector.td, image8)
@@ -98,6 +77,13 @@ function (detector::AprilTagDetector)(image)::Vector{AprilTag}
 
 end
 
+function (detector::AprilTagDetector)(image::Array{ColorTypes.RGB{T}, 2}) where T
+    # Converting to greyscale
+    image = Gray.(image)
+    # Call internal
+    return detector(image)
+end
+
 """
 	freeDetector!(apriltagdetector)
 Free the allocated memmory
@@ -105,13 +91,13 @@ Free the allocated memmory
 function freeDetector!(detector::AprilTagDetector)::Void
 
     if detector.td == C_NULL
-        error("AprilTags Detector does not exist")
+        warn("AprilTags Detector does not exist")
     else
         apriltag_detector_destroy(detector.td)
     end
 
     if detector.tf == C_NULL
-        error("AprilTags family does not exist")
+        warn("AprilTags family does not exist")
     else
         tag36h11_destroy(detector.tf) #gebruik die ene sommer vir almal vir nou, dit lyk inelkgeval dieselfde in c kode
     end
@@ -124,8 +110,21 @@ function freeDetector!(detector::AprilTagDetector)::Void
 end
 
 
-# TODO overload convert
-function convert2image_u8(image)::image_u8_t
+# # TODO overload convert
+# function convert2image_u8(image)::image_u8_t
+# #create image8 opject for april tags
+#     (rows,cols) = size(image)
+#     imbuf = reinterpret(UInt8, image'[:])
+#     return AprilTags.image_u8_t(Int32(cols), Int32(rows), Int32(cols), Base.unsafe_convert(Ptr{UInt8}, imbuf))
+# end
+function convert(::Type{image_u8_t}, image::Array{UInt8, 2})
+#create image8 opject for april tags
+    (rows,cols) = size(image)
+    imbuf = image'[:]
+    return AprilTags.image_u8_t(Int32(cols), Int32(rows), Int32(cols), Base.unsafe_convert(Ptr{UInt8}, imbuf))
+end
+
+function convert(::Type{image_u8_t}, image::Array{T, 2}) where T <: U8Types
 #create image8 opject for april tags
     (rows,cols) = size(image)
     imbuf = reinterpret(UInt8, image'[:])
@@ -179,6 +178,31 @@ function copyAprilTagDetections(detections::Ptr{zarray})::Vector{AprilTag}
         return Vector{AprilTag}()
     end
 end
+
+"""
+	getAprilTagImage(tagIndex, tagfamily=tag36h11)
+Return an image [Gray{N0f8}] for with tagIndex from tag family in `tagfamily::TagFamilies
+@enum TagFamilies tag36h11 tag36h10 tag25h9 tag16h5`
+"""
+function  getAprilTagImage(tagIndex::Int, tagfamily::TagFamilies = tag36h11)
+    #create tag family
+    if tagfamily == tag36h11
+        tf = tag36h11_create()
+    elseif tagfamily == tag36h10
+        tf = tag36h10_create()
+    elseif tagfamily == tag25h9
+        tf = tag25h9_create()
+    elseif tagfamily == tag16h5
+        tf = tag16h5_create()
+    end
+
+    tagptr = AprilTags.apriltag_to_image(tf, Int32(tagIndex))
+    tagimg = unsafe_load(tagptr)
+    imgbuf = deepcopy(unsafe_wrap(Array, tagimg.buf, (Int(tagimg.stride),Int(tagimg.height)))')
+
+    return reinterpret(Gray{N0f8},imgbuf[1:tagimg.height,1:tagimg.width])
+end
+
 
 
 ##Setters

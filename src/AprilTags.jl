@@ -1,15 +1,19 @@
+__precompile__()
 module AprilTags
 
-depfile = joinpath(dirname(@__FILE__),"../deps/loadpath.jl")
-isfile(depfile) ? include(depfile) : error("AprilTags.jl not properly installed. Please run: Pkg.build(\"AprilTags\")")
+function __init__()
+    depfile = joinpath(dirname(@__FILE__),"../deps/loadpath.jl")
+    isfile(depfile) ? include(depfile) : error("AprilTags.jl not properly installed. Please run: Pkg.build(\"AprilTags\")")
+end
 
+using Colors, ImageDraw, FixedPointNumbers
+import Base.convert
 
 export
 #helpers
 AprilTag,
 AprilTagDetector,
 freeDetector!,
-convert2image_u8,
 getTagDetections,
 homography_to_pose,
 
@@ -23,8 +27,11 @@ apriltag_detector_detect,
 apriltag_detections_destroy,
 apriltag_detector_destroy,
 
+getAprilTagImage,
+
 #drawing and plotting
-drawTagBox!
+drawTagBox!,
+drawTagAxes!
 
 include("wrapper.jl")
 include("helpers.jl")
