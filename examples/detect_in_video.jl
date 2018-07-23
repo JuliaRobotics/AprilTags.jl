@@ -12,7 +12,7 @@ function showImage!(image, tags, imageCol)
     nothing
 end
 
-# This colour mapping may be wrong for the PS3eye.
+#Use this colour mapping for the PS3eye.
 # ycrcb = Video4Linux.YUYV(640,480)
 yonly = Video4Linux.YUYVonlyY(640,480)
 vidchan = Channel((c::Channel) -> videoproducer(c, yonly, devicename = "/dev/video1",
@@ -34,8 +34,8 @@ detector = AprilTagDetector()
 # imshow(canvas["gui"]["canvas"], imC)
 
 i = 0
-while isopen(vidchan)
-    i += 1
+@schedule while isopen(vidchan)
+    global i += 1
     A = take!(vidchan)
     img[:,:] = normedview(A)
     if i % 10 == 0
@@ -43,8 +43,6 @@ while isopen(vidchan)
         @show length(tags)
         showImage!(img, tags, imC)
         imshow(canvas["gui"]["canvas"], imC)
-        @show 10.0/t
-        t = 0.0
     end
 end
 
