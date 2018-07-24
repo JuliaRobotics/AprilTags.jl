@@ -1,8 +1,10 @@
 using Images, ImageView
-using Video4Linux
 using AprilTags
 using FixedPointNumbers
-# using BenchmarkTools
+# Package Video4Linux is currently unregistered, and should be installed with:
+# Pkg.clone("https://github.com/Affie/Video4Linux.jl.git")
+# Pkg.build("Video4Linux")
+using Video4Linux
 
 function showImage!(image, tags, imageCol)
     # Convert image to RGB
@@ -12,35 +14,37 @@ function showImage!(image, tags, imageCol)
     nothing
 end
 
-#Use this colour mapping for the PS3eye.
-# ycrcb = Video4Linux.YUYV(640,480)
+#Use this colour mapping when using the PS3eye.
+#NOTE on Video4Linux:
+#No automatic video device setup is currently performed by Video4Linux
+#There are utilities to make this easy eg: qv4l2 (install with: sudo apt-get install qv4l2)
+#qv4l2 provides a gui of the ioctl of the device.
+#Settings such as frame size and capture format can easily be changed.
 yonly = Video4Linux.YUYVonlyY(640,480)
+#create a video channel that produces image frames
 vidchan = Channel((c::Channel) -> videoproducer(c, yonly, devicename = "/dev/video1",
                                          iomethod = Video4Linux.IO_METHOD_MMAP, N=0 ))
 ##
 # capture one frame
 A = take!(vidchan)
-# keep pointers to the same memory
-img = normedview(A)  # img = Gray{N0f8}.(im1)
-@time imC = RGB.(view(img,:,:), view(img,:,:), view(img,:,:))
-@time imCV = colorview(RGB,img,img,img)
+# keep pointers to the same memory, preallocate variables
+img = normedview(A)
+imC = RGB.(view(img,:,:), view(img,:,:), view(img,:,:))
+#create a new canvas for displaying the image
 canvas = imshow(imC)
 
 # Create default detector
 detector = AprilTagDetector()
 # settings that influence detector speed/quality
+# see april tag documentation for more information on these settings
 AprilTags.setnThreads(detector, 4)
 AprilTags.setquad_decimate(detector, 1.0)
 AprilTags.setquad_sigma(detector,0.0)
 AprilTags.setrefine_edges(detector,0)
 AprilTags.setrefine_decode(detector,0)
 AprilTags.setrefine_pose(detector,0)
-# @btime tags = detector(img) # 34.076 ms (25 allocations: 602.20 KiB)
 
-# tags = detector(img)
-# showImage!(img, tags, imC)
-# imshow(canvas["gui"]["canvas"], imC)
-
+# start asyncronious task to read video channel, detect tags and display detections
 @async begin
     i = 0
     starttime = Dates.value(now())
@@ -61,5 +65,6 @@ AprilTags.setrefine_pose(detector,0)
         end
     end
 end
-##
+
+## to finish and close the video device
 stopVideoProducer()
