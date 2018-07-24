@@ -74,7 +74,7 @@ function drawThickLine!(image, startpoint, endpoint, colour, thickness)
 
     draw!(image, LineSegment(x1,y1,x2,y2), colour, boundedBresenham)
 
-    if x1 != x2 && (y2-y1)/(x2-x1) < 1
+    if x1 != x2 && abs((y2-y1)/(x2-x1)) < 1
         for tn = 1:thickness
             i = tn ÷ 2
             iseven(tn) && draw!(image, LineSegment(x1,y1-i,x2,y2-i), colour, boundedBresenham)
