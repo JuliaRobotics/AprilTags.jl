@@ -85,6 +85,37 @@ function (detector::AprilTagDetector)(image::Array{ColorTypes.RGB{T}, 2}) where 
 end
 
 """
+	threadcalldetect(detector, image)
+Run the april tag detector on a image
+"""
+function threadcalldetect(detector::AprilTagDetector, image::Array{T, 2}) where T <: U8Types
+
+    if detector.td == C_NULL
+        error("AprilTags Detector does not exist")
+    end
+
+    if detector.tf == C_NULL
+        error("AprilTags family does not exist")
+    end
+    #create image8 object for april tags
+    image8 = convert(AprilTags.image_u8_t, image)
+
+    # run detector on image
+    detections =  threadcall_apriltag_detector_detect(detector.td, image8)
+
+    # copy and return detections julia struct
+    tags = AprilTags.copyAprilTagDetections(detections)
+    # copy and return detections c struct
+    # tags = getTagDetections(detections)
+
+    #distroy detections memmory
+    apriltag_detections_destroy(detections)
+
+    return tags
+
+end
+
+"""
 	freeDetector!(apriltagdetector)
 Free the allocated memmory
 """
