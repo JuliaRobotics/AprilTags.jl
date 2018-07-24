@@ -8,7 +8,7 @@ function showImage!(image, tags, imageCol)
     # Convert image to RGB
     imageCol[:,:] = RGB{N0f8}.(view(img,:,:), view(img,:,:), view(img,:,:))
     # draw color box on tag corners
-    foreach(tag->drawTagBox!(imageCol, tag), tags)
+    foreach(tag->drawTagBox!(imageCol, tag, width=3, drawReticle=false), tags)
     nothing
 end
 
@@ -22,7 +22,8 @@ vidchan = Channel((c::Channel) -> videoproducer(c, yonly, devicename = "/dev/vid
 A = take!(vidchan)
 # keep pointers to the same memory
 img = normedview(A)  # img = Gray{N0f8}.(im1)
-imC = RGB.(view(img,:,:), view(img,:,:), view(img,:,:))
+@time imC = RGB.(view(img,:,:), view(img,:,:), view(img,:,:))
+@time imCV = colorview(RGB,img,img,img)
 canvas = imshow(imC)
 
 # Create default detector
@@ -33,17 +34,25 @@ detector = AprilTagDetector()
 # showImage!(img, tags, imC)
 # imshow(canvas["gui"]["canvas"], imC)
 
-i = 0
-@schedule while isopen(vidchan)
-    global i += 1
-    A = take!(vidchan)
-    img[:,:] = normedview(A)
-    if i % 10 == 0
+@async begin
+    i = 0
+    starttime = Dates.value(now())
+    while isopen(vidchan)
+        i += 1
+        A = take!(vidchan)
+        img[:,:] = normedview(A)
+
         tags = detector(img)
-        @show length(tags)
         showImage!(img, tags, imC)
-        imshow(canvas["gui"]["canvas"], imC)
+        ImageView.imshow!(canvas["gui"]["canvas"], imC, canvas["annotations"])
+
+        if i % 10 == 0
+            @show length(tags)
+            framerate = round(10/(Dates.value(now())-starttime)*1000,1)
+            println("frames $(framerate) per second")
+            starttime = Dates.value(now())
+        end
     end
 end
-
-close(vidchan)
+##
+stopVideoProducer()
