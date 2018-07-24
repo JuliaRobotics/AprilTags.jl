@@ -28,6 +28,13 @@ canvas = imshow(imC)
 
 # Create default detector
 detector = AprilTagDetector()
+# settings that influence detector speed/quality
+AprilTags.setnThreads(detector, 4)
+AprilTags.setquad_decimate(detector, 1.0)
+AprilTags.setquad_sigma(detector,0.0)
+AprilTags.setrefine_edges(detector,0)
+AprilTags.setrefine_decode(detector,0)
+AprilTags.setrefine_pose(detector,0)
 # @btime tags = detector(img) # 34.076 ms (25 allocations: 602.20 KiB)
 
 # tags = detector(img)
