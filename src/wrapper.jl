@@ -404,6 +404,18 @@ function apriltag_detector_detect(td, im_orig)
     ccall((:apriltag_detector_detect, :libapriltag), Ptr{zarray_t}, (Ptr{apriltag_detector_t}, Ptr{image_u8_t}), td, Ref(im_orig))
 end
 
+"""
+	threadcall_apriltag_detector_detect(tag_detector, image)
+*Experimental* call apriltag_detector_detect in a seperate thread using the experimantal `@threadcall`
+Detect tags from an image and return an array of apriltag_detection_t*.
+You can use apriltag_detections_destroy to free the array and the detections it contains, or call
+detection_destroy and zarray_destroy yourself.
+"""
+function threadcall_apriltag_detector_detect(td, im_orig)
+    @threadcall((:apriltag_detector_detect, :libapriltag), Ptr{zarray_t}, (Ptr{apriltag_detector_t}, Ptr{image_u8_t}), td, Ref(im_orig))
+end
+
+
 function apriltag_detection_destroy(det)
     ccall((:apriltag_detection_destroy, :libapriltag), Nothing, (Ptr{apriltag_detection_t},), det)
 end

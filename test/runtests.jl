@@ -64,6 +64,9 @@ using Test
         @test length(detector(gray.(image))) == 3
         @test length(detector(reinterpret(UInt8,image)[:,:])) == 3
 
+        tagsth = AprilTags.threadcalldetect(detector, image)
+        @test length(tagsth) == 3
+
         #test on random image, should detect zero tags
         @test length(detector(rand(Gray{N0f8},100,100))) == 0
 
@@ -177,6 +180,7 @@ using Test
         detector = AprilTagDetector()
         freeDetector!(detector)
         @test_throws ErrorException tags = detector(image)
+        @test_throws ErrorException tags = AprilTags.threadcalldetect(detector, image)
         @test_throws ErrorException AprilTags.setnThreads(detector, 4)
         @test_throws ErrorException AprilTags.setquad_decimate(detector, 1.0)
         @test_throws ErrorException AprilTags.setquad_sigma(detector,0.0)
@@ -188,6 +192,7 @@ using Test
         detector = AprilTagDetector()
         detector.tf = C_NULL
         @test_throws ErrorException tags = detector(image)
+        @test_throws ErrorException tags = AprilTags.threadcalldetect(detector, image)
         @test freeDetector!(detector) == nothing
     end
 
