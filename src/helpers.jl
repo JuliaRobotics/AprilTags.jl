@@ -1,4 +1,3 @@
-Nothing
 @enum TagFamilies tag36h11 tag36h10 tag25h9 tag16h5
 
 struct AprilTag
