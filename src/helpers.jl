@@ -391,11 +391,15 @@ end
 
 
 """
-    homography_to_pose(H, fx, fy, cx, cy)
+    homography_to_pose(H, fx, fy, cx, cy, [taglength = 2.0])
 Given a 3x3 homography matrix and the camera model (focal length and centre), compute the pose of the tag.
-The focal lengths should be given in pixels
+The focal lengths should be given in pixels.
+The returned units are those of the tag size,
+therefore the translational components should be scaled with the tag size.
+Note: the tag coordinates are from (-1,-1) to (1,1), i.e. the tag size has lenght of 2 units.
+Optionally, the tag length (in metre) can be passed to return a scaled value.
 """
-function homography_to_pose(H::Matrix{Float64}, fx::Float64, fy::Float64, cx::Float64, cy::Float64)::Matrix{Float64}
+function homography_to_pose(H::Matrix{Float64}, fx::Float64, fy::Float64, cx::Float64, cy::Float64; taglength::Float64 = 2.0)::Matrix{Float64}
     # Note that every variable that we compute is proportional to the scale factor of H.
     R31 = H[3, 1]
     R32 = H[3, 2]
@@ -447,8 +451,8 @@ function homography_to_pose(H::Matrix{Float64}, fx::Float64, fy::Float64, cx::Fl
         R = U * V'
     end
 
-    return  [R    [TX;
-                   TY;
-                   TZ];
+    return  [R    [TX*taglength/2.0;
+                   TY*taglength/2.0;
+                   TZ*taglength/2.0];
             [0 0 0 1.0]]
 end
