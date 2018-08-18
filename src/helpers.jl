@@ -17,6 +17,32 @@ mutable struct AprilTagDetector
     tf::Ptr{apriltag_family_t}
 
 end
+#TODO add getters and then getproperty for each
+# Base.getproperty(x::Bla,f::Symbol) = begin
+#     if f == :nThreads
+#         return getnThreads(x)
+#     else
+#         getfield(x,f)
+#     end
+# end
+Base.setproperty!(x::AprilTagDetector,f::Symbol, v) = begin
+    if f == :nThreads
+        setnThreads(x,v)
+    elseif f == :quad_decimate
+        setquad_decimate(x,v)
+    elseif f == :quad_sigma
+        setquad_sigma(x,v)
+    elseif f == :refine_edges
+        setrefine_edges(x,v)
+    elseif f == :refine_decode
+        setrefine_decode(x,v)
+    elseif f == :refine_pose
+        setrefine_pose(x,v)
+    else
+        # Base.setfield!(x,f,v)
+        Base.setfield!(x, f, convert(fieldtype(typeof(x), f), v))
+    end
+end
 
 """
 	AprilTagDetector(tagfamily=tag36h11)
@@ -243,7 +269,7 @@ end
 
 
 ##Setters
-function setnThreads(detector, nthreads)::Nothing
+function setnThreads(detector, nthreads::Integer)::Nothing
     if detector.td == C_NULL
         error("AprilTags Detector does not exist")
     end
@@ -269,7 +295,7 @@ function setquad_sigma(detector, quad_sigma)::Nothing
     return nothing
 end
 
-function setrefine_edges(detector, refine_edges)::Nothing
+function setrefine_edges(detector, refine_edges::Integer)::Nothing
     if detector.td == C_NULL
         error("AprilTags Detector does not exist")
     end
@@ -278,7 +304,7 @@ function setrefine_edges(detector, refine_edges)::Nothing
 end
 
 
-function setrefine_decode(detector, refine_decode)::Nothing
+function setrefine_decode(detector, refine_decode::Integer)::Nothing
     if detector.td == C_NULL
         error("AprilTags Detector does not exist")
     end
@@ -286,7 +312,7 @@ function setrefine_decode(detector, refine_decode)::Nothing
     return nothing
 end
 
-function setrefine_pose(detector, refine_pose)::Nothing
+function setrefine_pose(detector, refine_pose::Integer)::Nothing
     if detector.td == C_NULL
         error("AprilTags Detector does not exist")
     end

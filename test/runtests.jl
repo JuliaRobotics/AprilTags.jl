@@ -71,12 +71,12 @@ using Test
         @test length(detector(rand(Gray{N0f8},100,100))) == 0
 
         #setters -- just run for now
-        AprilTags.setnThreads(detector, 4)
-        AprilTags.setquad_decimate(detector, 1.0)
-        AprilTags.setquad_sigma(detector,0.0)
-        AprilTags.setrefine_edges(detector,1)
-        AprilTags.setrefine_decode(detector,1)
-        AprilTags.setrefine_pose(detector,1)
+        detector.nThreads = 4
+        detector.quad_decimate = 1.0
+        detector.quad_sigma = 0.0
+        detector.refine_edges = 1
+        detector.refine_decode = 1
+        detector.refine_pose = 1
 
         cpoints = map(tag->[tag.c[2],tag.c[1]],tags2)
         freeDetector!(detector)
