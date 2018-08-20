@@ -198,6 +198,14 @@ using Test
         @test_throws ErrorException AprilTags.setrefine_edges(detector,1)
         @test_throws ErrorException AprilTags.setrefine_decode(detector,1)
         @test_throws ErrorException AprilTags.setrefine_pose(detector,1)
+
+        @test_throws ErrorException AprilTags.getnThreads(detector)
+        @test_throws ErrorException AprilTags.getquad_decimate(detector)
+        @test_throws ErrorException AprilTags.getquad_sigma(detector)
+        @test_throws ErrorException AprilTags.getrefine_edges(detector)
+        @test_throws ErrorException AprilTags.getrefine_decode(detector)
+        @test_throws ErrorException AprilTags.getrefine_pose(detector)
+
         @test freeDetector!(detector) == nothing
         #testing NULL tag families errors
         detector = AprilTagDetector()
