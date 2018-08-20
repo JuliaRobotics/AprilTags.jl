@@ -17,14 +17,29 @@ mutable struct AprilTagDetector
     tf::Ptr{apriltag_family_t}
 
 end
-#TODO add getters and then getproperty for each
-# Base.getproperty(x::Bla,f::Symbol) = begin
-#     if f == :nThreads
-#         return getnThreads(x)
-#     else
-#         getfield(x,f)
-#     end
-# end
+
+Base.propertynames(x::AprilTagDetector, private::Bool=false) =
+    (:nThreads, :quad_decimate, :quad_sigma, :refine_edges, :refine_decode, :refine_pose,
+        (private ? fieldnames(typeof(x)) : ())...)
+
+Base.getproperty(x::AprilTagDetector,f::Symbol) = begin
+    if f == :nThreads
+        getnThreads(x)
+    elseif f == :quad_decimate
+        getquad_decimate(x)
+    elseif f == :quad_sigma
+        getquad_sigma(x)
+    elseif f == :refine_edges
+        getrefine_edges(x)
+    elseif f == :refine_decode
+        getrefine_decode(x)
+    elseif f == :refine_pose
+        getrefine_pose(x)
+    else
+        getfield(x,f)
+    end
+end
+
 Base.setproperty!(x::AprilTagDetector,f::Symbol, v) = begin
     if f == :nThreads
         setnThreads(x,v)
@@ -42,6 +57,16 @@ Base.setproperty!(x::AprilTagDetector,f::Symbol, v) = begin
         # Base.setfield!(x,f,v)
         Base.setfield!(x, f, convert(fieldtype(typeof(x), f), v))
     end
+end
+
+function Base.show(io::IO, mime::MIME{Symbol("text/plain")}, F::AprilTagDetector)
+    println(io, summary(F))
+    println(io, "nThreads: ", F.nThreads)
+    println(io, "quad_decimate: ", F.quad_decimate)
+    println(io, "quad_sigma: ", F.quad_sigma)
+    println(io, "refine_edges: ", F.refine_edges)
+    println(io, "refine_decode: ", F.refine_decode)
+    println(io, "refine_pose: ", F.refine_pose)
 end
 
 """
@@ -318,6 +343,50 @@ function setrefine_pose(detector, refine_pose::Integer)::Nothing
     end
     unsafe_store!(Ptr{Int32}(detector.td), Int32(refine_pose), 6)
     return nothing
+end
+
+##Getters
+function getnThreads(detector)::Int32
+    if detector.td == C_NULL
+        error("AprilTags Detector does not exist")
+    end
+    return unsafe_load(Ptr{Int32}(detector.td), 1) #first Int
+end
+
+function getquad_decimate(detector)::Float32
+    if detector.td == C_NULL
+        error("AprilTags Detector does not exist")
+    end
+    return unsafe_load(Ptr{Cfloat}(detector.td), 2)
+end
+
+function getquad_sigma(detector)::Float32
+    if detector.td == C_NULL
+        error("AprilTags Detector does not exist")
+    end
+    return unsafe_load(Ptr{Cfloat}(detector.td), 3)
+end
+
+function getrefine_edges(detector)::Int32
+    if detector.td == C_NULL
+        error("AprilTags Detector does not exist")
+    end
+    return unsafe_load(Ptr{Int32}(detector.td), 4)
+end
+
+
+function getrefine_decode(detector)::Int32
+    if detector.td == C_NULL
+        error("AprilTags Detector does not exist")
+    end
+    return unsafe_load(Ptr{Int32}(detector.td), 5)
+end
+
+function getrefine_pose(detector)::Int32
+    if detector.td == C_NULL
+        error("AprilTags Detector does not exist")
+    end
+    return unsafe_load(Ptr{Int32}(detector.td), 6)
 end
 
 

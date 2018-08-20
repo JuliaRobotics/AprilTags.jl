@@ -78,6 +78,17 @@ using Test
         detector.refine_decode = 1
         detector.refine_pose = 1
 
+        #getters -- compare with set values just now
+        @test detector.nThreads == 4
+        @test detector.quad_decimate == 1.0
+        @test detector.quad_sigma == 0.0
+        @test detector.refine_edges == 1
+        @test detector.refine_decode == 1
+        @test detector.refine_pose == 1
+
+        #test @show overload
+        @test sprint((t,s)->show(t,"text/plain",s), detector) == "AprilTagDetector\nnThreads: 4\nquad_decimate: 1.0\nquad_sigma: 0.0\nrefine_edges: 1\nrefine_decode: 1\nrefine_pose: 1\n"
+
         cpoints = map(tag->[tag.c[2],tag.c[1]],tags2)
         freeDetector!(detector)
         @test cpoints ≈ refpoints atol=0.5
