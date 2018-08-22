@@ -27,21 +27,34 @@ Initialize a detector with the default (tag36h11) tag family.
 # Create default detector
 detector = AprilTagDetector()
 ```
-Some tag detector parameters can be set at this time.
+The tag detector parameters can be set as shown bellow.
 The default parameters are the recommended starting point.
 ```julia
-AprilTags.setnThreads(detector, 4)
-AprilTags.setquad_decimate(detector, 1.0)
-AprilTags.setquad_sigma(detector,0.0)
-AprilTags.setrefine_edges(detector,1)
-AprilTags.setrefine_decode(detector,0)
-AprilTags.setrefine_pose(detector,0)
+detector.nThreads = 4 #number of threads to use
+detector.quad_decimate =  1.0 #"Decimate input image by this factor"
+detector.quad_sigma = 0.0 #"Apply low-pass blur to input; negative sharpens"
+detector.refine_edges = 1 #"Set to 1 to spend more time to align edges of tags"
+detector.refine_decode = 0 #"Set to 1 to spend more time to decode tags"
+detector.refine_pose = 0 #"Set to 1 to spend more time to precisely localize tags"
 ```    
-Increase the image decimation if faster processing is required; the
-trade-off is a slight decrease in detection range. A factor of 1.0
-means the full-size input image is used.
 
-Some Gaussian blur (quad_sigma) may help with noisy input images.
+#### quad_decimate
+Detection of quads can be done on a lower-resolution image, improving speed at a cost of pose accuracy and a slight decrease in detection rate. Decoding the binary payload is still done at full resolution.  
+Increase the image decimation if faster processing is required. A factor of 1.0 means the full-size input image is used.
+
+#### quad_sigma
+What Gaussian blur should be applied to the segmented image (used for quad detection?).  
+Parameter is the standard deviation in pixels. Very noisy images benefit from non-zero values (e.g. 0.8).
+
+#### refine_edges
+When non-zero, the edges of the each quad are adjusted to "snap to" strong gradients nearby. This is useful when decimation is employed, as it can increase the quality of the initial quad estimate substantially. Generally recommended to be on (1). Very computationally inexpensive. Option is ignored if quad_decimate = 1.
+
+#### refine_decode
+When non-zero, detections are refined in a way intended to increase the number of detected tags. Especially effective for very small tags near the resolution threshold (e.g. 10px on a side).
+
+#### refine_pose
+When non-zero, detections are refined in a way intended to increase the accuracy of the extracted pose. This is done by maximizing the contrast around the black and white border of the tag. This generally increases the number of successfully detected tags, though not as effectively (or quickly) as refine_decode.  
+This option must be enabled in order for "goodness" to be computed.
 
 ### Detection
 Process an input image and return a vector of detections.
@@ -55,6 +68,13 @@ tags = detector(image)
 The caller is responsible for freeing the memmory by calling
 ```julia
 freeDetector!(detector)
+```
+
+### Creating the AprilTag Images
+The AprilTag images can be created using the `getAprilTagImage` function.  
+Eg. to create a tag image with id 1 from family 'tag36h11' run:
+```julia
+getAprilTagImage(1, AprilTags.tag36h11)
 ```
 
 ## Manual Outline
