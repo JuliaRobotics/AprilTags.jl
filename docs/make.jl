@@ -17,7 +17,6 @@ deploydocs(
     target = "build",
     deps   = nothing,
     make   = nothing,
-    julia  = "0.6",
+    julia  = "0.7",
     osname = "linux"
 )
-
