@@ -3,6 +3,7 @@ using Images
 #Pkg.add("Images")
 
 using AprilTags
+using Dates
 
 # Simple method to show the image with the tags
 function showImage(image, tags)
