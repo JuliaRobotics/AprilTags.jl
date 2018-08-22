@@ -8,9 +8,14 @@ This package is a ccall wrapper for the [AprilTags](https://april.eecs.umich.edu
 
 # Installation
 
-AprilTags.jl can be installed in Julia 0.6 with:
+AprilTags.jl can be installed in Julia 0.7 and 1.0 with:
 ```julia
+#enter ']' to get the package manager and then type:
+(v0.7) pkg> add AprilTags
+# or
+using Pkg
 Pkg.add("AprilTags")
 ```
+Please see v0.0.2 for julia 0.6 support.
 
 See [documentation](https://juliarobotics.github.io/AprilTags.jl/latest/), examples, and test folder for usage.

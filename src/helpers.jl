@@ -1,4 +1,3 @@
-
 @enum TagFamilies tag36h11 tag36h10 tag25h9 tag16h5
 
 struct AprilTag
@@ -17,6 +16,57 @@ mutable struct AprilTagDetector
     td::Ptr{apriltag_detector_t}
     tf::Ptr{apriltag_family_t}
 
+end
+
+Base.propertynames(x::AprilTagDetector, private::Bool=false) =
+    (:nThreads, :quad_decimate, :quad_sigma, :refine_edges, :refine_decode, :refine_pose,
+        (private ? fieldnames(typeof(x)) : ())...)
+
+Base.getproperty(x::AprilTagDetector,f::Symbol) = begin
+    if f == :nThreads
+        getnThreads(x)
+    elseif f == :quad_decimate
+        getquad_decimate(x)
+    elseif f == :quad_sigma
+        getquad_sigma(x)
+    elseif f == :refine_edges
+        getrefine_edges(x)
+    elseif f == :refine_decode
+        getrefine_decode(x)
+    elseif f == :refine_pose
+        getrefine_pose(x)
+    else
+        getfield(x,f)
+    end
+end
+
+Base.setproperty!(x::AprilTagDetector,f::Symbol, v) = begin
+    if f == :nThreads
+        setnThreads(x,v)
+    elseif f == :quad_decimate
+        setquad_decimate(x,v)
+    elseif f == :quad_sigma
+        setquad_sigma(x,v)
+    elseif f == :refine_edges
+        setrefine_edges(x,v)
+    elseif f == :refine_decode
+        setrefine_decode(x,v)
+    elseif f == :refine_pose
+        setrefine_pose(x,v)
+    else
+        # Base.setfield!(x,f,v)
+        Base.setfield!(x, f, convert(fieldtype(typeof(x), f), v))
+    end
+end
+
+function Base.show(io::IO, mime::MIME{Symbol("text/plain")}, F::AprilTagDetector)
+    println(io, summary(F))
+    println(io, "nThreads: ", F.nThreads)
+    println(io, "quad_decimate: ", F.quad_decimate)
+    println(io, "quad_sigma: ", F.quad_sigma)
+    println(io, "refine_edges: ", F.refine_edges)
+    println(io, "refine_decode: ", F.refine_decode)
+    println(io, "refine_pose: ", F.refine_pose)
 end
 
 """
@@ -119,16 +169,16 @@ end
 	freeDetector!(apriltagdetector)
 Free the allocated memmory
 """
-function freeDetector!(detector::AprilTagDetector)::Void
+function freeDetector!(detector::AprilTagDetector)::Nothing
 
     if detector.td == C_NULL
-        warn("AprilTags Detector does not exist")
+        @warn "AprilTags Detector does not exist"
     else
         apriltag_detector_destroy(detector.td)
     end
 
     if detector.tf == C_NULL
-        warn("AprilTags family does not exist")
+        @warn "AprilTags family does not exist"
     else
         tag36h11_destroy(detector.tf) #gebruik die ene sommer vir almal vir nou, dit lyk inelkgeval dieselfde in c kode
     end
@@ -154,6 +204,13 @@ function convert(::Type{image_u8_t}, image::Array{UInt8, 2})
     imbuf = image'[:]
     return AprilTags.image_u8_t(Int32(cols), Int32(rows), Int32(cols), Base.unsafe_convert(Ptr{UInt8}, imbuf))
 end
+# TODO maybe add for AbstractArray types such as ReinterpretArray
+# function convert(::Type{image_u8_t}, image::AbstractArray{UInt8, 2})
+# #create image8 opject for april tags
+#     @show (rows,cols) = size(image)
+#     imbuf = image'[:]
+#     return AprilTags.image_u8_t(Int32(cols), Int32(rows), Int32(cols), Base.unsafe_convert(Ptr{UInt8}, imbuf))
+# end
 
 function convert(::Type{image_u8_t}, image::Array{T, 2}) where T <: U8Types
 #create image8 opject for april tags
@@ -166,7 +223,7 @@ end
 function getTagDetections(detections::Ptr{zarray})::Vector{AprilTags.apriltag_detection}
     detzarray = unsafe_load(detections)
     if detzarray.size > 0
-        dettags = Vector{AprilTags.apriltag_detection_t}(detzarray.size)
+        dettags = Vector{AprilTags.apriltag_detection_t}(undef,detzarray.size)
         for i=1:detzarray.size
             pointer_to_apriltag_detection_t = unsafe_load(convert(Ptr{Ptr{AprilTags.apriltag_detection_t}}, detzarray.data),i)
             dettags[i] = unsafe_load(pointer_to_apriltag_detection_t)
@@ -182,7 +239,7 @@ end
 function copyAprilTagDetections(detections::Ptr{zarray})::Vector{AprilTag}
     detzarray = unsafe_load(detections)
     if detzarray.size > 0
-        apriltags = Vector{AprilTag}(detzarray.size)
+        apriltags = Vector{AprilTag}(undef,detzarray.size)
         for i=1:detzarray.size
             pointer_to_apriltag_detection_t = unsafe_load(convert(Ptr{Ptr{AprilTags.apriltag_detection_t}}, detzarray.data),i)
             dettag = unsafe_load(pointer_to_apriltag_detection_t)
@@ -191,7 +248,7 @@ function copyAprilTagDetections(detections::Ptr{zarray})::Vector{AprilTag}
             family = unsafe_string(unsafe_load(dettag.family).name)
 
             #Reading homography of tag 1 (transpose for c row major and deepcopy since memory is destoyed by c)
-            voidpointertoH = Base.unsafe_convert(Ptr{Void}, dettag.H)
+            voidpointertoH = Base.unsafe_convert(Ptr{Nothing}, dettag.H)
             # pointer to H matrix
             nrows = unsafe_load(Ptr{UInt32}(voidpointertoH),1)
             ncols = unsafe_load(Ptr{UInt32}(voidpointertoH),2)
@@ -237,7 +294,7 @@ end
 
 
 ##Setters
-function setnThreads(detector, nthreads)::Void
+function setnThreads(detector, nthreads::Integer)::Nothing
     if detector.td == C_NULL
         error("AprilTags Detector does not exist")
     end
@@ -247,7 +304,7 @@ function setnThreads(detector, nthreads)::Void
     return nothing
 end
 
-function setquad_decimate(detector, quad_decimate)::Void
+function setquad_decimate(detector, quad_decimate)::Nothing
     if detector.td == C_NULL
         error("AprilTags Detector does not exist")
     end
@@ -255,7 +312,7 @@ function setquad_decimate(detector, quad_decimate)::Void
     return nothing
 end
 
-function setquad_sigma(detector, quad_sigma)::Void
+function setquad_sigma(detector, quad_sigma)::Nothing
     if detector.td == C_NULL
         error("AprilTags Detector does not exist")
     end
@@ -263,7 +320,7 @@ function setquad_sigma(detector, quad_sigma)::Void
     return nothing
 end
 
-function setrefine_edges(detector, refine_edges)::Void
+function setrefine_edges(detector, refine_edges::Integer)::Nothing
     if detector.td == C_NULL
         error("AprilTags Detector does not exist")
     end
@@ -272,7 +329,7 @@ function setrefine_edges(detector, refine_edges)::Void
 end
 
 
-function setrefine_decode(detector, refine_decode)::Void
+function setrefine_decode(detector, refine_decode::Integer)::Nothing
     if detector.td == C_NULL
         error("AprilTags Detector does not exist")
     end
@@ -280,12 +337,56 @@ function setrefine_decode(detector, refine_decode)::Void
     return nothing
 end
 
-function setrefine_pose(detector, refine_pose)::Void
+function setrefine_pose(detector, refine_pose::Integer)::Nothing
     if detector.td == C_NULL
         error("AprilTags Detector does not exist")
     end
     unsafe_store!(Ptr{Int32}(detector.td), Int32(refine_pose), 6)
     return nothing
+end
+
+##Getters
+function getnThreads(detector)::Int32
+    if detector.td == C_NULL
+        error("AprilTags Detector does not exist")
+    end
+    return unsafe_load(Ptr{Int32}(detector.td), 1) #first Int
+end
+
+function getquad_decimate(detector)::Float32
+    if detector.td == C_NULL
+        error("AprilTags Detector does not exist")
+    end
+    return unsafe_load(Ptr{Cfloat}(detector.td), 2)
+end
+
+function getquad_sigma(detector)::Float32
+    if detector.td == C_NULL
+        error("AprilTags Detector does not exist")
+    end
+    return unsafe_load(Ptr{Cfloat}(detector.td), 3)
+end
+
+function getrefine_edges(detector)::Int32
+    if detector.td == C_NULL
+        error("AprilTags Detector does not exist")
+    end
+    return unsafe_load(Ptr{Int32}(detector.td), 4)
+end
+
+
+function getrefine_decode(detector)::Int32
+    if detector.td == C_NULL
+        error("AprilTags Detector does not exist")
+    end
+    return unsafe_load(Ptr{Int32}(detector.td), 5)
+end
+
+function getrefine_pose(detector)::Int32
+    if detector.td == C_NULL
+        error("AprilTags Detector does not exist")
+    end
+    return unsafe_load(Ptr{Int32}(detector.td), 6)
 end
 
 
