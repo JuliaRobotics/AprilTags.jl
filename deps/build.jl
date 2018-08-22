@@ -14,6 +14,7 @@ libpath = joinpath(dirname(@__FILE__),"apriltag-2016-12-01")
 f = open("loadpath.jl", "w")
 
 write(f,"# This is an automatically generated file, do not edit.\n")
+write(f,"using Libdl\n")
 write(f,"push!(Libdl.DL_LOAD_PATH, \"$(libpath)\")")
 
 close(f)

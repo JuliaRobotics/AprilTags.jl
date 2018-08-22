@@ -177,7 +177,7 @@ const zarray_t = zarray
 mutable struct workerpool
 end
 
-const workerpool_t = Void
+const workerpool_t = Nothing
 
 const va_list = Cint
 
@@ -188,8 +188,8 @@ end
 
 
 mutable struct _pthread_cleanup_buffer
-    __routine::Ptr{Void}
-    __arg::Ptr{Void}
+    __routine::Ptr{Nothing}
+    __arg::Ptr{Nothing}
     __canceltype::Cint
     __prev::Ptr{_pthread_cleanup_buffer}
 end
@@ -214,7 +214,7 @@ mutable struct apriltag_family
     d::UInt32
     h::UInt32
     name::Cstring
-    impl::Ptr{Void}
+    impl::Ptr{Nothing}
 end
 
 const apriltag_family_t = apriltag_family
@@ -323,7 +323,7 @@ end
 Destroy the AprilTag family object.
 """
 function tag36h11_destroy(tf)
-    ccall((:tag36h11_destroy, :libapriltag), Void, (Ptr{apriltag_family_t},), tf)
+    ccall((:tag36h11_destroy, :libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
 end
 
 
@@ -332,7 +332,7 @@ function tag36h10_create()
 end
 
 function tag36h10_destroy(tf)
-    ccall((:tag36h10_destroy, :libapriltag), Void, (Ptr{apriltag_family_t},), tf)
+    ccall((:tag36h10_destroy, :libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
 end
 
 function tag25h9_create()
@@ -340,7 +340,7 @@ function tag25h9_create()
 end
 
 function tag25h9_destroy(tf)
-    ccall((:tag25h9_destroy, :libapriltag), Void, (Ptr{apriltag_family_t},), tf)
+    ccall((:tag25h9_destroy, :libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
 end
 
 function tag25h7_create()
@@ -348,7 +348,7 @@ function tag25h7_create()
 end
 
 function tag25h7_destroy(tf)
-    ccall((:tag25h7_destroy, :libapriltag), Void, (Ptr{apriltag_family_t},), tf)
+    ccall((:tag25h7_destroy, :libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
 end
 
 function tag16h5_create()
@@ -356,7 +356,7 @@ function tag16h5_create()
 end
 
 function tag16h5_destroy(tf)
-    ccall((:tag16h5_destroy, :libapriltag), Void, (Ptr{apriltag_family_t},), tf)
+    ccall((:tag16h5_destroy, :libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
 end
 
 """
@@ -369,7 +369,7 @@ end
 
 
 function apriltag_detector_add_family_bits(td, fam, bits_corrected::Cint)
-    ccall((:apriltag_detector_add_family_bits, :libapriltag), Void, (Ptr{apriltag_detector_t}, Ptr{apriltag_family_t}, Cint), td, fam, bits_corrected)
+    ccall((:apriltag_detector_add_family_bits, :libapriltag), Nothing, (Ptr{apriltag_detector_t}, Ptr{apriltag_family_t}, Cint), td, fam, bits_corrected)
 end
 
 """
@@ -378,20 +378,20 @@ Add a tag family to an AprilTag Detector object.
 The caller still "owns" the family and a single instance should only be provided to one apriltag detector instance.
 """
 function apriltag_detector_add_family(td, fam)
-    # ccall((:apriltag_detector_add_family, :libapriltag), Void, (Ptr{apriltag_detector_t}, Ptr{apriltag_family_t}), td, fam)
+    # ccall((:apriltag_detector_add_family, :libapriltag), Nothing, (Ptr{apriltag_detector_t}, Ptr{apriltag_family_t}), td, fam)
     apriltag_detector_add_family_bits(td, fam, Int32(2))
 end
 
 function apriltag_detector_remove_family(td, fam)
-    ccall((:apriltag_detector_remove_family, :libapriltag), Void, (Ptr{apriltag_detector_t}, Ptr{apriltag_family_t}), td, fam)
+    ccall((:apriltag_detector_remove_family, :libapriltag), Nothing, (Ptr{apriltag_detector_t}, Ptr{apriltag_family_t}), td, fam)
 end
 
 function apriltag_detector_clear_families(td)
-    ccall((:apriltag_detector_clear_families, :libapriltag), Void, (Ptr{apriltag_detector_t},), td)
+    ccall((:apriltag_detector_clear_families, :libapriltag), Nothing, (Ptr{apriltag_detector_t},), td)
 end
 
 function apriltag_detector_destroy(td)
-    ccall((:apriltag_detector_destroy, :libapriltag), Void, (Ptr{apriltag_detector_t},), td)
+    ccall((:apriltag_detector_destroy, :libapriltag), Nothing, (Ptr{apriltag_detector_t},), td)
 end
 
 """
@@ -417,11 +417,11 @@ end
 
 
 function apriltag_detection_destroy(det)
-    ccall((:apriltag_detection_destroy, :libapriltag), Void, (Ptr{apriltag_detection_t},), det)
+    ccall((:apriltag_detection_destroy, :libapriltag), Nothing, (Ptr{apriltag_detection_t},), det)
 end
 
 function apriltag_detections_destroy(detections)
-    ccall((:apriltag_detections_destroy, :libapriltag), Void, (Ptr{zarray_t},), detections)
+    ccall((:apriltag_detections_destroy, :libapriltag), Nothing, (Ptr{zarray_t},), detections)
 end
 
 function apriltag_to_image(fam, idx::Cint)

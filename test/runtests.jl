@@ -5,16 +5,28 @@ using ImageMagick
 using ImageDraw
 using ColorTypes
 using FixedPointNumbers
-using Base.Test
+using Test
 
 
 @testset "AprilTags" begin
+    # To test without extra dependancies
+    # image = rand(UInt8, 480,640)
+    # image[50:79,50:79]     = kron(reinterpret(UInt8,getAprilTagImage(0)), ones(UInt8, 3,3))
+    # image[150:179,150:179] = kron(reinterpret(UInt8,getAprilTagImage(1)), ones(UInt8, 3,3))
+    # image[250:279,250:279] = kron(reinterpret(UInt8,getAprilTagImage(2)), ones(UInt8, 3,3))
+    # image = Gray.(reinterpret(N0f8, image))
+    #
+    #
+    # imageCol = RGB.(image)
+    # refpoints = [[63.9, 63.9],
+    #             [163.9, 163.9],
+    #             [263.9, 263.9]]
 
     image = load(dirname(Base.source_path()) *"/../data/tagtest.jpg")
     imageCol = load(dirname(Base.source_path()) *"/../data/colortag.jpg")
     refpoints = [[404.5, 176.1],
-                [134.0, 216.1],
-                [412.0, 130.1]]
+                 [134.0, 216.1],
+                 [412.0, 130.1]]
 
     @testset "Low-level API" begin
         # test wrappers
@@ -30,23 +42,22 @@ using Base.Test
         #create image8 object for april tags
         image8 = convert(AprilTags.image_u8_t, image)
 
-        # test convertions
-        image8_from_u8 = convert(AprilTags.image_u8_t, reinterpret(UInt8, image))
-        @test image8_from_u8.width == image8.width
-        @test image8_from_u8.height == image8.height
-        @test image8_from_u8.stride == image8.stride
-        #TODO: maybe add test for content of pointer
-
         # run detector on image
-        detections =  apriltag_detector_detect(td, image8)
+        detections = apriltag_detector_detect(td, image8)
 
         # copy detections
         tags = getTagDetections(detections)
 
         #extract tag centres
         cpoints = map(tag->[tag.c[2],tag.c[1]],tags)
-
         @test cpoints ≈ refpoints atol=0.5
+
+        # test convertions
+        image8_from_u8 = convert(AprilTags.image_u8_t, reinterpret(UInt8, image)[:,:])
+        @test image8_from_u8.width == image8.width
+        @test image8_from_u8.height == image8.height
+        @test image8_from_u8.stride == image8.stride
+        #TODO: maybe add test for content of pointer
 
         apriltag_detections_destroy(detections)
         # Cleanup: free the detector and tag family when done.
@@ -60,7 +71,7 @@ using Base.Test
         tags2 = detector(image)
 
         @test length(detector(gray.(image))) == 3
-        @test length(detector(reinterpret(UInt8,image))) == 3
+        @test length(detector(reinterpret(UInt8,image)[:,:])) == 3
 
         tagsth = AprilTags.threadcalldetect(detector, image)
         @test length(tagsth) == 3
@@ -69,12 +80,23 @@ using Base.Test
         @test length(detector(rand(Gray{N0f8},100,100))) == 0
 
         #setters -- just run for now
-        AprilTags.setnThreads(detector, 4)
-        AprilTags.setquad_decimate(detector, 1.0)
-        AprilTags.setquad_sigma(detector,0.0)
-        AprilTags.setrefine_edges(detector,1)
-        AprilTags.setrefine_decode(detector,1)
-        AprilTags.setrefine_pose(detector,1)
+        detector.nThreads = 4
+        detector.quad_decimate = 1.0
+        detector.quad_sigma = 0.0
+        detector.refine_edges = 1
+        detector.refine_decode = 1
+        detector.refine_pose = 1
+
+        #getters -- compare with set values just now
+        @test detector.nThreads == 4
+        @test detector.quad_decimate == 1.0
+        @test detector.quad_sigma == 0.0
+        @test detector.refine_edges == 1
+        @test detector.refine_decode == 1
+        @test detector.refine_pose == 1
+
+        #test @show overload
+        @test sprint((t,s)->show(t,"text/plain",s), detector) == "AprilTagDetector\nnThreads: 4\nquad_decimate: 1.0\nquad_sigma: 0.0\nrefine_edges: 1\nrefine_decode: 1\nrefine_pose: 1\n"
 
         cpoints = map(tag->[tag.c[2],tag.c[1]],tags2)
         freeDetector!(detector)
@@ -185,6 +207,14 @@ using Base.Test
         @test_throws ErrorException AprilTags.setrefine_edges(detector,1)
         @test_throws ErrorException AprilTags.setrefine_decode(detector,1)
         @test_throws ErrorException AprilTags.setrefine_pose(detector,1)
+
+        @test_throws ErrorException AprilTags.getnThreads(detector)
+        @test_throws ErrorException AprilTags.getquad_decimate(detector)
+        @test_throws ErrorException AprilTags.getquad_sigma(detector)
+        @test_throws ErrorException AprilTags.getrefine_edges(detector)
+        @test_throws ErrorException AprilTags.getrefine_decode(detector)
+        @test_throws ErrorException AprilTags.getrefine_pose(detector)
+
         @test freeDetector!(detector) == nothing
         #testing NULL tag families errors
         detector = AprilTagDetector()
