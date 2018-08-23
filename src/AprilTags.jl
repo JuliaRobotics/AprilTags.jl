@@ -17,6 +17,8 @@ AprilTagDetector,
 freeDetector!,
 getTagDetections,
 homography_to_pose,
+threadcalldetect,
+getAprilTagImage,
 
 # wrappers
 apriltag_detector_create,
@@ -27,8 +29,7 @@ apriltag_detector_add_family,
 apriltag_detector_detect,
 apriltag_detections_destroy,
 apriltag_detector_destroy,
-
-getAprilTagImage,
+threadcall_apriltag_detector_detect,
 
 #drawing and plotting
 drawTagBox!,
