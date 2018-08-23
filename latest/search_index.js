@@ -45,7 +45,47 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Initialization",
     "category": "section",
-    "text": "Initialize a detector with the default (tag36h11) tag family.# Create default detector\ndetector = AprilTagDetector()Some tag detector parameters can be set at this time. The default parameters are the recommended starting point.AprilTags.setnThreads(detector, 4)\nAprilTags.setquad_decimate(detector, 1.0)\nAprilTags.setquad_sigma(detector,0.0)\nAprilTags.setrefine_edges(detector,1)\nAprilTags.setrefine_decode(detector,0)\nAprilTags.setrefine_pose(detector,0)Increase the image decimation if faster processing is required; the trade-off is a slight decrease in detection range. A factor of 1.0 means the full-size input image is used.Some Gaussian blur (quad_sigma) may help with noisy input images."
+    "text": "Initialize a detector with the default (tag36h11) tag family.# Create default detector\ndetector = AprilTagDetector()The tag detector parameters can be set as shown bellow. The default parameters are the recommended starting point.detector.nThreads = 4 #number of threads to use\ndetector.quad_decimate =  1.0 #\"Decimate input image by this factor\"\ndetector.quad_sigma = 0.0 #\"Apply low-pass blur to input; negative sharpens\"\ndetector.refine_edges = 1 #\"Set to 1 to spend more time to align edges of tags\"\ndetector.refine_decode = 0 #\"Set to 1 to spend more time to decode tags\"\ndetector.refine_pose = 0 #\"Set to 1 to spend more time to precisely localize tags\""
+},
+
+{
+    "location": "index.html#quad_decimate-1",
+    "page": "Home",
+    "title": "quad_decimate",
+    "category": "section",
+    "text": "Detection of quads can be done on a lower-resolution image, improving speed at a cost of pose accuracy and a slight decrease in detection rate. Decoding the binary payload is still done at full resolution.   Increase the image decimation if faster processing is required. A factor of 1.0 means the full-size input image is used."
+},
+
+{
+    "location": "index.html#quad_sigma-1",
+    "page": "Home",
+    "title": "quad_sigma",
+    "category": "section",
+    "text": "What Gaussian blur should be applied to the segmented image (used for quad detection?).   Parameter is the standard deviation in pixels. Very noisy images benefit from non-zero values (e.g. 0.8)."
+},
+
+{
+    "location": "index.html#refine_edges-1",
+    "page": "Home",
+    "title": "refine_edges",
+    "category": "section",
+    "text": "When non-zero, the edges of the each quad are adjusted to \"snap to\" strong gradients nearby. This is useful when decimation is employed, as it can increase the quality of the initial quad estimate substantially. Generally recommended to be on (1). Very computationally inexpensive. Option is ignored if quad_decimate = 1."
+},
+
+{
+    "location": "index.html#refine_decode-1",
+    "page": "Home",
+    "title": "refine_decode",
+    "category": "section",
+    "text": "When non-zero, detections are refined in a way intended to increase the number of detected tags. Especially effective for very small tags near the resolution threshold (e.g. 10px on a side)."
+},
+
+{
+    "location": "index.html#refine_pose-1",
+    "page": "Home",
+    "title": "refine_pose",
+    "category": "section",
+    "text": "When non-zero, detections are refined in a way intended to increase the accuracy of the extracted pose. This is done by maximizing the contrast around the black and white border of the tag. This generally increases the number of successfully detected tags, though not as effectively (or quickly) as refine_decode.   This option must be enabled in order for \"goodness\" to be computed."
 },
 
 {
@@ -54,6 +94,14 @@ var documenterSearchIndex = {"docs": [
     "title": "Detection",
     "category": "section",
     "text": "Process an input image and return a vector of detections. The input image can be loaded with the Images package.image = load(\"example_image.jpg\")\ntags = detector(image)\n#do something with tags hereThe caller is responsible for freeing the memmory by callingfreeDetector!(detector)"
+},
+
+{
+    "location": "index.html#Creating-the-AprilTag-Images-1",
+    "page": "Home",
+    "title": "Creating the AprilTag Images",
+    "category": "section",
+    "text": "The AprilTag images can be created using the getAprilTagImage function.   Eg. to create a tag image with id 1 from family \'tag36h11\' run:getAprilTagImage(1, AprilTags.tag36h11)"
 },
 
 {
@@ -121,11 +169,27 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "func_ref.html#AprilTags.getAprilTagImage",
+    "page": "Functions",
+    "title": "AprilTags.getAprilTagImage",
+    "category": "function",
+    "text": "getAprilTagImage(tagIndex, tagfamily=tag36h11)\n\nReturn an image [Gray{N0f8}] for with tagIndex from tag family in tagfamily::TagFamilies @enum TagFamilies tag36h11 tag36h10 tag25h9 tag16h5\n\n\n\n\n\n"
+},
+
+{
+    "location": "func_ref.html#AprilTags.threadcalldetect",
+    "page": "Functions",
+    "title": "AprilTags.threadcalldetect",
+    "category": "function",
+    "text": "threadcalldetect(detector, image)\n\nRun the april tag detector on a image\n\n\n\n\n\n"
+},
+
+{
     "location": "func_ref.html#AprilTags.jl-functions-1",
     "page": "Functions",
     "title": "AprilTags.jl functions",
     "category": "section",
-    "text": "AprilTags.AprilTagDetector\nAprilTags.freeDetector!\nhomography_to_pose\ndrawTagBox!\ndrawTagAxes!"
+    "text": "AprilTags.AprilTagDetector\nAprilTags.freeDetector!\nhomography_to_pose\ndrawTagBox!\ndrawTagAxes!\ngetAprilTagImage\nthreadcalldetect"
 },
 
 {
@@ -169,11 +233,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "func_ref.html#AprilTags.getAprilTagImage",
+    "location": "func_ref.html#AprilTags.threadcall_apriltag_detector_detect",
     "page": "Functions",
-    "title": "AprilTags.getAprilTagImage",
+    "title": "AprilTags.threadcall_apriltag_detector_detect",
     "category": "function",
-    "text": "getAprilTagImage(tagIndex, tagfamily=tag36h11)\n\nReturn an image [Gray{N0f8}] for with tagIndex from tag family in tagfamily::TagFamilies @enum TagFamilies tag36h11 tag36h10 tag25h9 tag16h5\n\n\n\n\n\n"
+    "text": "threadcall_apriltag_detector_detect(tag_detector, image)\n\nExperimental call apriltagdetectordetect in a seperate thread using the experimantal @threadcall Detect tags from an image and return an array of apriltagdetectiont*. You can use apriltagdetectionsdestroy to free the array and the detections it contains, or call detectiondestroy and zarraydestroy yourself.\n\n\n\n\n\n"
 },
 
 {
@@ -181,7 +245,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Functions",
     "title": "Wrappers",
     "category": "section",
-    "text": "apriltag_detector_create\ntag36h11_create\ntag36h11_destroy\napriltag_detector_add_family\napriltag_detector_detect\ngetAprilTagImage"
+    "text": "apriltag_detector_create\ntag36h11_create\ntag36h11_destroy\napriltag_detector_add_family\napriltag_detector_detect\nthreadcall_apriltag_detector_detect"
 },
 
 {
