@@ -13,6 +13,8 @@ AprilTags.freeDetector!
 homography_to_pose
 drawTagBox!
 drawTagAxes!
+getAprilTagImage
+threadcalldetect
 ```
 ### Wrappers
 ```@docs
@@ -21,7 +23,7 @@ tag36h11_create
 tag36h11_destroy
 apriltag_detector_add_family
 apriltag_detector_detect
-getAprilTagImage
+threadcall_apriltag_detector_detect
 ```
 
 ## Index

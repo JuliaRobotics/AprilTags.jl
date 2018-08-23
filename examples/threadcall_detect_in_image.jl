@@ -3,6 +3,7 @@ using Images
 #Pkg.add("Images")
 
 using AprilTags
+using Dates
 
 # Simple method to show the image with the tags
 function showImage(image, tags)
@@ -26,7 +27,7 @@ image = load(dirname(Base.source_path()) *"/../data/tagtest.jpg")
     #call detector in thread
     @async global t1 = @timed begin
         println("time before detector $(Dates.value(now())-starttime) ms")
-        global tags = AprilTags.threadcalldetect(detector, image)
+        global tags = threadcalldetect(detector, image)
         # ↑ comment --- compare with this --- uncomment ↓
         # global tags = detector(image)
         println("time after detector $(Dates.value(now())-starttime) ms")
@@ -37,7 +38,7 @@ image = load(dirname(Base.source_path()) *"/../data/tagtest.jpg")
     @async global t2 = @timed begin
         println("time starting other $(Dates.value(now())-starttime) ms")
         imageCol = load(dirname(Base.source_path()) *"/../data/colortag.jpg")
-        A = randn(1000,1000)
+        A = randn(2000,2000)
         randsum = sum(A*A')
         println("time finished other $(Dates.value(now())-starttime) ms")
         @show randsum
