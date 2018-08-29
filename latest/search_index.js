@@ -149,7 +149,15 @@ var documenterSearchIndex = {"docs": [
     "page": "Functions",
     "title": "AprilTags.homography_to_pose",
     "category": "function",
-    "text": "homography_to_pose(H, fx, fy, cx, cy)\n\nGiven a 3x3 homography matrix and the camera model (focal length and centre), compute the pose of the tag. The focal lengths should be given in pixels\n\n\n\n\n\n"
+    "text": "homography_to_pose(H, fx, fy, cx, cy, [taglength = 2.0])\n\nGiven a 3x3 homography matrix and the camera model (focal length and centre), compute the pose of the tag. The focal lengths should be given in pixels. The returned units are those of the tag size, therefore the translational components should be scaled with the tag size. Note: the tag coordinates are from (-1,-1) to (1,1), i.e. the tag size has lenght of 2 units. Optionally, the tag length (in metre) can be passed to return a scaled value.\n\n\n\n\n\n"
+},
+
+{
+    "location": "func_ref.html#AprilTags.homographytopose",
+    "page": "Functions",
+    "title": "AprilTags.homographytopose",
+    "category": "function",
+    "text": "homographytopose(H, fx, fy, cx, cy, [taglength = 2.0])\n\nGiven a 3x3 homography matrix and the camera model (focal length and centre), compute the pose of the tag. The focal lengths should be given in pixels. The returned units are those of the tag size, therefore the translational components should be scaled with the tag size. Note: the tag coordinates are from (-1,-1) to (1,1), i.e. the tag size has lenght of 2 units. Optionally, the tag length (in metre) can be passed to return a scaled value. The camara coordinate system: camera looking in positive Z axis with x to the right and y down.\n\n\n\n\n\n"
 },
 
 {
@@ -189,7 +197,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Functions",
     "title": "AprilTags.jl functions",
     "category": "section",
-    "text": "AprilTags.AprilTagDetector\nAprilTags.freeDetector!\nhomography_to_pose\ndrawTagBox!\ndrawTagAxes!\ngetAprilTagImage\nthreadcalldetect"
+    "text": "AprilTags.AprilTagDetector\nAprilTags.freeDetector!\nhomography_to_pose\nhomographytopose\ndrawTagBox!\ndrawTagAxes!\ngetAprilTagImage\nthreadcalldetect"
 },
 
 {
