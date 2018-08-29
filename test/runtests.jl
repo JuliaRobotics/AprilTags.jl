@@ -195,6 +195,8 @@ using Test
 
     end
 
+    include("homography.jl")
+
     @testset "Errors" begin
         #testing freed detectors errors
         detector = AprilTagDetector()

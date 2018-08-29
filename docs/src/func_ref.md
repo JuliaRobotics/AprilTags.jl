@@ -11,6 +11,7 @@ Depth = 3
 AprilTags.AprilTagDetector
 AprilTags.freeDetector!
 homography_to_pose
+homographytopose
 drawTagBox!
 drawTagAxes!
 getAprilTagImage

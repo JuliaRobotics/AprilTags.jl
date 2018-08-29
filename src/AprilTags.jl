@@ -17,6 +17,7 @@ AprilTagDetector,
 freeDetector!,
 getTagDetections,
 homography_to_pose,
+homographytopose,
 threadcalldetect,
 getAprilTagImage,
 

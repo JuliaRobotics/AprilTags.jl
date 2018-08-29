@@ -22,7 +22,7 @@ fx = 524.040
 fy = 524.040
 cy = 319.254
 cx = 251.227
-K = [fx 0  cx;
+K = [-fx 0  cx;
       0 fy cy]
 
 detector = nothing
