@@ -92,7 +92,8 @@ function AprilTagDetector(tagfamily::TagFamilies = tag36h11)
     #add family to detector
     apriltag_detector_add_family(td, tf)
 
-    return AprilTagDetector(td,tf)
+    #Register finalizer and return detector
+    return finalizer(freeDetector!, AprilTagDetector(td,tf))
 end
 
 const U8Types = Union{UInt8, N0f8, Gray{N0f8}}
