@@ -14,9 +14,5 @@ makedocs(
 
 deploydocs(
     repo   = "github.com/JuliaRobotics/AprilTags.jl.git",
-    target = "build",
-    deps   = nothing,
-    make   = nothing,
-    julia  = "0.7",
-    osname = "linux"
+    target = "build"
 )
