@@ -36,7 +36,7 @@ after_success:
   # push coverage results to Coveralls
   # - julia -e 'cd(Pkg.dir("AprilTags")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
   # push coverage results to Codecov
-  - julia -e 'cd(Pkg.dir("AprilTags")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
+  - julia -e 'import Pkg; cd(Pkg.dir("AprilTags")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
 
   #run documenter
   - julia -e 'ps=Pkg.PackageSpec(name="Documenter", version="0.19"); Pkg.add(ps); Pkg.pin(ps)'
