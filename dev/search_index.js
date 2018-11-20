@@ -1,7 +1,7 @@
 var documenterSearchIndex = {"docs": [
 
 {
-    "location": "index.html#",
+    "location": "#",
     "page": "Home",
     "title": "Home",
     "category": "page",
@@ -9,7 +9,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#AprilTags-1",
+    "location": "#AprilTags-1",
     "page": "Home",
     "title": "AprilTags",
     "category": "section",
@@ -17,7 +17,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#Installation-1",
+    "location": "#Installation-1",
     "page": "Home",
     "title": "Installation",
     "category": "section",
@@ -25,7 +25,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#Usage-1",
+    "location": "#Usage-1",
     "page": "Home",
     "title": "Usage",
     "category": "section",
@@ -33,7 +33,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#Examples-1",
+    "location": "#Examples-1",
     "page": "Home",
     "title": "Examples",
     "category": "section",
@@ -41,7 +41,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#Initialization-1",
+    "location": "#Initialization-1",
     "page": "Home",
     "title": "Initialization",
     "category": "section",
@@ -49,7 +49,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#quad_decimate-1",
+    "location": "#quad_decimate-1",
     "page": "Home",
     "title": "quad_decimate",
     "category": "section",
@@ -57,7 +57,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#quad_sigma-1",
+    "location": "#quad_sigma-1",
     "page": "Home",
     "title": "quad_sigma",
     "category": "section",
@@ -65,7 +65,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#refine_edges-1",
+    "location": "#refine_edges-1",
     "page": "Home",
     "title": "refine_edges",
     "category": "section",
@@ -73,7 +73,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#refine_decode-1",
+    "location": "#refine_decode-1",
     "page": "Home",
     "title": "refine_decode",
     "category": "section",
@@ -81,7 +81,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#refine_pose-1",
+    "location": "#refine_pose-1",
     "page": "Home",
     "title": "refine_pose",
     "category": "section",
@@ -89,7 +89,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#Detection-1",
+    "location": "#Detection-1",
     "page": "Home",
     "title": "Detection",
     "category": "section",
@@ -97,7 +97,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#Creating-the-AprilTag-Images-1",
+    "location": "#Creating-the-AprilTag-Images-1",
     "page": "Home",
     "title": "Creating the AprilTag Images",
     "category": "section",
@@ -105,7 +105,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#Manual-Outline-1",
+    "location": "#Manual-Outline-1",
     "page": "Home",
     "title": "Manual Outline",
     "category": "section",
@@ -113,7 +113,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "func_ref.html#",
+    "location": "func_ref/#",
     "page": "Functions",
     "title": "Functions",
     "category": "page",
@@ -121,7 +121,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "func_ref.html#Function-Reference-1",
+    "location": "func_ref/#Function-Reference-1",
     "page": "Functions",
     "title": "Function Reference",
     "category": "section",
@@ -129,7 +129,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "func_ref.html#AprilTags.AprilTagDetector",
+    "location": "func_ref/#AprilTags.AprilTagDetector",
     "page": "Functions",
     "title": "AprilTags.AprilTagDetector",
     "category": "type",
@@ -137,7 +137,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "func_ref.html#AprilTags.freeDetector!",
+    "location": "func_ref/#AprilTags.freeDetector!",
     "page": "Functions",
     "title": "AprilTags.freeDetector!",
     "category": "function",
@@ -145,7 +145,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "func_ref.html#AprilTags.homography_to_pose",
+    "location": "func_ref/#AprilTags.homography_to_pose",
     "page": "Functions",
     "title": "AprilTags.homography_to_pose",
     "category": "function",
@@ -153,7 +153,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "func_ref.html#AprilTags.homographytopose",
+    "location": "func_ref/#AprilTags.homographytopose",
     "page": "Functions",
     "title": "AprilTags.homographytopose",
     "category": "function",
@@ -161,7 +161,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "func_ref.html#AprilTags.drawTagBox!",
+    "location": "func_ref/#AprilTags.drawTagBox!",
     "page": "Functions",
     "title": "AprilTags.drawTagBox!",
     "category": "function",
@@ -169,7 +169,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "func_ref.html#AprilTags.drawTagAxes!",
+    "location": "func_ref/#AprilTags.drawTagAxes!",
     "page": "Functions",
     "title": "AprilTags.drawTagAxes!",
     "category": "function",
@@ -177,7 +177,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "func_ref.html#AprilTags.getAprilTagImage",
+    "location": "func_ref/#AprilTags.getAprilTagImage",
     "page": "Functions",
     "title": "AprilTags.getAprilTagImage",
     "category": "function",
@@ -185,7 +185,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "func_ref.html#AprilTags.threadcalldetect",
+    "location": "func_ref/#AprilTags.threadcalldetect",
     "page": "Functions",
     "title": "AprilTags.threadcalldetect",
     "category": "function",
@@ -193,7 +193,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "func_ref.html#AprilTags.jl-functions-1",
+    "location": "func_ref/#AprilTags.jl-functions-1",
     "page": "Functions",
     "title": "AprilTags.jl functions",
     "category": "section",
@@ -201,7 +201,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "func_ref.html#AprilTags.apriltag_detector_create",
+    "location": "func_ref/#AprilTags.apriltag_detector_create",
     "page": "Functions",
     "title": "AprilTags.apriltag_detector_create",
     "category": "function",
@@ -209,7 +209,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "func_ref.html#AprilTags.tag36h11_create",
+    "location": "func_ref/#AprilTags.tag36h11_create",
     "page": "Functions",
     "title": "AprilTags.tag36h11_create",
     "category": "function",
@@ -217,7 +217,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "func_ref.html#AprilTags.tag36h11_destroy",
+    "location": "func_ref/#AprilTags.tag36h11_destroy",
     "page": "Functions",
     "title": "AprilTags.tag36h11_destroy",
     "category": "function",
@@ -225,7 +225,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "func_ref.html#AprilTags.apriltag_detector_add_family",
+    "location": "func_ref/#AprilTags.apriltag_detector_add_family",
     "page": "Functions",
     "title": "AprilTags.apriltag_detector_add_family",
     "category": "function",
@@ -233,7 +233,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "func_ref.html#AprilTags.apriltag_detector_detect",
+    "location": "func_ref/#AprilTags.apriltag_detector_detect",
     "page": "Functions",
     "title": "AprilTags.apriltag_detector_detect",
     "category": "function",
@@ -241,7 +241,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "func_ref.html#AprilTags.threadcall_apriltag_detector_detect",
+    "location": "func_ref/#AprilTags.threadcall_apriltag_detector_detect",
     "page": "Functions",
     "title": "AprilTags.threadcall_apriltag_detector_detect",
     "category": "function",
@@ -249,7 +249,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "func_ref.html#Wrappers-1",
+    "location": "func_ref/#Wrappers-1",
     "page": "Functions",
     "title": "Wrappers",
     "category": "section",
@@ -257,7 +257,7 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "func_ref.html#Index-1",
+    "location": "func_ref/#Index-1",
     "page": "Functions",
     "title": "Index",
     "category": "section",
