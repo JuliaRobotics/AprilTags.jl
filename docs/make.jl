@@ -1,3 +1,5 @@
+using Pkg
+Pkg.build("AprilTags")
 using Documenter, AprilTags
 
 makedocs(
