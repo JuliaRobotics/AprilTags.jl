@@ -103,8 +103,8 @@ PixPos(pix::UInt8, pos::Array{Float64,1}) = PixPos(pix, (x=pos[1], y=pos[2], z=p
         pose = homographytopose(tags[1].H, fx, fy, cx, cy, taglength = 160.)
         display(pose)
 
-        @test pose[1:3,1:3] ≈ cTw[1:3,1:3] atol = 0.05
-        @test pose[1:3,4] ≈ cTw[1:3,4] atol = 10.
+        @test all(isapprox.(pose[1:3,1:3], cTw[1:3,1:3], atol = 0.05))
+        @test all(isapprox.(pose[1:3,4], cTw[1:3,4], atol = 10.))
     end
 
 end
