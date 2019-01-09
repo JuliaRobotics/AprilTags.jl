@@ -196,6 +196,7 @@ end
 
 mutable struct quad
     p::NTuple{4, NTuple{2, Cfloat}}
+    reversed_border::Bool
     H::Ptr{matd_t}
     Hinv::Ptr{matd_t}
 end
@@ -207,11 +208,16 @@ end
 
 const timeprofile_t = timeprofile
 
+#TODO: untested
 mutable struct apriltag_family
     ncodes::UInt32
     codes::Ptr{UInt64}
-    black_border::UInt32
-    d::UInt32
+    width_at_border::Cint
+    total_width::Cint
+    reversed_border::Bool
+    nbits::UInt32
+    bit_x::Ptr{UInt32}
+    bit_y::Ptr{UInt32}
     h::UInt32
     name::Cstring
     impl::Ptr{Nothing}
@@ -222,7 +228,7 @@ const apriltag_family_t = apriltag_family
 mutable struct apriltag_quad_thresh_params
     min_cluster_pixels::Cint
     max_nmaxima::Cint
-    critical_rad::Cfloat
+    cos_critical_rad::Cfloat
     max_line_fit_mse::Cfloat
     min_white_black_diff::Cint
     deglitch::Cint
@@ -250,21 +256,14 @@ mutable struct apriltag_detector
     #  estimate substantially. Generally recommended to be on (1).
     #  Very computationally inexpensive. Option is ignored if quad_decimate = 1.
     refine_edges::Cint
-    #  when non-zero, detections are refined in a way intended to
-    #  increase the number of detected tags. Especially effective for
-    #  very small tags near the resolution threshold (e.g. 10px on a
-    #  side).
-    refine_decode::Cint
-    #  when non-zero, detections are refined in a way intended to
-    #  increase the accuracy of the extracted pose. This is done by
-    #  maximizing the contrast around the black and white border of
-    #  the tag. This generally increases the number of successfully
-    #  detected tags, though not as effectively (or quickly) as
-    #  refine_decode.
+
+    # How much sharpening should be done to decoded images? This
+    # can help decode small tags but may or may not help in odd
+    # lighting conditions or low light conditions.
     #
-    #  This option must be enabled in order for "goodness" to be
-    #  computed.
-    refine_pose::Cint
+    # The default value is 0.25.
+    decode_sharpening::Cdouble
+
     #  When non-zero, write a variety of debugging images to the
     #  current working directory at various stages through the
     #  detection process. (Somewhat slow).
@@ -299,7 +298,7 @@ mutable struct apriltag_detection
     family::Ptr{apriltag_family_t}
     id::Cint
     hamming::Cint
-    goodness::Cfloat
+    # goodness::Cfloat
     decision_margin::Cfloat
     H::Ptr{matd_t}
     c::NTuple{2, Cdouble}
@@ -326,14 +325,14 @@ function tag36h11_destroy(tf)
     ccall((:tag36h11_destroy, :libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
 end
 
-
-function tag36h10_create()
-    ccall((:tag36h10_create, :libapriltag), Ptr{apriltag_family_t}, ())
-end
-
-function tag36h10_destroy(tf)
-    ccall((:tag36h10_destroy, :libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
-end
+#NOTE Not in apriltag 3
+# function tag36h10_create()
+#     ccall((:tag36h10_create, :libapriltag), Ptr{apriltag_family_t}, ())
+# end
+#
+# function tag36h10_destroy(tf)
+#     ccall((:tag36h10_destroy, :libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
+# end
 
 function tag25h9_create()
     ccall((:tag25h9_create, :libapriltag), Ptr{apriltag_family_t}, ())
@@ -343,13 +342,14 @@ function tag25h9_destroy(tf)
     ccall((:tag25h9_destroy, :libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
 end
 
-function tag25h7_create()
-    ccall((:tag25h7_create, :libapriltag), Ptr{apriltag_family_t}, ())
-end
+#NOTE Not in apriltag 3
+# function tag25h7_create()
+#     ccall((:tag25h7_create, :libapriltag), Ptr{apriltag_family_t}, ())
+# end
 
-function tag25h7_destroy(tf)
-    ccall((:tag25h7_destroy, :libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
-end
+# function tag25h7_destroy(tf)
+#     ccall((:tag25h7_destroy, :libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
+# end
 
 function tag16h5_create()
     ccall((:tag16h5_create, :libapriltag), Ptr{apriltag_family_t}, ())

@@ -39,10 +39,13 @@ either expressed or implied, of the Regents of The University of Michigan.
 
 #include "apriltag.h"
 #include "tag36h11.h"
-#include "tag36h10.h"
-#include "tag36artoolkit.h"
 #include "tag25h9.h"
-#include "tag25h7.h"
+#include "tag16h5.h"
+#include "tagCircle21h7.h"
+#include "tagCircle49h12.h"
+#include "tagCustom48h12.h"
+#include "tagStandard41h12.h"
+#include "tagStandard52h13.h"
 
 #include "common/getopt.h"
 #include "common/image_u8.h"
@@ -62,14 +65,11 @@ int main(int argc, char *argv[])
     getopt_add_bool(getopt, 'd', "debug", 0, "Enable debugging output (slow)");
     getopt_add_bool(getopt, 'q', "quiet", 0, "Reduce output");
     getopt_add_string(getopt, 'f', "family", "tag36h11", "Tag family to use");
-    getopt_add_int(getopt, '\0', "border", "1", "Set tag family border size");
     getopt_add_int(getopt, 'i', "iters", "1", "Repeat processing on input set this many times");
-    getopt_add_int(getopt, 't', "threads", "4", "Use this many CPU threads");
+    getopt_add_int(getopt, 't', "threads", "1", "Use this many CPU threads");
     getopt_add_double(getopt, 'x', "decimate", "1.0", "Decimate input image by this factor");
     getopt_add_double(getopt, 'b', "blur", "0.0", "Apply low-pass blur to input; negative sharpens");
     getopt_add_bool(getopt, '0', "refine-edges", 1, "Spend more time trying to align edges of tags");
-    getopt_add_bool(getopt, '1', "refine-decode", 0, "Spend more time trying to decode tags");
-    getopt_add_bool(getopt, '2', "refine-pose", 0, "Spend more time trying to precisely localize tags");
 
     if (!getopt_parse(getopt, argc, argv, 1) || getopt_get_bool(getopt, "help")) {
         printf("Usage: %s [options] <input files>\n", argv[0]);
@@ -81,22 +81,24 @@ int main(int argc, char *argv[])
 
     apriltag_family_t *tf = NULL;
     const char *famname = getopt_get_string(getopt, "family");
-    if (!strcmp(famname, "tag36h11"))
+    if (!strcmp(famname, "tag36h11")) {
         tf = tag36h11_create();
-    else if (!strcmp(famname, "tag36h10"))
-        tf = tag36h10_create();
-    else if (!strcmp(famname, "tag36artoolkit"))
-        tf = tag36artoolkit_create();
-    else if (!strcmp(famname, "tag25h9"))
+    } else if (!strcmp(famname, "tag25h9")) {
         tf = tag25h9_create();
-    else if (!strcmp(famname, "tag25h7"))
-        tf = tag25h7_create();
-    else {
+    } else if (!strcmp(famname, "tag16h5")) {
+        tf = tag16h5_create();
+    } else if (!strcmp(famname, "tagCircle21h7")) {
+        tf = tagCircle21h7_create();
+    } else if (!strcmp(famname, "tagCircle49h12")) {
+        tf = tagCircle49h12_create();
+    } else if (!strcmp(famname, "tagStandard41h12")) {
+        tf = tagStandard41h12_create();
+    } else if (!strcmp(famname, "tagStandard52h13")) {
+        tf = tagStandard52h13_create();
+    } else {
         printf("Unrecognized tag family name. Use e.g. \"tag36h11\".\n");
         exit(-1);
     }
-
-    tf->black_border = getopt_get_int(getopt, "border");
 
     apriltag_detector_t *td = apriltag_detector_create();
     apriltag_detector_add_family(td, tf);
@@ -105,8 +107,6 @@ int main(int argc, char *argv[])
     td->nthreads = getopt_get_int(getopt, "threads");
     td->debug = getopt_get_bool(getopt, "debug");
     td->refine_edges = getopt_get_bool(getopt, "refine-edges");
-    td->refine_decode = getopt_get_bool(getopt, "refine-decode");
-    td->refine_pose = getopt_get_bool(getopt, "refine-pose");
 
     int quiet = getopt_get_bool(getopt, "quiet");
 
@@ -194,8 +194,8 @@ int main(int argc, char *argv[])
                 zarray_get(detections, i, &det);
 
                 if (!quiet)
-                    printf("detection %3d: id (%2dx%2d)-%-4d, hamming %d, goodness %8.3f, margin %8.3f\n",
-                           i, det->family->d*det->family->d, det->family->h, det->id, det->hamming, det->goodness, det->decision_margin);
+                    printf("detection %3d: id (%2dx%2d)-%-4d, hamming %d, margin %8.3f\n",
+                           i, det->family->nbits, det->family->h, det->id, det->hamming, det->decision_margin);
 
                 hamm_hist[det->hamming]++;
                 total_hamm_hist[det->hamming]++;
@@ -241,6 +241,21 @@ int main(int argc, char *argv[])
     // don't deallocate contents of inputs; those are the argv
     apriltag_detector_destroy(td);
 
-    tag36h11_destroy(tf);
+    if (!strcmp(famname, "tag36h11")) {
+        tag36h11_destroy(tf);
+    } else if (!strcmp(famname, "tag25h9")) {
+        tag25h9_destroy(tf);
+    } else if (!strcmp(famname, "tag16h5")) {
+        tag16h5_destroy(tf);
+    } else if (!strcmp(famname, "tagCircle21h7")) {
+        tagCircle21h7_destroy(tf);
+    } else if (!strcmp(famname, "tagCircle49h12")) {
+        tagCircle49h12_destroy(tf);
+    } else if (!strcmp(famname, "tagStandard41h12")) {
+        tagStandard41h12_destroy(tf);
+    } else if (!strcmp(famname, "tagStandard52h13")) {
+        tagStandard52h13_destroy(tf);
+    }
+
     return 0;
 }

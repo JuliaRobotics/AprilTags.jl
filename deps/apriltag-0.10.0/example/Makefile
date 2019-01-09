@@ -2,14 +2,14 @@ CC = gcc
 CXX = g++
 
 CPPFLAGS = -I..
-CFLAGS = -g -std=gnu99 -Wall -Wno-unused-parameter -Wno-unused-function -O4
-CXXFLAGS = -g -Wall -O4
+CFLAGS = -g -std=gnu99 -Wall -Wno-unused-parameter -Wno-unused-function -O3
+CXXFLAGS = -g -Wall -O3
 LDFLAGS = -lpthread -lm
 
 TARGETS := apriltag_demo opencv_demo
 
 .PHONY: all
-all: apriltag_demo
+all: apriltag_demo opencv_demo
 
 apriltag_demo: apriltag_demo.o ../libapriltag.a
 	@echo "   [$@]"

@@ -1,10 +1,10 @@
-@enum TagFamilies tag36h11 tag36h10 tag25h9 tag16h5
+@enum TagFamilies tag36h11 tag25h9 tag16h5
 
 struct AprilTag
     family::String
     id::Int
     hamming::Int
-    goodness::Float32
+    # goodness::Float32
     decision_margin::Float32
     H::Matrix{Float64}
     c::Vector{Float64}
@@ -18,8 +18,12 @@ mutable struct AprilTagDetector
 
 end
 
+# Base.propertynames(x::AprilTagDetector, private::Bool=false) =
+#     (:nThreads, :quad_decimate, :quad_sigma, :refine_edges, :refine_decode, :refine_pose,
+#         (private ? fieldnames(typeof(x)) : ())...)
+
 Base.propertynames(x::AprilTagDetector, private::Bool=false) =
-    (:nThreads, :quad_decimate, :quad_sigma, :refine_edges, :refine_decode, :refine_pose,
+    (:nThreads, :quad_decimate, :quad_sigma, :refine_edges, :decode_sharpening,
         (private ? fieldnames(typeof(x)) : ())...)
 
 Base.getproperty(x::AprilTagDetector,f::Symbol) = begin
@@ -31,10 +35,12 @@ Base.getproperty(x::AprilTagDetector,f::Symbol) = begin
         getquad_sigma(x)
     elseif f == :refine_edges
         getrefine_edges(x)
-    elseif f == :refine_decode
-        getrefine_decode(x)
-    elseif f == :refine_pose
-        getrefine_pose(x)
+    elseif f == :decode_sharpening
+        getdecode_sharpening(x)
+    # elseif f == :refine_decode
+    #     getrefine_decode(x)
+    # elseif f == :refine_pose
+    #     getrefine_pose(x)
     else
         getfield(x,f)
     end
@@ -49,10 +55,12 @@ Base.setproperty!(x::AprilTagDetector,f::Symbol, v) = begin
         setquad_sigma(x,v)
     elseif f == :refine_edges
         setrefine_edges(x,v)
-    elseif f == :refine_decode
-        setrefine_decode(x,v)
-    elseif f == :refine_pose
-        setrefine_pose(x,v)
+    elseif f == :decode_sharpening
+        setdecode_sharpening(x,v)
+    # elseif f == :refine_decode
+    #     setrefine_decode(x,v)
+    # elseif f == :refine_pose
+    #     setrefine_pose(x,v)
     else
         # Base.setfield!(x,f,v)
         Base.setfield!(x, f, convert(fieldtype(typeof(x), f), v))
@@ -65,15 +73,16 @@ function Base.show(io::IO, mime::MIME{Symbol("text/plain")}, F::AprilTagDetector
     println(io, "quad_decimate: ", F.quad_decimate)
     println(io, "quad_sigma: ", F.quad_sigma)
     println(io, "refine_edges: ", F.refine_edges)
-    println(io, "refine_decode: ", F.refine_decode)
-    println(io, "refine_pose: ", F.refine_pose)
+    println(io, "decode_sharpening: ", F.decode_sharpening)
+    # println(io, "refine_decode: ", F.refine_decode)
+    # println(io, "refine_pose: ", F.refine_pose)
 end
 
 """
 	AprilTagDetector(tagfamily=tag36h11)
 Create a default AprilTag detector with the 36h11 tag family
 Create an AprilTag detector with tag family in `tagfamily::TagFamilies
-@enum TagFamilies tag36h11 tag36h10 tag25h9 tag16h5`
+@enum TagFamilies tag36h11 tag25h9 tag16h5`
 """
 function AprilTagDetector(tagfamily::TagFamilies = tag36h11)
     #create tag detector
@@ -81,8 +90,8 @@ function AprilTagDetector(tagfamily::TagFamilies = tag36h11)
     #create tag family
     if tagfamily == tag36h11
         tf = tag36h11_create()
-    elseif tagfamily == tag36h10
-        tf = tag36h10_create()
+    # elseif tagfamily == tag36h10
+    #     tf = tag36h10_create()
     elseif tagfamily == tag25h9
         tf = tag25h9_create()
     elseif tagfamily == tag16h5
@@ -258,7 +267,8 @@ function copyAprilTagDetections(detections::Ptr{zarray})::Vector{AprilTag}
             tagc = collect(dettag.c)
             tagp = [collect(i) for i in dettag.p]
 
-            apriltags[i] = AprilTags.AprilTag(family, dettag.id, dettag.hamming, dettag.goodness, dettag.decision_margin, H, tagc, tagp)
+            # apriltags[i] = AprilTags.AprilTag(family, dettag.id, dettag.hamming, dettag.goodness, dettag.decision_margin, H, tagc, tagp)
+            apriltags[i] = AprilTags.AprilTag(family, dettag.id, dettag.hamming, dettag.decision_margin, H, tagc, tagp)
 
         end
         return apriltags
@@ -270,14 +280,14 @@ end
 """
 	getAprilTagImage(tagIndex, tagfamily=tag36h11)
 Return an image [Gray{N0f8}] for with tagIndex from tag family in `tagfamily::TagFamilies
-@enum TagFamilies tag36h11 tag36h10 tag25h9 tag16h5`
+@enum TagFamilies tag36h11 tag25h9 tag16h5`
 """
-function  getAprilTagImage(tagIndex::Int, tagfamily::TagFamilies = tag36h11)
+function  getAprilTagImage(tagIndex::Int, tagfamily::TagFamilies = tag36h11; blackborder=true)
     #create tag family
     if tagfamily == tag36h11
         tf = tag36h11_create()
-    elseif tagfamily == tag36h10
-        tf = tag36h10_create()
+    # elseif tagfamily == tag36h10
+    #     tf = tag36h10_create()
     elseif tagfamily == tag25h9
         tf = tag25h9_create()
     elseif tagfamily == tag16h5
@@ -288,7 +298,21 @@ function  getAprilTagImage(tagIndex::Int, tagfamily::TagFamilies = tag36h11)
     tagimg = unsafe_load(tagptr)
     imgbuf = deepcopy(unsafe_wrap(Array, tagimg.buf, (Int(tagimg.stride),Int(tagimg.height)))')
 
-    return reinterpret(Gray{N0f8},imgbuf[1:tagimg.height,1:tagimg.width])
+    #FIXME???? this puts the border back to fit with how apriltags2 worked
+    tagimg = imgbuf[1:tagimg.height,1:tagimg.width]
+    if blackborder
+        tagimg[1:end,1] .= 0xff
+        tagimg[1:end,end] .= 0xff
+        tagimg[1,1:end] .= 0xff
+        tagimg[end,1:end] .= 0xff
+
+        tagimg[2:end-1,2] .= 0x00
+        tagimg[2:end-1,end-1] .= 0x00
+        tagimg[2,2:end-1] .= 0x00
+        tagimg[end-1,2:end-1] .= 0x00
+    end
+
+    return reinterpret(Gray{N0f8},tagimg)
 end
 
 
@@ -328,22 +352,30 @@ function setrefine_edges(detector, refine_edges::Integer)::Nothing
     return nothing
 end
 
-
-function setrefine_decode(detector, refine_decode::Integer)::Nothing
+function setdecode_sharpening(detector, decode_sharpening::Float64)::Nothing
     if detector.td == C_NULL
         error("AprilTags Detector does not exist")
     end
-    unsafe_store!(Ptr{Int32}(detector.td), Int32(refine_decode), 5)
+    unsafe_store!(Ptr{Cdouble}(detector.td), decode_sharpening, 3)
     return nothing
 end
 
-function setrefine_pose(detector, refine_pose::Integer)::Nothing
-    if detector.td == C_NULL
-        error("AprilTags Detector does not exist")
-    end
-    unsafe_store!(Ptr{Int32}(detector.td), Int32(refine_pose), 6)
-    return nothing
-end
+#NOTE nie meer beskikbaar nie
+# function setrefine_decode(detector, refine_decode::Integer)::Nothing
+#     if detector.td == C_NULL
+#         error("AprilTags Detector does not exist")
+#     end
+#     unsafe_store!(Ptr{Int32}(detector.td), Int32(refine_decode), 5)
+#     return nothing
+# end
+#
+# function setrefine_pose(detector, refine_pose::Integer)::Nothing
+#     if detector.td == C_NULL
+#         error("AprilTags Detector does not exist")
+#     end
+#     unsafe_store!(Ptr{Int32}(detector.td), Int32(refine_pose), 6)
+#     return nothing
+# end
 
 ##Getters
 function getnThreads(detector)::Int32
@@ -374,20 +406,28 @@ function getrefine_edges(detector)::Int32
     return unsafe_load(Ptr{Int32}(detector.td), 4)
 end
 
-
-function getrefine_decode(detector)::Int32
+function getdecode_sharpening(detector)::Float64
     if detector.td == C_NULL
         error("AprilTags Detector does not exist")
     end
-    return unsafe_load(Ptr{Int32}(detector.td), 5)
+    return unsafe_load(Ptr{Cdouble}(detector.td), 3)
 end
+#NOTE  bestaan nie meer nie
+# function getrefine_decode(detector)::Int32
+#     if detector.td == C_NULL
+#         error("AprilTags Detector does not exist")
+#     end
+#     return unsafe_load(Ptr{Int32}(detector.td), 5)
+# end
+#
+# function getrefine_pose(detector)::Int32
+#     if detector.td == C_NULL
+#         error("AprilTags Detector does not exist")
+#     end
+#     return unsafe_load(Ptr{Int32}(detector.td), 6)
+# end
 
-function getrefine_pose(detector)::Int32
-    if detector.td == C_NULL
-        error("AprilTags Detector does not exist")
-    end
-    return unsafe_load(Ptr{Int32}(detector.td), 6)
-end
+
 
 
 """
