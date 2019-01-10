@@ -19,3 +19,11 @@ Pkg.add("AprilTags")
 Please see v0.0.2 for julia 0.6 support.
 
 See [documentation](https://juliarobotics.github.io/AprilTags.jl/latest/), examples, and test folder for usage.
+
+## Examples
+
+To run the examples cd to the project directory and call:
+
+`(v1.0) pkg> activate .`
+
+`(AprilTags Examples) pkg> instantiate`
