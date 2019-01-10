@@ -4,7 +4,7 @@
 run(`make clean -C apriltag-0.10.0/`)
 
 # Make c library
-run(`make -C apriltag-0.10.0/`)
+run(`make -j1 -C apriltag-0.10.0/`)
 
 # set linker path to library
 libpath = joinpath(dirname(@__FILE__),"apriltag-0.10.0")
