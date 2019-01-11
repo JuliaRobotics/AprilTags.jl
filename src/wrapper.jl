@@ -435,3 +435,68 @@ end
 function homography_to_pose(H, fx, fy, cx, cy)
     ccall((:homography_to_pose, :libapriltag), Ptr{matd_t}, (Ptr{matd_t}, Cdouble, Cdouble, Cdouble, Cdouble), H, fx, fy, cx, cy)
 end
+
+
+# new pose estimation from apriltag 3
+mutable struct apriltag_detection_info_t
+    det::Ptr{apriltag_detection_t}
+    tagsize::Cdouble
+    fx::Cdouble
+    fy::Cdouble
+    cx::Cdouble
+    cy::Cdouble
+end
+
+mutable struct apriltag_pose_t
+    R::Ptr{matd_t}
+    t::Ptr{matd_t}
+    apriltag_pose_t() = new()
+end
+
+#special matd_t to help with construction and usage
+mutable struct Matd4x4
+    nrows::UInt32
+    ncols::UInt32
+    data::NTuple{16,Cdouble}
+    Matd4x4() = new(4,4,NTuple{16,Cdouble}(Matrix{Float64}(undef,4,4)))
+    Matd4x4(M::Matrix{Float64}) = new(4,4,NTuple{16,Cdouble}(M'))#TODO test if order is correct
+end
+
+mutable struct Matd3x3
+    nrows::UInt32
+    ncols::UInt32
+    data::NTuple{9,Cdouble}
+    Matd3x3() = new(3,3,NTuple{9,Cdouble}(Matrix{Float64}(undef,3,3)))
+    Matd3x3(M::Matrix{Float64}) = new(3,3,NTuple{9,Cdouble}(M'))#TODO test if order is correct
+end
+
+mutable struct Matd3x1
+    nrows::UInt32
+    ncols::UInt32
+    data::NTuple{3,Cdouble}
+    Matd3x1() = new(3,1,NTuple{3,Cdouble}(Matrix{Float64}(undef,3,1)))
+    Matd3x1(V::Vector{Float64}) = new(3,1,NTuple{3,Cdouble}(V))
+end
+
+# void estimate_pose_for_tag_homography(apriltag_detection_info_t* info, apriltag_pose_t* pose);
+function estimate_pose_for_tag_homography(info, pose)
+    ccall((:estimate_pose_for_tag_homography, :libapriltag), Nothing, (Ptr{apriltag_detection_info_t}, Ptr{apriltag_pose_t}), Ref(info), Ref(pose))
+end
+
+# double orthogonal_iteration(matd_t** v, matd_t** p, matd_t** t, matd_t** R, int n_points, int n_steps)
+# function orthogonal_iteration(v::NTuple{4,Matd3x1}, p::NTuple{4,Matd3x1}, t::NTuple{1,Matd3x1}, R::NTuple{1,Matd3x3}, n_points::Int, n_steps::Int)
+function orthogonal_iteration(v, p, t, R, n_points::Int, n_steps::Int)
+
+    vp = Base.unsafe_convert(Ptr{Nothing}, Ref(v))
+    pp = Base.unsafe_convert(Ptr{Nothing}, Ref(p))
+    tp = Base.unsafe_convert(Ptr{Nothing}, Ref(t))
+    Rp = Base.unsafe_convert(Ptr{Nothing}, Ref(R))
+
+    @show Rp
+    ccall((:orthogonal_iteration, :libapriltag), Cdouble,
+            (Ptr{Ptr{matd_t}}, Ptr{Ptr{matd_t}}, Ptr{Ptr{matd_t}}, Ptr{Ptr{matd_t}}, Cint, Cint),
+            vp, pp, tp, Rp, n_points, n_steps)
+    # ccall((:orthogonal_iteration, :libapriltag), Cdouble,
+    #         (Ptr{Ptr{Nothing}}, Ptr{Ptr{Nothing}}, Ptr{Ptr{Nothing}}, Ptr{Ptr{Nothing}}, Cint, Cint),
+    #         vp, pp, tp, Rp, n_points, n_steps)
+end
