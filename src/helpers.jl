@@ -565,3 +565,61 @@ function homographytopose(H::Matrix{Float64}, fx::Float64, fy::Float64, cx::Floa
                    TZ*taglength/2.0];
             [0 0 0 1.0]]
 end
+
+
+#
+function detectAndPose(detector::AprilTagDetector, image::Array{T, 2}, fx, fy, cx, cy, taglength) where T <: U8Types
+
+    if detector.td == C_NULL
+        error("AprilTags Detector does not exist")
+    end
+
+    if detector.tf == C_NULL
+        error("AprilTags family does not exist")
+    end
+    #create image8 object for april tags
+    image8 = convert(AprilTags.image_u8_t, image)
+
+    # run detector on image
+    detections =  apriltag_detector_detect(detector.td, image8)
+
+    # copy and return detections julia struct
+    tags = AprilTags.copyAprilTagDetections(detections)
+
+    detzarray = unsafe_load(detections)
+    if detzarray.size > 0
+        poses = Vector{Matrix{Float64}}(undef,detzarray.size)
+        for i=1:detzarray.size
+            det = unsafe_load(convert(Ptr{Ptr{AprilTags.apriltag_detection_t}}, detzarray.data),i)
+
+            detinfo = AprilTags.apriltag_detection_info_t(det, taglength, fx, fy, cx, cy)
+
+            pose_p = AprilTags.apriltag_pose_t()
+
+            AprilTags.estimate_pose_for_tag_homography(detinfo, pose_p)
+
+            matR = unsafe_load(pose_p.R)
+            R = Matrix{Float64}(undef,3,3)
+            for i = 1:9
+                R[i] = unsafe_load(convert(Ptr{Cdouble},pose_p.R),i+1)
+            end
+
+            t = Vector{Float64}(undef,3)
+            for i = 1:3
+                t[i] = unsafe_load(convert(Ptr{Cdouble},pose_p.t),i+1)
+            end
+
+            poses[i] = [R t]
+
+        end
+
+    else
+        poses = Vector{Matrix{Float64}}()
+    end
+
+    #distroy detections memmory
+    apriltag_detections_destroy(detections)
+
+    return tags, poses
+
+end

@@ -203,6 +203,17 @@ using Test
                                     1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0]
         @test reftag25h9_0 == getAprilTagImage(0, AprilTags.tag25h9)
 
+        # TODO test, just placeholder for now
+        detector = AprilTagDetector()
+        fx = 524.040
+        fy = 524.040
+        cx = 251.227
+        cy = 319.254
+        taglength = 0.172
+        (tags, poses) = AprilTags.detectAndPose(detector, image, fx, fy, cx, cy, taglength)
+        # TODO test here
+        freeDetector!(detector)
+
     end
 
     include("homography.jl")
