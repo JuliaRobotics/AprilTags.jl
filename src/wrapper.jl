@@ -484,19 +484,28 @@ function estimate_pose_for_tag_homography(info, pose)
 end
 
 # double orthogonal_iteration(matd_t** v, matd_t** p, matd_t** t, matd_t** R, int n_points, int n_steps)
-# function orthogonal_iteration(v::NTuple{4,Matd3x1}, p::NTuple{4,Matd3x1}, t::NTuple{1,Matd3x1}, R::NTuple{1,Matd3x3}, n_points::Int, n_steps::Int)
-function orthogonal_iteration(v, p, t, R, n_points::Int, n_steps::Int)
+function orthogonal_iteration(v::NTuple{4,Matd3x1}, p::NTuple{4,Matd3x1}, t::NTuple{1,Matd3x1}, R::NTuple{1,Matd3x3}, n_points::Int, n_steps::Int)
+# function orthogonal_iteration(v, p, t, R, n_points::Int, n_steps::Int)
 
     vp = Base.unsafe_convert(Ptr{Nothing}, Ref(v))
     pp = Base.unsafe_convert(Ptr{Nothing}, Ref(p))
     tp = Base.unsafe_convert(Ptr{Nothing}, Ref(t))
     Rp = Base.unsafe_convert(Ptr{Nothing}, Ref(R))
 
-    @show Rp
     ccall((:orthogonal_iteration, :libapriltag), Cdouble,
             (Ptr{Ptr{matd_t}}, Ptr{Ptr{matd_t}}, Ptr{Ptr{matd_t}}, Ptr{Ptr{matd_t}}, Cint, Cint),
             vp, pp, tp, Rp, n_points, n_steps)
-    # ccall((:orthogonal_iteration, :libapriltag), Cdouble,
-    #         (Ptr{Ptr{Nothing}}, Ptr{Ptr{Nothing}}, Ptr{Ptr{Nothing}}, Ptr{Ptr{Nothing}}, Cint, Cint),
-    #         vp, pp, tp, Rp, n_points, n_steps)
+end
+
+# matd_t* fix_pose_ambiguities(matd_t** v, matd_t** p, matd_t* t, matd_t* R, int n_points) {
+function fix_pose_ambiguities(v::NTuple{4,Matd3x1}, p::NTuple{4,Matd3x1}, t::Matd3x1, R::Matd3x3, n_points::Int)
+
+    vp = Base.unsafe_convert(Ptr{Nothing}, Ref(v))
+    pp = Base.unsafe_convert(Ptr{Nothing}, Ref(p))
+    tp = Base.unsafe_convert(Ptr{Nothing}, Ref(t))
+    Rp = Base.unsafe_convert(Ptr{Nothing}, Ref(R))
+
+    ccall((:fix_pose_ambiguities, :libapriltag), Ptr{Matd3x3},
+            (Ptr{Ptr{matd_t}}, Ptr{Ptr{matd_t}}, Ptr{matd_t}, Ptr{matd_t}, Cint),
+            vp, pp, tp, Rp, n_points)
 end

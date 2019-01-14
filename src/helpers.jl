@@ -623,3 +623,51 @@ function detectAndPose(detector::AprilTagDetector, image::Array{T, 2}, fx, fy, c
     return tags, poses
 
 end
+
+
+function estimateTagPoseOrthogonalIteration(tag::AprilTag, fx::Float64, fy::Float64, cx::Float64, cy::Float64; taglength::Float64 = 2.0, nIters::Int = 50)
+
+    Ki = [[1/fx  0    -cx/fx];
+          [0     1/fy -cy/fy];
+          [0     0     1]]
+    scale = taglength/2.0
+
+    p = (Matd3x1([-scale, scale, 0]),
+         Matd3x1([ scale, scale, 0]),
+         Matd3x1([ scale,-scale, 0]),
+         Matd3x1([-scale,-scale, 0]))
+
+    v = (Matd3x1(Ki*[tag.p[1];1]), Matd3x1(Ki*[tag.p[2];1]), Matd3x1(Ki*[tag.p[3];1]), Matd3x1(Ki*[tag.p[4];1]))
+
+    M = AprilTags.homographytopose(tag.H, fx, fy, cx, cy, taglength=taglength)
+
+    R = (Matd3x3(M[1:3,1:3]), )
+    t = (Matd3x1(M[1:3,4]), )
+
+    ## so far next line either segfault because of invalid dimentions read, or invalid pointers (depending on how data is made)
+    err1 = AprilTags.orthogonal_iteration(v, p, t, R, 4, 50)
+
+    R2p = AprilTags.fix_pose_ambiguities(v, p, t[1], R[1], 4)
+    R2 = (unsafe_load(R2p), )
+
+    t2 = (Matd3x1([0.,0,0]), )
+    if R2 != C_NULL
+        err2 = AprilTags.orthogonal_iteration(v, p, t2, R2, 4, 50)
+    else
+        err2 = 1e9
+    end
+
+    # pack a bit better
+    sol1R = Matrix{Float64}(undef,3,3)
+    sol1R'[:] .= R[1].data
+
+    sol1t = [t[1].data...]
+
+    sol2R = Matrix{Float64}(undef,3,3)
+    sol2R'[:] .= R2[1].data
+
+    sol2t = [t2[1].data...]
+
+
+    return [sol1R sol1t], err1, [sol2R sol2t], err2
+end
