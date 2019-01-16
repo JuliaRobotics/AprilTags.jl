@@ -5,6 +5,7 @@ language: julia
 os:
   - linux
   # - osx
+dist: xenial
 julia:
   - 0.7
   - 1.0
