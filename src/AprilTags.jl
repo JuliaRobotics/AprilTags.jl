@@ -6,7 +6,7 @@ function __init__()
     isfile(depfile) ? include(depfile) : error("AprilTags.jl not properly installed. Please run: Pkg.build(\"AprilTags\")")
 end
 
-using LinearAlgebra
+using LinearAlgebra, Statistics
 using Colors, ImageDraw, FixedPointNumbers
 import Base.convert
 

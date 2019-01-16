@@ -644,7 +644,6 @@ function estimateTagPoseOrthogonalIteration(tag::AprilTag, fx::Float64, fy::Floa
     R = (Matd3x3(M[1:3,1:3]), )
     t = (Matd3x1(M[1:3,4]), )
 
-    ## so far next line either segfault because of invalid dimentions read, or invalid pointers (depending on how data is made)
     err1 = AprilTags.orthogonal_iteration(v, p, t, R, 4, 50)
 
     R2p = AprilTags.fix_pose_ambiguities(v, p, t[1], R[1], 4)
@@ -670,4 +669,99 @@ function estimateTagPoseOrthogonalIteration(tag::AprilTag, fx::Float64, fy::Floa
 
 
     return [sol1R sol1t], err1, [sol2R sol2t], err2
+end
+
+
+function calculate_F(v)
+    outer_product = v*v'
+    inner_product = v'*v
+    outer_product /= inner_product[1]
+    return outer_product
+end
+
+
+
+function orthogonalIteration(v, p, t, R, n_points=4, n_steps=50)
+
+    p_mean = mean(p)
+
+    p_res = [pp - p_mean for pp in p]
+
+    # Compute M1_inv.
+    F = calculate_F.(v)
+
+    avg_F = mean(F)
+
+    M1 = I - avg_F
+    M1_inv = inv(M1)
+
+    prev_error = 1e9
+
+    # Iterate.
+    for i=1:n_steps
+        # Calculate translation.
+        M2 = [0.,0,0]
+        for j=1:n_points
+            M2 += (F[j] - I) * R * p[j]   #(M - M)*M*M,
+        end
+        M2 /= n_points
+
+        t = M1_inv * M2
+
+        #calcutate rotation
+        q = Vector{Vector{Float64}}(undef, 4)
+
+        for j=1:n_points
+            q[j] = F[j]*(R*p[j] + t)   #"M*(M*M+M)"
+        end
+        q_mean = mean(q)
+
+        M3 = zeros(3,3)
+        for j=1:n_points
+            M3 += (q[j] - q_mean) * p_res[j]'  #"(M-M)*M'", q[j], q_mean, p_res[j]
+        end
+        M3_svd = svd(M3)
+
+        R = M3_svd.U * M3_svd.V' #"M*M'", M3_svd.U, M3_svd.V
+
+        err = 0.0
+
+        for j = 1:4
+            err_vec =  (I - F[j]) * (R*p[j] + t)  #("(M-M)(MM+M)", I3, F[i], *R, p[i], *t);
+            err +=  err_vec'*err_vec #("M'M", err_vec, err_vec));
+        end
+
+        prev_error = err
+
+    end
+
+    return [R t], prev_error
+end
+
+
+function tagOrthogonalIteration(tag::AprilTag, fx::Float64, fy::Float64, cx::Float64, cy::Float64; taglength::Float64 = 2.0, nIters::Int = 50)
+
+    Ki = [[1/fx  0    -cx/fx];
+          [0     1/fy -cy/fy];
+          [0     0     1]]
+    scale = taglength/2.0
+
+    p = [[-scale, scale, 0],
+         [ scale, scale, 0],
+         [ scale,-scale, 0],
+         [-scale,-scale, 0]]
+    #this ^ order seems wrong       
+    # p = [[ scale, scale, 0],
+    #      [ scale,-scale, 0],
+    #      [-scale,-scale, 0],
+    #      [-scale, scale, 0]]
+
+    v = [Ki*[tag.p[1];1], Ki*[tag.p[2];1], Ki*[tag.p[3];1], Ki*[tag.p[4];1]]
+
+    M = homographytopose(tag.H, fx, fy, cx, cy, taglength=taglength)
+
+    R = M[1:3,1:3]
+    t = M[1:3,4]
+
+    return AprilTags.orthogonalIteration(v, p, t, R, 4, nIters)
 end
