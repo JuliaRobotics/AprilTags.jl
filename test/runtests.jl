@@ -79,24 +79,34 @@ using Test
         #test on random image, should detect zero tags
         @test length(detector(rand(Gray{N0f8},100,100))) == 0
 
-        #setters -- just run for now
-        detector.nThreads = 4
-        detector.quad_decimate = 1.0
-        detector.quad_sigma = 0.0
-        detector.refine_edges = 1
-        detector.refine_decode = 1
-        detector.refine_pose = 1
-
-        #getters -- compare with set values just now
-        @test detector.nThreads == 4
+        #getters -- compare with default
+        @test detector.nThreads == 1
         @test detector.quad_decimate == 1.0
         @test detector.quad_sigma == 0.0
         @test detector.refine_edges == 1
-        @test detector.refine_decode == 1
-        @test detector.refine_pose == 1
+        @test detector.decode_sharpening == 0.25
+
+        #setters -- set new values
+        detector.nThreads = 4
+        detector.quad_decimate = 2.0
+        detector.quad_sigma = 0.1
+        detector.refine_edges = 0
+        detector.decode_sharpening = 0.2
+        # detector.refine_decode = 1
+        # detector.refine_pose = 1
+
+        #getters -- compare with set values just now
+        @test detector.nThreads == 4
+        @test detector.quad_decimate == 2.0
+        @test detector.quad_sigma == 0.1f0
+        @test detector.refine_edges == 0
+        @test detector.decode_sharpening == 0.2
+        # @test detector.refine_decode == 1
+        # @test detector.refine_pose == 1
 
         #test @show overload
-        @test sprint((t,s)->show(t,"text/plain",s), detector) == "AprilTagDetector\nnThreads: 4\nquad_decimate: 1.0\nquad_sigma: 0.0\nrefine_edges: 1\nrefine_decode: 1\nrefine_pose: 1\n"
+        # @test sprint((t,s)->show(t,"text/plain",s), detector) == "AprilTagDetector\nnThreads: 4\nquad_decimate: 1.0\nquad_sigma: 0.0\nrefine_edges: 1\nrefine_decode: 1\nrefine_pose: 1\n"
+        @test sprint((t,s)->show(t,"text/plain",s), detector) == "AprilTagDetector\nnThreads: 4\nquad_decimate: 2.0\nquad_sigma: 0.1\nrefine_edges: 0\ndecode_sharpening: 0.2\n"
 
         cpoints = map(tag->[tag.c[2],tag.c[1]],tags2)
         freeDetector!(detector)
@@ -145,8 +155,8 @@ using Test
         detector2 = AprilTagDetector(AprilTags.tag36h11)
         freeDetector!(detector2)
 
-        detector2 = AprilTagDetector(AprilTags.tag36h10)
-        freeDetector!(detector2)
+        # detector2 = AprilTagDetector(AprilTags.tag36h10)
+        # freeDetector!(detector2)
 
         reftag36h11_0 = Gray{N0f8}[ 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0;
                                     1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 1.0;
@@ -160,17 +170,17 @@ using Test
                                     1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0]
         @test reftag36h11_0 == getAprilTagImage(0)
 
-        reftag36h10_0 = Gray{N0f8}[ 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0;
-                                    1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 1.0;
-                                    1.0 0.0 0.0 0.0 0.0 1.0 1.0 1.0 0.0 1.0;
-                                    1.0 0.0 0.0 0.0 1.0 0.0 1.0 0.0 0.0 1.0;
-                                    1.0 0.0 1.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0;
-                                    1.0 0.0 1.0 0.0 1.0 0.0 1.0 0.0 0.0 1.0;
-                                    1.0 0.0 0.0 1.0 1.0 0.0 1.0 0.0 0.0 1.0;
-                                    1.0 0.0 0.0 0.0 0.0 1.0 1.0 1.0 0.0 1.0;
-                                    1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 1.0;
-                                    1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0]
-        @test reftag36h10_0 == getAprilTagImage(0, AprilTags.tag36h10)
+        # reftag36h10_0 = Gray{N0f8}[ 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0;
+        #                             1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 1.0;
+        #                             1.0 0.0 0.0 0.0 0.0 1.0 1.0 1.0 0.0 1.0;
+        #                             1.0 0.0 0.0 0.0 1.0 0.0 1.0 0.0 0.0 1.0;
+        #                             1.0 0.0 1.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0;
+        #                             1.0 0.0 1.0 0.0 1.0 0.0 1.0 0.0 0.0 1.0;
+        #                             1.0 0.0 0.0 1.0 1.0 0.0 1.0 0.0 0.0 1.0;
+        #                             1.0 0.0 0.0 0.0 0.0 1.0 1.0 1.0 0.0 1.0;
+        #                             1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 1.0;
+        #                             1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0]
+        # @test reftag36h10_0 == getAprilTagImage(0, AprilTags.tag36h10)
 
         reftag16h5_0 = Gray{N0f8}[  1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0;
                                     1.0 0.0 0.0 0.0 0.0 0.0 0.0 1.0;
@@ -193,6 +203,21 @@ using Test
                                     1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0]
         @test reftag25h9_0 == getAprilTagImage(0, AprilTags.tag25h9)
 
+        # TODO test, just placeholder for now
+        detector = AprilTagDetector()
+        fx = 524.040
+        fy = 524.040
+        cx = 251.227
+        cy = 319.254
+        taglength = 0.172
+        (tags, poses) = detectAndPose(detector, image, fx, fy, cx, cy, taglength)
+        # TODO test here
+        @test all(isapprox.(poses[1], [ 0.657276  -0.43653   0.614354  -0.236778;
+                                        0.180276   0.882573  0.434242   0.268374;
+                                       -0.731771  -0.174663  0.65879    1.65107],
+                                      atol = 0.01))
+        freeDetector!(detector)
+
     end
 
     include("homography.jl")
@@ -207,15 +232,17 @@ using Test
         @test_throws ErrorException AprilTags.setquad_decimate(detector, 1.0)
         @test_throws ErrorException AprilTags.setquad_sigma(detector,0.0)
         @test_throws ErrorException AprilTags.setrefine_edges(detector,1)
-        @test_throws ErrorException AprilTags.setrefine_decode(detector,1)
-        @test_throws ErrorException AprilTags.setrefine_pose(detector,1)
+        @test_throws ErrorException AprilTags.setdecode_sharpening(detector,0.2)
+        # @test_throws ErrorException AprilTags.setrefine_decode(detector,1)
+        # @test_throws ErrorException AprilTags.setrefine_pose(detector,1)
 
         @test_throws ErrorException AprilTags.getnThreads(detector)
         @test_throws ErrorException AprilTags.getquad_decimate(detector)
         @test_throws ErrorException AprilTags.getquad_sigma(detector)
         @test_throws ErrorException AprilTags.getrefine_edges(detector)
-        @test_throws ErrorException AprilTags.getrefine_decode(detector)
-        @test_throws ErrorException AprilTags.getrefine_pose(detector)
+        @test_throws ErrorException AprilTags.getdecode_sharpening(detector)
+        # @test_throws ErrorException AprilTags.getrefine_decode(detector)
+        # @test_throws ErrorException AprilTags.getrefine_pose(detector)
 
         @test freeDetector!(detector) == nothing
         #testing NULL tag families errors

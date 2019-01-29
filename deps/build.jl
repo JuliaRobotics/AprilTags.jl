@@ -1,13 +1,13 @@
 
 ##for debugging
 # cd(dirname(@__FILE__))
-run(`make clean -C apriltag-2016-12-01/`)
+run(`make clean -C apriltag-0.10.0/`)
 
 # Make c library
-run(`make -C apriltag-2016-12-01/`)
+run(`make -C apriltag-0.10.0/`)
 
 # set linker path to library
-libpath = joinpath(dirname(@__FILE__),"apriltag-2016-12-01")
+libpath = joinpath(dirname(@__FILE__),"apriltag-0.10.0")
 
 
 #create a file to push to the DL_LOAD_PATH when module loads,

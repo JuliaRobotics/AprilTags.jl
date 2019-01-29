@@ -1,10 +1,10 @@
-@enum TagFamilies tag36h11 tag36h10 tag25h9 tag16h5
+@enum TagFamilies tag36h11 tag25h9 tag16h5
 
 struct AprilTag
     family::String
     id::Int
     hamming::Int
-    goodness::Float32
+    # goodness::Float32
     decision_margin::Float32
     H::Matrix{Float64}
     c::Vector{Float64}
@@ -18,8 +18,12 @@ mutable struct AprilTagDetector
 
 end
 
+# Base.propertynames(x::AprilTagDetector, private::Bool=false) =
+#     (:nThreads, :quad_decimate, :quad_sigma, :refine_edges, :refine_decode, :refine_pose,
+#         (private ? fieldnames(typeof(x)) : ())...)
+
 Base.propertynames(x::AprilTagDetector, private::Bool=false) =
-    (:nThreads, :quad_decimate, :quad_sigma, :refine_edges, :refine_decode, :refine_pose,
+    (:nThreads, :quad_decimate, :quad_sigma, :refine_edges, :decode_sharpening,
         (private ? fieldnames(typeof(x)) : ())...)
 
 Base.getproperty(x::AprilTagDetector,f::Symbol) = begin
@@ -31,10 +35,12 @@ Base.getproperty(x::AprilTagDetector,f::Symbol) = begin
         getquad_sigma(x)
     elseif f == :refine_edges
         getrefine_edges(x)
-    elseif f == :refine_decode
-        getrefine_decode(x)
-    elseif f == :refine_pose
-        getrefine_pose(x)
+    elseif f == :decode_sharpening
+        getdecode_sharpening(x)
+    # elseif f == :refine_decode
+    #     getrefine_decode(x)
+    # elseif f == :refine_pose
+    #     getrefine_pose(x)
     else
         getfield(x,f)
     end
@@ -49,10 +55,12 @@ Base.setproperty!(x::AprilTagDetector,f::Symbol, v) = begin
         setquad_sigma(x,v)
     elseif f == :refine_edges
         setrefine_edges(x,v)
-    elseif f == :refine_decode
-        setrefine_decode(x,v)
-    elseif f == :refine_pose
-        setrefine_pose(x,v)
+    elseif f == :decode_sharpening
+        setdecode_sharpening(x,v)
+    # elseif f == :refine_decode
+    #     setrefine_decode(x,v)
+    # elseif f == :refine_pose
+    #     setrefine_pose(x,v)
     else
         # Base.setfield!(x,f,v)
         Base.setfield!(x, f, convert(fieldtype(typeof(x), f), v))
@@ -65,15 +73,16 @@ function Base.show(io::IO, mime::MIME{Symbol("text/plain")}, F::AprilTagDetector
     println(io, "quad_decimate: ", F.quad_decimate)
     println(io, "quad_sigma: ", F.quad_sigma)
     println(io, "refine_edges: ", F.refine_edges)
-    println(io, "refine_decode: ", F.refine_decode)
-    println(io, "refine_pose: ", F.refine_pose)
+    println(io, "decode_sharpening: ", F.decode_sharpening)
+    # println(io, "refine_decode: ", F.refine_decode)
+    # println(io, "refine_pose: ", F.refine_pose)
 end
 
 """
 	AprilTagDetector(tagfamily=tag36h11)
 Create a default AprilTag detector with the 36h11 tag family
 Create an AprilTag detector with tag family in `tagfamily::TagFamilies
-@enum TagFamilies tag36h11 tag36h10 tag25h9 tag16h5`
+@enum TagFamilies tag36h11 tag25h9 tag16h5`
 """
 function AprilTagDetector(tagfamily::TagFamilies = tag36h11)
     #create tag detector
@@ -81,8 +90,8 @@ function AprilTagDetector(tagfamily::TagFamilies = tag36h11)
     #create tag family
     if tagfamily == tag36h11
         tf = tag36h11_create()
-    elseif tagfamily == tag36h10
-        tf = tag36h10_create()
+    # elseif tagfamily == tag36h10
+    #     tf = tag36h10_create()
     elseif tagfamily == tag25h9
         tf = tag25h9_create()
     elseif tagfamily == tag16h5
@@ -258,7 +267,8 @@ function copyAprilTagDetections(detections::Ptr{zarray})::Vector{AprilTag}
             tagc = collect(dettag.c)
             tagp = [collect(i) for i in dettag.p]
 
-            apriltags[i] = AprilTags.AprilTag(family, dettag.id, dettag.hamming, dettag.goodness, dettag.decision_margin, H, tagc, tagp)
+            # apriltags[i] = AprilTags.AprilTag(family, dettag.id, dettag.hamming, dettag.goodness, dettag.decision_margin, H, tagc, tagp)
+            apriltags[i] = AprilTags.AprilTag(family, dettag.id, dettag.hamming, dettag.decision_margin, H, tagc, tagp)
 
         end
         return apriltags
@@ -270,14 +280,14 @@ end
 """
 	getAprilTagImage(tagIndex, tagfamily=tag36h11)
 Return an image [Gray{N0f8}] for with tagIndex from tag family in `tagfamily::TagFamilies
-@enum TagFamilies tag36h11 tag36h10 tag25h9 tag16h5`
+@enum TagFamilies tag36h11 tag25h9 tag16h5`
 """
-function  getAprilTagImage(tagIndex::Int, tagfamily::TagFamilies = tag36h11)
+function  getAprilTagImage(tagIndex::Int, tagfamily::TagFamilies = tag36h11; blackborder=true)
     #create tag family
     if tagfamily == tag36h11
         tf = tag36h11_create()
-    elseif tagfamily == tag36h10
-        tf = tag36h10_create()
+    # elseif tagfamily == tag36h10
+    #     tf = tag36h10_create()
     elseif tagfamily == tag25h9
         tf = tag25h9_create()
     elseif tagfamily == tag16h5
@@ -288,7 +298,21 @@ function  getAprilTagImage(tagIndex::Int, tagfamily::TagFamilies = tag36h11)
     tagimg = unsafe_load(tagptr)
     imgbuf = deepcopy(unsafe_wrap(Array, tagimg.buf, (Int(tagimg.stride),Int(tagimg.height)))')
 
-    return reinterpret(Gray{N0f8},imgbuf[1:tagimg.height,1:tagimg.width])
+    #FIXME???? this puts the border back to fit with how apriltags2 worked
+    tagimg = imgbuf[1:tagimg.height,1:tagimg.width]
+    if blackborder
+        tagimg[1:end,1] .= 0xff
+        tagimg[1:end,end] .= 0xff
+        tagimg[1,1:end] .= 0xff
+        tagimg[end,1:end] .= 0xff
+
+        tagimg[2:end-1,2] .= 0x00
+        tagimg[2:end-1,end-1] .= 0x00
+        tagimg[2,2:end-1] .= 0x00
+        tagimg[end-1,2:end-1] .= 0x00
+    end
+
+    return reinterpret(Gray{N0f8},tagimg)
 end
 
 
@@ -328,22 +352,30 @@ function setrefine_edges(detector, refine_edges::Integer)::Nothing
     return nothing
 end
 
-
-function setrefine_decode(detector, refine_decode::Integer)::Nothing
+function setdecode_sharpening(detector, decode_sharpening::Float64)::Nothing
     if detector.td == C_NULL
         error("AprilTags Detector does not exist")
     end
-    unsafe_store!(Ptr{Int32}(detector.td), Int32(refine_decode), 5)
+    unsafe_store!(Ptr{Cdouble}(detector.td), decode_sharpening, 3)
     return nothing
 end
 
-function setrefine_pose(detector, refine_pose::Integer)::Nothing
-    if detector.td == C_NULL
-        error("AprilTags Detector does not exist")
-    end
-    unsafe_store!(Ptr{Int32}(detector.td), Int32(refine_pose), 6)
-    return nothing
-end
+#NOTE nie meer beskikbaar nie
+# function setrefine_decode(detector, refine_decode::Integer)::Nothing
+#     if detector.td == C_NULL
+#         error("AprilTags Detector does not exist")
+#     end
+#     unsafe_store!(Ptr{Int32}(detector.td), Int32(refine_decode), 5)
+#     return nothing
+# end
+#
+# function setrefine_pose(detector, refine_pose::Integer)::Nothing
+#     if detector.td == C_NULL
+#         error("AprilTags Detector does not exist")
+#     end
+#     unsafe_store!(Ptr{Int32}(detector.td), Int32(refine_pose), 6)
+#     return nothing
+# end
 
 ##Getters
 function getnThreads(detector)::Int32
@@ -374,20 +406,28 @@ function getrefine_edges(detector)::Int32
     return unsafe_load(Ptr{Int32}(detector.td), 4)
 end
 
-
-function getrefine_decode(detector)::Int32
+function getdecode_sharpening(detector)::Float64
     if detector.td == C_NULL
         error("AprilTags Detector does not exist")
     end
-    return unsafe_load(Ptr{Int32}(detector.td), 5)
+    return unsafe_load(Ptr{Cdouble}(detector.td), 3)
 end
+#NOTE  bestaan nie meer nie
+# function getrefine_decode(detector)::Int32
+#     if detector.td == C_NULL
+#         error("AprilTags Detector does not exist")
+#     end
+#     return unsafe_load(Ptr{Int32}(detector.td), 5)
+# end
+#
+# function getrefine_pose(detector)::Int32
+#     if detector.td == C_NULL
+#         error("AprilTags Detector does not exist")
+#     end
+#     return unsafe_load(Ptr{Int32}(detector.td), 6)
+# end
 
-function getrefine_pose(detector)::Int32
-    if detector.td == C_NULL
-        error("AprilTags Detector does not exist")
-    end
-    return unsafe_load(Ptr{Int32}(detector.td), 6)
-end
+
 
 
 """
@@ -524,4 +564,206 @@ function homographytopose(H::Matrix{Float64}, fx::Float64, fy::Float64, cx::Floa
                    TY*taglength/2.0;
                    TZ*taglength/2.0];
             [0 0 0 1.0]]
+end
+
+
+"""
+    detectAndPose(detector, image, fx, fy, cx, cy, taglength)
+Detect tags and calcuate the pose on them.
+"""
+function detectAndPose(detector::AprilTagDetector, image::Array{T, 2}, fx, fy, cx, cy, taglength) where T <: U8Types
+
+    if detector.td == C_NULL
+        error("AprilTags Detector does not exist")
+    end
+
+    if detector.tf == C_NULL
+        error("AprilTags family does not exist")
+    end
+    #create image8 object for april tags
+    image8 = convert(AprilTags.image_u8_t, image)
+
+    # run detector on image
+    detections =  apriltag_detector_detect(detector.td, image8)
+
+    # copy and return detections julia struct
+    tags = AprilTags.copyAprilTagDetections(detections)
+
+    detzarray = unsafe_load(detections)
+    if detzarray.size > 0
+        poses = Vector{Matrix{Float64}}(undef,detzarray.size)
+        for i=1:detzarray.size
+            det = unsafe_load(convert(Ptr{Ptr{AprilTags.apriltag_detection_t}}, detzarray.data),i)
+
+            detinfo = AprilTags.apriltag_detection_info_t(det, taglength, fx, fy, cx, cy)
+
+            pose_p = AprilTags.apriltag_pose_t()
+
+            AprilTags.estimate_pose_for_tag_homography(detinfo, pose_p)
+
+            matR = unsafe_load(pose_p.R)
+            R = Matrix{Float64}(undef,3,3)
+            for i = 1:9
+                R[i] = unsafe_load(convert(Ptr{Cdouble},pose_p.R),i+1)
+            end
+
+            t = Vector{Float64}(undef,3)
+            for i = 1:3
+                t[i] = unsafe_load(convert(Ptr{Cdouble},pose_p.t),i+1)
+            end
+
+            poses[i] = [R t]
+
+        end
+
+    else
+        poses = Vector{Matrix{Float64}}()
+    end
+
+    #distroy detections memmory
+    apriltag_detections_destroy(detections)
+
+    return tags, poses
+
+end
+
+
+function estimateTagPoseOrthogonalIteration(tag::AprilTag, fx::Float64, fy::Float64, cx::Float64, cy::Float64; taglength::Float64 = 2.0, nIters::Int = 50)
+
+    Ki = [[1/fx  0    -cx/fx];
+          [0     1/fy -cy/fy];
+          [0     0     1]]
+    scale = taglength/2.0
+
+    p = (Matd3x1([-scale, scale, 0]),
+         Matd3x1([ scale, scale, 0]),
+         Matd3x1([ scale,-scale, 0]),
+         Matd3x1([-scale,-scale, 0]))
+
+    v = (Matd3x1(Ki*[tag.p[1];1]), Matd3x1(Ki*[tag.p[2];1]), Matd3x1(Ki*[tag.p[3];1]), Matd3x1(Ki*[tag.p[4];1]))
+
+    M = AprilTags.homographytopose(tag.H, fx, fy, cx, cy, taglength=taglength)
+
+    R = (Matd3x3(M[1:3,1:3]), )
+    t = (Matd3x1(M[1:3,4]), )
+
+    err1 = AprilTags.orthogonal_iteration(v, p, t, R, 4, 50)
+
+    R2p = AprilTags.fix_pose_ambiguities(v, p, t[1], R[1], 4)
+    R2 = (unsafe_load(R2p), )
+
+    t2 = (Matd3x1([0.,0,0]), )
+    if R2 != C_NULL
+        err2 = AprilTags.orthogonal_iteration(v, p, t2, R2, 4, 50)
+    else
+        err2 = 1e9
+    end
+
+    # pack a bit better
+    sol1R = Matrix{Float64}(undef,3,3)
+    sol1R'[:] .= R[1].data
+
+    sol1t = [t[1].data...]
+
+    sol2R = Matrix{Float64}(undef,3,3)
+    sol2R'[:] .= R2[1].data
+
+    sol2t = [t2[1].data...]
+
+
+    return [sol1R sol1t], err1, [sol2R sol2t], err2
+end
+
+
+function calculate_F(v)
+    outer_product = v*v'
+    inner_product = v'*v
+    outer_product /= inner_product[1]
+    return outer_product
+end
+
+
+
+function orthogonalIteration(v, p, t, R, n_points=4, n_steps=50)
+
+    p_mean = mean(p)
+
+    p_res = [pp - p_mean for pp in p]
+
+    # Compute M1_inv.
+    F = calculate_F.(v)
+
+    avg_F = mean(F)
+
+    M1 = I - avg_F
+    M1_inv = inv(M1)
+
+    prev_error = 1e9
+
+    # Iterate.
+    for i=1:n_steps
+        # Calculate translation.
+        M2 = [0.,0,0]
+        for j=1:n_points
+            M2 += (F[j] - I) * R * p[j]   #(M - M)*M*M,
+        end
+        M2 /= n_points
+
+        t = M1_inv * M2
+
+        #calcutate rotation
+        q = Vector{Vector{Float64}}(undef, 4)
+
+        for j=1:n_points
+            q[j] = F[j]*(R*p[j] + t)   #"M*(M*M+M)"
+        end
+        q_mean = mean(q)
+
+        M3 = zeros(3,3)
+        for j=1:n_points
+            M3 += (q[j] - q_mean) * p_res[j]'  #"(M-M)*M'", q[j], q_mean, p_res[j]
+        end
+        M3_svd = svd(M3)
+
+        R = M3_svd.U * M3_svd.V' #"M*M'", M3_svd.U, M3_svd.V
+
+        err = 0.0
+
+        for j = 1:4
+            err_vec =  (I - F[j]) * (R*p[j] + t)  #("(M-M)(MM+M)", I3, F[i], *R, p[i], *t);
+            err +=  err_vec'*err_vec #("M'M", err_vec, err_vec));
+        end
+
+        prev_error = err
+
+    end
+
+    return [R t], prev_error
+end
+
+"""
+    tagOrthogonalIteration
+Run the orthoganal iteration algorithm on the poses. See apriltag_pose.h
+[2]: Lu, G. D. Hager and E. Mjolsness, "Fast and globally convergent pose estimation from video images," in IEEE Transactions on Pattern Analysis and Machine Intelligence, vol. 22, no. 6, pp. 610-622, June 2000. doi: 10.1109/34.862199
+"""
+function tagOrthogonalIteration(tag::AprilTag, fx::Float64, fy::Float64, cx::Float64, cy::Float64; taglength::Float64 = 2.0, nIters::Int = 50)
+
+    Ki = [[1/fx  0    -cx/fx];
+          [0     1/fy -cy/fy];
+          [0     0     1]]
+    scale = taglength/2.0
+
+    p = [[-scale, scale, 0],
+         [ scale, scale, 0],
+         [ scale,-scale, 0],
+         [-scale,-scale, 0]]
+
+    v = [Ki*[tag.p[1];1], Ki*[tag.p[2];1], Ki*[tag.p[3];1], Ki*[tag.p[4];1]]
+
+    M = homographytopose(tag.H, fx, fy, cx, cy, taglength=taglength)
+
+    R = M[1:3,1:3]
+    t = M[1:3,4]
+
+    return AprilTags.orthogonalIteration(v, p, t, R, 4, nIters)
 end
