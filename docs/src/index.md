@@ -10,7 +10,7 @@ This package is a ccall wrapper for the [AprilTags](https://april.eecs.umich.edu
 AprilTags.jl can be installed in Julia 0.7 and Julia 1.0 with:
 ```julia
 #enter ']' to get the package manager and then type:
-(v0.7) pkg> add AprilTags
+(v1.0) pkg> add AprilTags
 # or
 using Pkg
 Pkg.add("AprilTags")
@@ -34,8 +34,7 @@ detector.nThreads = 4 #number of threads to use
 detector.quad_decimate =  1.0 #"Decimate input image by this factor"
 detector.quad_sigma = 0.0 #"Apply low-pass blur to input; negative sharpens"
 detector.refine_edges = 1 #"Set to 1 to spend more time to align edges of tags"
-detector.refine_decode = 0 #"Set to 1 to spend more time to decode tags"
-detector.refine_pose = 0 #"Set to 1 to spend more time to precisely localize tags"
+detector.decode_sharpening = 0.25
 ```    
 
 #### quad_decimate
@@ -49,12 +48,8 @@ Parameter is the standard deviation in pixels. Very noisy images benefit from no
 #### refine_edges
 When non-zero, the edges of the each quad are adjusted to "snap to" strong gradients nearby. This is useful when decimation is employed, as it can increase the quality of the initial quad estimate substantially. Generally recommended to be on (1). Very computationally inexpensive. Option is ignored if quad_decimate = 1.
 
-#### refine_decode
-When non-zero, detections are refined in a way intended to increase the number of detected tags. Especially effective for very small tags near the resolution threshold (e.g. 10px on a side).
-
-#### refine_pose
-When non-zero, detections are refined in a way intended to increase the accuracy of the extracted pose. This is done by maximizing the contrast around the black and white border of the tag. This generally increases the number of successfully detected tags, though not as effectively (or quickly) as refine_decode.  
-This option must be enabled in order for "goodness" to be computed.
+#### decode_sharpening
+How much sharpening should be done to decoded images? This can help decode small tags but may or may not help in odd lighting conditions or low light conditions. The default value is 0.25.
 
 ### Detection
 Process an input image and return a vector of detections.

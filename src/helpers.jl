@@ -567,7 +567,10 @@ function homographytopose(H::Matrix{Float64}, fx::Float64, fy::Float64, cx::Floa
 end
 
 
-#
+"""
+    detectAndPose(detector, image, fx, fy, cx, cy, taglength)
+Detect tags and calcuate the pose on them.
+"""
 function detectAndPose(detector::AprilTagDetector, image::Array{T, 2}, fx, fy, cx, cy, taglength) where T <: U8Types
 
     if detector.td == C_NULL
@@ -738,7 +741,11 @@ function orthogonalIteration(v, p, t, R, n_points=4, n_steps=50)
     return [R t], prev_error
 end
 
-
+"""
+    tagOrthogonalIteration
+Run the orthoganal iteration algorithm on the poses. See apriltag_pose.h
+[2]: Lu, G. D. Hager and E. Mjolsness, "Fast and globally convergent pose estimation from video images," in IEEE Transactions on Pattern Analysis and Machine Intelligence, vol. 22, no. 6, pp. 610-622, June 2000. doi: 10.1109/34.862199
+"""
 function tagOrthogonalIteration(tag::AprilTag, fx::Float64, fy::Float64, cx::Float64, cy::Float64; taglength::Float64 = 2.0, nIters::Int = 50)
 
     Ki = [[1/fx  0    -cx/fx];
@@ -750,11 +757,6 @@ function tagOrthogonalIteration(tag::AprilTag, fx::Float64, fy::Float64, cx::Flo
          [ scale, scale, 0],
          [ scale,-scale, 0],
          [-scale,-scale, 0]]
-    #this ^ order seems wrong       
-    # p = [[ scale, scale, 0],
-    #      [ scale,-scale, 0],
-    #      [-scale,-scale, 0],
-    #      [-scale, scale, 0]]
 
     v = [Ki*[tag.p[1];1], Ki*[tag.p[2];1], Ki*[tag.p[3];1], Ki*[tag.p[4];1]]
 

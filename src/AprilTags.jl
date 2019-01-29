@@ -20,7 +20,8 @@ homography_to_pose,
 homographytopose,
 threadcalldetect,
 getAprilTagImage,
-
+detectAndPose,
+tagOrthogonalIteration,
 # wrappers
 apriltag_detector_create,
 tag36h11_create,
