@@ -5,6 +5,7 @@ using FixedPointNumbers
 # Pkg.clone("https://github.com/Affie/Video4Linux.jl.git")
 # Pkg.build("Video4Linux")
 using Video4Linux
+using Dates
 
 function showImage!(image, tags, imageCol)
     # Convert image to RGB
@@ -37,29 +38,28 @@ canvas = imshow(imC)
 detector = AprilTagDetector()
 # settings that influence detector speed/quality
 # see april tag documentation for more information on these settings
-AprilTags.setnThreads(detector, 4)
-AprilTags.setquad_decimate(detector, 1.0)
-AprilTags.setquad_sigma(detector,0.0)
-AprilTags.setrefine_edges(detector,0)
-AprilTags.setrefine_decode(detector,0)
-AprilTags.setrefine_pose(detector,0)
+detector.nThreads = 4
+detector.quad_decimate =  1.0
+detector.quad_sigma = 0.0
+detector.refine_edges = 0
+detector.decode_sharpening = 0.25
 
 # start asyncronious task to read video channel, detect tags and display detections
-@async begin
+taskvid = @async begin
     i = 0
     starttime = Dates.value(now())
     while isopen(vidchan)
         i += 1
         A = take!(vidchan)
-        img[:,:] = normedview(A)
+        img[:,:] = normedview(A)[:,:]
 
-        tags = detector(img)
+        tags = detector(img[:,:])
         showImage!(img, tags, imC)
         ImageView.imshow!(canvas["gui"]["canvas"], imC, canvas["annotations"])
 
         if i % 10 == 0
             @show length(tags)
-            framerate = round(10/(Dates.value(now())-starttime)*1000,1)
+            framerate = round(10/(Dates.value(now())-starttime)*1000,digits=1)
             println("frames $(framerate) per second")
             starttime = Dates.value(now())
         end
