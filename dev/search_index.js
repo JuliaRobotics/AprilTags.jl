@@ -21,7 +21,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Installation",
     "category": "section",
-    "text": "AprilTags.jl can be installed in Julia 0.7 and Julia 1.0 with:#enter \']\' to get the package manager and then type:\n(v0.7) pkg> add AprilTags\n# or\nusing Pkg\nPkg.add(\"AprilTags\")Note that Julia 0.6 is no longer supprted going forward. Please use v0.0.2 for julia 0.6.  "
+    "text": "AprilTags.jl can be installed in Julia 0.7 and Julia 1.0 with:#enter \']\' to get the package manager and then type:\n(v1.0) pkg> add AprilTags\n# or\nusing Pkg\nPkg.add(\"AprilTags\")Note that Julia 0.6 is no longer supprted going forward. Please use v0.0.2 for julia 0.6.  "
 },
 
 {
@@ -45,7 +45,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Initialization",
     "category": "section",
-    "text": "Initialize a detector with the default (tag36h11) tag family.# Create default detector\ndetector = AprilTagDetector()The tag detector parameters can be set as shown bellow. The default parameters are the recommended starting point.detector.nThreads = 4 #number of threads to use\ndetector.quad_decimate =  1.0 #\"Decimate input image by this factor\"\ndetector.quad_sigma = 0.0 #\"Apply low-pass blur to input; negative sharpens\"\ndetector.refine_edges = 1 #\"Set to 1 to spend more time to align edges of tags\"\ndetector.refine_decode = 0 #\"Set to 1 to spend more time to decode tags\"\ndetector.refine_pose = 0 #\"Set to 1 to spend more time to precisely localize tags\""
+    "text": "Initialize a detector with the default (tag36h11) tag family.# Create default detector\ndetector = AprilTagDetector()The tag detector parameters can be set as shown bellow. The default parameters are the recommended starting point.detector.nThreads = 4 #number of threads to use\ndetector.quad_decimate =  1.0 #\"Decimate input image by this factor\"\ndetector.quad_sigma = 0.0 #\"Apply low-pass blur to input; negative sharpens\"\ndetector.refine_edges = 1 #\"Set to 1 to spend more time to align edges of tags\"\ndetector.decode_sharpening = 0.25"
 },
 
 {
@@ -73,19 +73,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "#refine_decode-1",
+    "location": "#decode_sharpening-1",
     "page": "Home",
-    "title": "refine_decode",
+    "title": "decode_sharpening",
     "category": "section",
-    "text": "When non-zero, detections are refined in a way intended to increase the number of detected tags. Especially effective for very small tags near the resolution threshold (e.g. 10px on a side)."
-},
-
-{
-    "location": "#refine_pose-1",
-    "page": "Home",
-    "title": "refine_pose",
-    "category": "section",
-    "text": "When non-zero, detections are refined in a way intended to increase the accuracy of the extracted pose. This is done by maximizing the contrast around the black and white border of the tag. This generally increases the number of successfully detected tags, though not as effectively (or quickly) as refine_decode.   This option must be enabled in order for \"goodness\" to be computed."
+    "text": "How much sharpening should be done to decoded images? This can help decode small tags but may or may not help in odd lighting conditions or low light conditions. The default value is 0.25."
 },
 
 {
@@ -133,7 +125,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Functions",
     "title": "AprilTags.AprilTagDetector",
     "category": "type",
-    "text": "AprilTagDetector(tagfamily=tag36h11)\n\nCreate a default AprilTag detector with the 36h11 tag family Create an AprilTag detector with tag family in tagfamily::TagFamilies @enum TagFamilies tag36h11 tag36h10 tag25h9 tag16h5\n\n\n\n\n\n"
+    "text": "AprilTagDetector(tagfamily=tag36h11)\n\nCreate a default AprilTag detector with the 36h11 tag family Create an AprilTag detector with tag family in tagfamily::TagFamilies @enum TagFamilies tag36h11 tag25h9 tag16h5\n\n\n\n\n\n"
 },
 
 {
@@ -181,7 +173,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Functions",
     "title": "AprilTags.getAprilTagImage",
     "category": "function",
-    "text": "getAprilTagImage(tagIndex, tagfamily=tag36h11)\n\nReturn an image [Gray{N0f8}] for with tagIndex from tag family in tagfamily::TagFamilies @enum TagFamilies tag36h11 tag36h10 tag25h9 tag16h5\n\n\n\n\n\n"
+    "text": "getAprilTagImage(tagIndex, tagfamily=tag36h11)\n\nReturn an image [Gray{N0f8}] for with tagIndex from tag family in tagfamily::TagFamilies @enum TagFamilies tag36h11 tag25h9 tag16h5\n\n\n\n\n\n"
 },
 
 {
@@ -193,11 +185,27 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "func_ref/#AprilTags.detectAndPose",
+    "page": "Functions",
+    "title": "AprilTags.detectAndPose",
+    "category": "function",
+    "text": "detectAndPose(detector, image, fx, fy, cx, cy, taglength)\n\nDetect tags and calcuate the pose on them.\n\n\n\n\n\n"
+},
+
+{
+    "location": "func_ref/#AprilTags.tagOrthogonalIteration",
+    "page": "Functions",
+    "title": "AprilTags.tagOrthogonalIteration",
+    "category": "function",
+    "text": "tagOrthogonalIteration\n\nRun the orthoganal iteration algorithm on the poses. See apriltag_pose.h [2]: Lu, G. D. Hager and E. Mjolsness, \"Fast and globally convergent pose estimation from video images,\" in IEEE Transactions on Pattern Analysis and Machine Intelligence, vol. 22, no. 6, pp. 610-622, June 2000. doi: 10.1109/34.862199\n\n\n\n\n\n"
+},
+
+{
     "location": "func_ref/#AprilTags.jl-functions-1",
     "page": "Functions",
     "title": "AprilTags.jl functions",
     "category": "section",
-    "text": "AprilTags.AprilTagDetector\nAprilTags.freeDetector!\nhomography_to_pose\nhomographytopose\ndrawTagBox!\ndrawTagAxes!\ngetAprilTagImage\nthreadcalldetect"
+    "text": "AprilTags.AprilTagDetector\nAprilTags.freeDetector!\nhomography_to_pose\nhomographytopose\ndrawTagBox!\ndrawTagAxes!\ngetAprilTagImage\nthreadcalldetect\ndetectAndPose\ntagOrthogonalIteration"
 },
 
 {
