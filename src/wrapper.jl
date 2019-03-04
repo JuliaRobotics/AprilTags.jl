@@ -196,6 +196,7 @@ end
 
 mutable struct quad
     p::NTuple{4, NTuple{2, Cfloat}}
+    reversed_border::Bool
     H::Ptr{matd_t}
     Hinv::Ptr{matd_t}
 end
@@ -207,11 +208,16 @@ end
 
 const timeprofile_t = timeprofile
 
+#TODO: untested
 mutable struct apriltag_family
     ncodes::UInt32
     codes::Ptr{UInt64}
-    black_border::UInt32
-    d::UInt32
+    width_at_border::Cint
+    total_width::Cint
+    reversed_border::Bool
+    nbits::UInt32
+    bit_x::Ptr{UInt32}
+    bit_y::Ptr{UInt32}
     h::UInt32
     name::Cstring
     impl::Ptr{Nothing}
@@ -222,7 +228,7 @@ const apriltag_family_t = apriltag_family
 mutable struct apriltag_quad_thresh_params
     min_cluster_pixels::Cint
     max_nmaxima::Cint
-    critical_rad::Cfloat
+    cos_critical_rad::Cfloat
     max_line_fit_mse::Cfloat
     min_white_black_diff::Cint
     deglitch::Cint
@@ -250,21 +256,14 @@ mutable struct apriltag_detector
     #  estimate substantially. Generally recommended to be on (1).
     #  Very computationally inexpensive. Option is ignored if quad_decimate = 1.
     refine_edges::Cint
-    #  when non-zero, detections are refined in a way intended to
-    #  increase the number of detected tags. Especially effective for
-    #  very small tags near the resolution threshold (e.g. 10px on a
-    #  side).
-    refine_decode::Cint
-    #  when non-zero, detections are refined in a way intended to
-    #  increase the accuracy of the extracted pose. This is done by
-    #  maximizing the contrast around the black and white border of
-    #  the tag. This generally increases the number of successfully
-    #  detected tags, though not as effectively (or quickly) as
-    #  refine_decode.
+
+    # How much sharpening should be done to decoded images? This
+    # can help decode small tags but may or may not help in odd
+    # lighting conditions or low light conditions.
     #
-    #  This option must be enabled in order for "goodness" to be
-    #  computed.
-    refine_pose::Cint
+    # The default value is 0.25.
+    decode_sharpening::Cdouble
+
     #  When non-zero, write a variety of debugging images to the
     #  current working directory at various stages through the
     #  detection process. (Somewhat slow).
@@ -299,7 +298,7 @@ mutable struct apriltag_detection
     family::Ptr{apriltag_family_t}
     id::Cint
     hamming::Cint
-    goodness::Cfloat
+    # goodness::Cfloat
     decision_margin::Cfloat
     H::Ptr{matd_t}
     c::NTuple{2, Cdouble}
@@ -326,14 +325,14 @@ function tag36h11_destroy(tf)
     ccall((:tag36h11_destroy, :libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
 end
 
-
-function tag36h10_create()
-    ccall((:tag36h10_create, :libapriltag), Ptr{apriltag_family_t}, ())
-end
-
-function tag36h10_destroy(tf)
-    ccall((:tag36h10_destroy, :libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
-end
+#NOTE Not in apriltag 3
+# function tag36h10_create()
+#     ccall((:tag36h10_create, :libapriltag), Ptr{apriltag_family_t}, ())
+# end
+#
+# function tag36h10_destroy(tf)
+#     ccall((:tag36h10_destroy, :libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
+# end
 
 function tag25h9_create()
     ccall((:tag25h9_create, :libapriltag), Ptr{apriltag_family_t}, ())
@@ -343,13 +342,14 @@ function tag25h9_destroy(tf)
     ccall((:tag25h9_destroy, :libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
 end
 
-function tag25h7_create()
-    ccall((:tag25h7_create, :libapriltag), Ptr{apriltag_family_t}, ())
-end
+#NOTE Not in apriltag 3
+# function tag25h7_create()
+#     ccall((:tag25h7_create, :libapriltag), Ptr{apriltag_family_t}, ())
+# end
 
-function tag25h7_destroy(tf)
-    ccall((:tag25h7_destroy, :libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
-end
+# function tag25h7_destroy(tf)
+#     ccall((:tag25h7_destroy, :libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
+# end
 
 function tag16h5_create()
     ccall((:tag16h5_create, :libapriltag), Ptr{apriltag_family_t}, ())
@@ -434,4 +434,78 @@ end
 # matd_t *homography_to_pose(const matd_t *H, double fx, double fy, double cx, double cy)
 function homography_to_pose(H, fx, fy, cx, cy)
     ccall((:homography_to_pose, :libapriltag), Ptr{matd_t}, (Ptr{matd_t}, Cdouble, Cdouble, Cdouble, Cdouble), H, fx, fy, cx, cy)
+end
+
+
+# new pose estimation from apriltag 3
+mutable struct apriltag_detection_info_t
+    det::Ptr{apriltag_detection_t}
+    tagsize::Cdouble
+    fx::Cdouble
+    fy::Cdouble
+    cx::Cdouble
+    cy::Cdouble
+end
+
+mutable struct apriltag_pose_t
+    R::Ptr{matd_t}
+    t::Ptr{matd_t}
+    apriltag_pose_t() = new()
+end
+
+#special matd_t to help with construction and usage
+mutable struct Matd4x4
+    nrows::UInt32
+    ncols::UInt32
+    data::NTuple{16,Cdouble}
+    Matd4x4() = new(4,4,NTuple{16,Cdouble}(Matrix{Float64}(undef,4,4)))
+    Matd4x4(M::Matrix{Float64}) = new(4,4,NTuple{16,Cdouble}(M'))#TODO test if order is correct
+end
+
+mutable struct Matd3x3
+    nrows::UInt32
+    ncols::UInt32
+    data::NTuple{9,Cdouble}
+    Matd3x3() = new(3,3,NTuple{9,Cdouble}(Matrix{Float64}(undef,3,3)))
+    Matd3x3(M::Matrix{Float64}) = new(3,3,NTuple{9,Cdouble}(M'))#TODO test if order is correct
+end
+
+mutable struct Matd3x1
+    nrows::UInt32
+    ncols::UInt32
+    data::NTuple{3,Cdouble}
+    Matd3x1() = new(3,1,NTuple{3,Cdouble}(Matrix{Float64}(undef,3,1)))
+    Matd3x1(V::Vector{Float64}) = new(3,1,NTuple{3,Cdouble}(V))
+end
+
+# void estimate_pose_for_tag_homography(apriltag_detection_info_t* info, apriltag_pose_t* pose);
+function estimate_pose_for_tag_homography(info, pose)
+    ccall((:estimate_pose_for_tag_homography, :libapriltag), Nothing, (Ptr{apriltag_detection_info_t}, Ptr{apriltag_pose_t}), Ref(info), Ref(pose))
+end
+
+# double orthogonal_iteration(matd_t** v, matd_t** p, matd_t** t, matd_t** R, int n_points, int n_steps)
+function orthogonal_iteration(v::NTuple{4,Matd3x1}, p::NTuple{4,Matd3x1}, t::NTuple{1,Matd3x1}, R::NTuple{1,Matd3x3}, n_points::Int, n_steps::Int)
+# function orthogonal_iteration(v, p, t, R, n_points::Int, n_steps::Int)
+
+    vp = Base.unsafe_convert(Ptr{Nothing}, Ref(v))
+    pp = Base.unsafe_convert(Ptr{Nothing}, Ref(p))
+    tp = Base.unsafe_convert(Ptr{Nothing}, Ref(t))
+    Rp = Base.unsafe_convert(Ptr{Nothing}, Ref(R))
+
+    ccall((:orthogonal_iteration, :libapriltag), Cdouble,
+            (Ptr{Ptr{matd_t}}, Ptr{Ptr{matd_t}}, Ptr{Ptr{matd_t}}, Ptr{Ptr{matd_t}}, Cint, Cint),
+            vp, pp, tp, Rp, n_points, n_steps)
+end
+
+# matd_t* fix_pose_ambiguities(matd_t** v, matd_t** p, matd_t* t, matd_t* R, int n_points) {
+function fix_pose_ambiguities(v::NTuple{4,Matd3x1}, p::NTuple{4,Matd3x1}, t::Matd3x1, R::Matd3x3, n_points::Int)
+
+    vp = Base.unsafe_convert(Ptr{Nothing}, Ref(v))
+    pp = Base.unsafe_convert(Ptr{Nothing}, Ref(p))
+    tp = Base.unsafe_convert(Ptr{Nothing}, Ref(t))
+    Rp = Base.unsafe_convert(Ptr{Nothing}, Ref(R))
+
+    ccall((:fix_pose_ambiguities, :libapriltag), Ptr{Matd3x3},
+            (Ptr{Ptr{matd_t}}, Ptr{Ptr{matd_t}}, Ptr{matd_t}, Ptr{matd_t}, Cint),
+            vp, pp, tp, Rp, n_points)
 end

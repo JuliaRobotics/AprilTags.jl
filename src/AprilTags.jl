@@ -6,7 +6,7 @@ function __init__()
     isfile(depfile) ? include(depfile) : error("AprilTags.jl not properly installed. Please run: Pkg.build(\"AprilTags\")")
 end
 
-using LinearAlgebra
+using LinearAlgebra, Statistics
 using Colors, ImageDraw, FixedPointNumbers
 import Base.convert
 
@@ -20,7 +20,8 @@ homography_to_pose,
 homographytopose,
 threadcalldetect,
 getAprilTagImage,
-
+detectAndPose,
+tagOrthogonalIteration,
 # wrappers
 apriltag_detector_create,
 tag36h11_create,

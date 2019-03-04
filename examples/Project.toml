@@ -1,0 +1,14 @@
+name = "AprilTags Examples"
+
+[deps]
+AprilTags = "f0fec3d5-a81e-5a6a-8c28-d2b34f3659de"
+ImageDraw = "4381153b-2b60-58ae-a1ba-fd683676385f"
+ImageMagick = "6218d12a-5da1-5696-b52f-db25d2ecc6d1"
+Images = "916415d5-f1e6-5110-898d-aaa5f9f070e0"
+
+[compat]
+AprilTags = "^0.7"
+ImageDraw = "^0.1"
+ImageMagick = "^0.7"
+Images = "^0.16"
+julia = ">=0.7"

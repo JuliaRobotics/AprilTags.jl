@@ -29,13 +29,10 @@ PixPos(pix::UInt8, pos::Array{Float64,1}) = PixPos(pix, (x=pos[1], y=pos[2], z=p
                  0.0  0.0  0.0     1.0]]
 
     #test offset only
-    #FIXME bigger offsets like this one fails test
-    #=
     push!(test_cTw, [1.0  0.0  0.0   320.0;
                      0.0  1.0  0.0  -200.0;
                      0.0  0.0  1.0  1500.0;
                      0.0  0.0  0.0     1.0])
-    =#
 
     #test horizontal angle
     push!(test_cTw, [ 0.707107  0.0  0.707107  0.0;
@@ -61,7 +58,10 @@ PixPos(pix::UInt8, pos::Array{Float64,1}) = PixPos(pix, (x=pos[1], y=pos[2], z=p
                      0.5       -0.707107   0.5       2060.66;
                      0.0        0.0        0.0          1.0])
 
-    for cTw = test_cTw
+
+    for idx = 1:length(test_cTw)
+        cTw = test_cTw[idx]
+
         back = ones(UInt8, 301,301)*0x40
         back[11:290,11:290] =  ones(UInt8, 280,280)*0x80
 
@@ -100,11 +100,18 @@ PixPos(pix::UInt8, pos::Array{Float64,1}) = PixPos(pix, (x=pos[1], y=pos[2], z=p
 
         tags = detector(Gray{N0f8}.(projImg))
 
-        pose = homographytopose(tags[1].H, fx, fy, cx, cy, taglength = 160.)
-        display(pose)
 
-        @test pose[1:3,1:3] ≈ cTw[1:3,1:3] atol = 0.05
-        @test pose[1:3,4] ≈ cTw[1:3,4] atol = 10.
+        pose = homographytopose(tags[1].H, fx, fy, cx, cy, taglength = 160.)
+        # display(pose)
+
+        if idx != 2 #FIXME? skip this test on 2 (bigger offsets like this one fails test), homographytopose is just not accurate enough
+            @test all(isapprox.(pose[1:3,1:3], cTw[1:3,1:3], atol = 0.05))
+            @test all(isapprox.(pose[1:3,4], cTw[1:3,4], atol = 10.))
+        end
+        pose,err1 = tagOrthogonalIteration(tags[1], fx, fy, cx, cy, taglength = 160.)
+        @test all(isapprox.(pose[1:3,1:3], cTw[1:3,1:3], atol = 0.05))
+        @test all(isapprox.(pose[1:3,4], cTw[1:3,4], atol = 10.))
+
     end
 
 end

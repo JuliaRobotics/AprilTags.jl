@@ -16,6 +16,8 @@ drawTagBox!
 drawTagAxes!
 getAprilTagImage
 threadcalldetect
+detectAndPose
+tagOrthogonalIteration
 ```
 ### Wrappers
 ```@docs
