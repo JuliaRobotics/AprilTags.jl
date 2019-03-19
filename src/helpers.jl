@@ -101,7 +101,8 @@ function AprilTagDetector(tagfamily::TagFamilies = tag36h11)
     #add family to detector
     apriltag_detector_add_family(td, tf)
 
-    return AprilTagDetector(td,tf)
+    #Register finalizer and return detector
+    return finalizer(freeDetector!, AprilTagDetector(td,tf))
 end
 
 const U8Types = Union{UInt8, N0f8, Gray{N0f8}}
@@ -490,7 +491,7 @@ function homography_to_pose(H::Matrix{Float64}, fx::Float64, fy::Float64, cx::Fl
         U, S, V = svd(R)
         R = U * V'
     end
-
+    
     return  [R    [TX*taglength/2.0;
                    TY*taglength/2.0;
                    TZ*taglength/2.0];
