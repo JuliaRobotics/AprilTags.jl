@@ -16,4 +16,4 @@ ImageMagick = "6218d12a-5da1-5696-b52f-db25d2ecc6d1"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "FileIO", "ImageCore", "ImageMagick", "Test"]
+test = ["Test", "FileIO", "ImageCore", "ImageMagick"]
