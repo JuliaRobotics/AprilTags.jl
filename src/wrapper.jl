@@ -314,7 +314,7 @@ const apriltag_detection_t = apriltag_detection
 Create a AprilTag family object for tag36h11 with all fields set to default value.
 """
 function tag36h11_create()
-    ccall((:tag36h11_create, :libapriltag), Ptr{apriltag_family_t}, ())
+    ccall((:tag36h11_create, libapriltag), Ptr{apriltag_family_t}, ())
 end
 
 """
@@ -322,41 +322,41 @@ end
 Destroy the AprilTag family object.
 """
 function tag36h11_destroy(tf)
-    ccall((:tag36h11_destroy, :libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
+    ccall((:tag36h11_destroy, libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
 end
 
 #NOTE Not in apriltag 3
 # function tag36h10_create()
-#     ccall((:tag36h10_create, :libapriltag), Ptr{apriltag_family_t}, ())
+#     ccall((:tag36h10_create, libapriltag), Ptr{apriltag_family_t}, ())
 # end
 #
 # function tag36h10_destroy(tf)
-#     ccall((:tag36h10_destroy, :libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
+#     ccall((:tag36h10_destroy, libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
 # end
 
 function tag25h9_create()
-    ccall((:tag25h9_create, :libapriltag), Ptr{apriltag_family_t}, ())
+    ccall((:tag25h9_create, libapriltag), Ptr{apriltag_family_t}, ())
 end
 
 function tag25h9_destroy(tf)
-    ccall((:tag25h9_destroy, :libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
+    ccall((:tag25h9_destroy, libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
 end
 
 #NOTE Not in apriltag 3
 # function tag25h7_create()
-#     ccall((:tag25h7_create, :libapriltag), Ptr{apriltag_family_t}, ())
+#     ccall((:tag25h7_create, libapriltag), Ptr{apriltag_family_t}, ())
 # end
 
 # function tag25h7_destroy(tf)
-#     ccall((:tag25h7_destroy, :libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
+#     ccall((:tag25h7_destroy, libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
 # end
 
 function tag16h5_create()
-    ccall((:tag16h5_create, :libapriltag), Ptr{apriltag_family_t}, ())
+    ccall((:tag16h5_create, libapriltag), Ptr{apriltag_family_t}, ())
 end
 
 function tag16h5_destroy(tf)
-    ccall((:tag16h5_destroy, :libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
+    ccall((:tag16h5_destroy, libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
 end
 
 """
@@ -364,12 +364,12 @@ end
 Create a AprilTag Detector object with all fields set to default value.
 """
 function apriltag_detector_create()
-    ccall((:apriltag_detector_create, :libapriltag), Ptr{apriltag_detector_t}, ())
+    ccall((:apriltag_detector_create, libapriltag), Ptr{apriltag_detector_t}, ())
 end
 
 
 function apriltag_detector_add_family_bits(td, fam, bits_corrected::Cint)
-    ccall((:apriltag_detector_add_family_bits, :libapriltag), Nothing, (Ptr{apriltag_detector_t}, Ptr{apriltag_family_t}, Cint), td, fam, bits_corrected)
+    ccall((:apriltag_detector_add_family_bits, libapriltag), Nothing, (Ptr{apriltag_detector_t}, Ptr{apriltag_family_t}, Cint), td, fam, bits_corrected)
 end
 
 """
@@ -378,20 +378,20 @@ Add a tag family to an AprilTag Detector object.
 The caller still "owns" the family and a single instance should only be provided to one apriltag detector instance.
 """
 function apriltag_detector_add_family(td, fam)
-    # ccall((:apriltag_detector_add_family, :libapriltag), Nothing, (Ptr{apriltag_detector_t}, Ptr{apriltag_family_t}), td, fam)
+    # ccall((:apriltag_detector_add_family, libapriltag), Nothing, (Ptr{apriltag_detector_t}, Ptr{apriltag_family_t}), td, fam)
     apriltag_detector_add_family_bits(td, fam, Int32(2))
 end
 
 function apriltag_detector_remove_family(td, fam)
-    ccall((:apriltag_detector_remove_family, :libapriltag), Nothing, (Ptr{apriltag_detector_t}, Ptr{apriltag_family_t}), td, fam)
+    ccall((:apriltag_detector_remove_family, libapriltag), Nothing, (Ptr{apriltag_detector_t}, Ptr{apriltag_family_t}), td, fam)
 end
 
 function apriltag_detector_clear_families(td)
-    ccall((:apriltag_detector_clear_families, :libapriltag), Nothing, (Ptr{apriltag_detector_t},), td)
+    ccall((:apriltag_detector_clear_families, libapriltag), Nothing, (Ptr{apriltag_detector_t},), td)
 end
 
 function apriltag_detector_destroy(td)
-    ccall((:apriltag_detector_destroy, :libapriltag), Nothing, (Ptr{apriltag_detector_t},), td)
+    ccall((:apriltag_detector_destroy, libapriltag), Nothing, (Ptr{apriltag_detector_t},), td)
 end
 
 """
@@ -401,7 +401,7 @@ You can use apriltag_detections_destroy to free the array and the detections it 
 detection_destroy and zarray_destroy yourself.
 """
 function apriltag_detector_detect(td, im_orig)
-    ccall((:apriltag_detector_detect, :libapriltag), Ptr{zarray_t}, (Ptr{apriltag_detector_t}, Ptr{image_u8_t}), td, Ref(im_orig))
+    ccall((:apriltag_detector_detect, libapriltag), Ptr{zarray_t}, (Ptr{apriltag_detector_t}, Ptr{image_u8_t}), td, Ref(im_orig))
 end
 
 """
@@ -412,20 +412,20 @@ You can use apriltag_detections_destroy to free the array and the detections it 
 detection_destroy and zarray_destroy yourself.
 """
 function threadcall_apriltag_detector_detect(td, im_orig)
-    @threadcall((:apriltag_detector_detect, :libapriltag), Ptr{zarray_t}, (Ptr{apriltag_detector_t}, Ptr{image_u8_t}), td, Ref(im_orig))
+    @threadcall((:apriltag_detector_detect, libapriltag), Ptr{zarray_t}, (Ptr{apriltag_detector_t}, Ptr{image_u8_t}), td, Ref(im_orig))
 end
 
 
 function apriltag_detection_destroy(det)
-    ccall((:apriltag_detection_destroy, :libapriltag), Nothing, (Ptr{apriltag_detection_t},), det)
+    ccall((:apriltag_detection_destroy, libapriltag), Nothing, (Ptr{apriltag_detection_t},), det)
 end
 
 function apriltag_detections_destroy(detections)
-    ccall((:apriltag_detections_destroy, :libapriltag), Nothing, (Ptr{zarray_t},), detections)
+    ccall((:apriltag_detections_destroy, libapriltag), Nothing, (Ptr{zarray_t},), detections)
 end
 
 function apriltag_to_image(fam, idx::Cint)
-    ccall((:apriltag_to_image, :libapriltag), Ptr{image_u8_t}, (Ptr{apriltag_family_t}, Cint), fam, idx)
+    ccall((:apriltag_to_image, libapriltag), Ptr{image_u8_t}, (Ptr{apriltag_family_t}, Cint), fam, idx)
 end
 
 
@@ -433,7 +433,7 @@ end
 
 # matd_t *homography_to_pose(const matd_t *H, double fx, double fy, double cx, double cy)
 function homography_to_pose(H, fx, fy, cx, cy)
-    ccall((:homography_to_pose, :libapriltag), Ptr{matd_t}, (Ptr{matd_t}, Cdouble, Cdouble, Cdouble, Cdouble), H, fx, fy, cx, cy)
+    ccall((:homography_to_pose, libapriltag), Ptr{matd_t}, (Ptr{matd_t}, Cdouble, Cdouble, Cdouble, Cdouble), H, fx, fy, cx, cy)
 end
 
 
@@ -480,7 +480,7 @@ end
 
 # void estimate_pose_for_tag_homography(apriltag_detection_info_t* info, apriltag_pose_t* pose);
 function estimate_pose_for_tag_homography(info, pose)
-    ccall((:estimate_pose_for_tag_homography, :libapriltag), Nothing, (Ptr{apriltag_detection_info_t}, Ptr{apriltag_pose_t}), Ref(info), Ref(pose))
+    ccall((:estimate_pose_for_tag_homography, libapriltag), Nothing, (Ptr{apriltag_detection_info_t}, Ptr{apriltag_pose_t}), Ref(info), Ref(pose))
 end
 
 # double orthogonal_iteration(matd_t** v, matd_t** p, matd_t** t, matd_t** R, int n_points, int n_steps)
@@ -492,7 +492,7 @@ function orthogonal_iteration(v::NTuple{4,Matd3x1}, p::NTuple{4,Matd3x1}, t::NTu
     tp = Base.unsafe_convert(Ptr{Nothing}, Ref(t))
     Rp = Base.unsafe_convert(Ptr{Nothing}, Ref(R))
 
-    ccall((:orthogonal_iteration, :libapriltag), Cdouble,
+    ccall((:orthogonal_iteration, libapriltag), Cdouble,
             (Ptr{Ptr{matd_t}}, Ptr{Ptr{matd_t}}, Ptr{Ptr{matd_t}}, Ptr{Ptr{matd_t}}, Cint, Cint),
             vp, pp, tp, Rp, n_points, n_steps)
 end
@@ -505,7 +505,7 @@ function fix_pose_ambiguities(v::NTuple{4,Matd3x1}, p::NTuple{4,Matd3x1}, t::Mat
     tp = Base.unsafe_convert(Ptr{Nothing}, Ref(t))
     Rp = Base.unsafe_convert(Ptr{Nothing}, Ref(R))
 
-    ccall((:fix_pose_ambiguities, :libapriltag), Ptr{Matd3x3},
+    ccall((:fix_pose_ambiguities, libapriltag), Ptr{Matd3x3},
             (Ptr{Ptr{matd_t}}, Ptr{Ptr{matd_t}}, Ptr{matd_t}, Ptr{matd_t}, Cint),
             vp, pp, tp, Rp, n_points)
 end
