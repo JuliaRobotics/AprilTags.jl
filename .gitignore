@@ -7,6 +7,6 @@
 
 docs/build
 sandbox
-deps/loadpath.jl
+deps/deps.jl
 deps/build.log
-deps/apriltag-2016-12-01/example/apriltag_demo
+deps/usr

@@ -5,6 +5,7 @@ keywords = ["AprilTags", "fiducials", "markers"]
 version = "0.7.1"
 
 [deps]
+BinaryProvider = "b99e7846-7c00-51b0-8f62-c81ae34c0232"
 Colors = "5ae59095-9a9b-59fe-a467-6f913c188581"
 FixedPointNumbers = "53c48c17-4a7d-5ca2-90c5-79b7896eea93"
 ImageDraw = "4381153b-2b60-58ae-a1ba-fd683676385f"

@@ -1,9 +1,11 @@
 __precompile__()
 module AprilTags
 
+depfile = joinpath(dirname(@__FILE__),"../deps/deps.jl")
+isfile(depfile) ? include(depfile) : error("AprilTags.jl not properly installed. Please run: Pkg.build(\"AprilTags\")")
+
 function __init__()
-    depfile = joinpath(dirname(@__FILE__),"../deps/loadpath.jl")
-    isfile(depfile) ? include(depfile) : error("AprilTags.jl not properly installed. Please run: Pkg.build(\"AprilTags\")")
+    check_deps()
 end
 
 using LinearAlgebra, Statistics
