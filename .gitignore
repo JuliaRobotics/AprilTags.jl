@@ -4,7 +4,7 @@
 *.o
 *.so
 *.a
-
+Manifest.toml
 docs/build
 sandbox
 deps/deps.jl

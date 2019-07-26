@@ -5,7 +5,7 @@ end
 PixPos(pix::UInt8, pos::Vector{Float64}) = PixPos(pix, (x=pos[1], y=pos[2], z=pos[3]))
 PixPos(pix::UInt8, pos::Array{Float64,1}) = PixPos(pix, (x=pos[1], y=pos[2], z=pos[3]))
 
-@testset "Homography to Pose" begin
+Sys.islinux() && @testset "Homography to Pose" begin
 
     fx = 1000.
     fy = 1000.
