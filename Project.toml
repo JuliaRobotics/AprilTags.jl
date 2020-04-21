@@ -1,8 +1,8 @@
 name = "AprilTags"
 uuid = "f0fec3d5-a81e-5a6a-8c28-d2b34f3659de"
-desc = "Visual fiducial marking system"
 keywords = ["AprilTags", "fiducials", "markers"]
-version = "0.7.1"
+desc = "Visual fiducial marking system"
+version = "0.7.2"
 
 [deps]
 Colors = "5ae59095-9a9b-59fe-a467-6f913c188581"
@@ -14,6 +14,9 @@ Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [compat]
+Colors = "0.8, 0.9, 0.10, 0.11, 0.12"
+FixedPointNumbers = "0.7, 0.8"
+ImageDraw = "0.1, 0.2"
 julia = "0.7, 1"
 
 [extras]
