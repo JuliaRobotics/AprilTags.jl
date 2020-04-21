@@ -1,5 +1,7 @@
 # text and tags and images
 
+export drawTagID!, drawTagNumber!
+
 """
     drawTagNumber!(::Array{<:RGB,2},::AprilTag,face=FTFont(..);sz::Float64=0.6)
 
@@ -25,3 +27,5 @@ function drawTagNumber!(image::Array{T,2},
   szz = round(Int, sz*6.0/(length(text)+10.0)*(pmaxx-pminx+pmaxy-pminy))
   renderstring!(image, text, face, szz, centy,centx, halign=:hcenter,valign=:vcenter)
 end
+
+const drawTagID! = drawTagNumber!
