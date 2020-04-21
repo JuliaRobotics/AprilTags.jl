@@ -12,10 +12,10 @@ Example
 foreach(tag->drawTagNumber!(imageCol, tag)
 ```
 """
-function drawTagNumber!(image::Array{T,2},
+function drawTagNumber!(image::Array{<:RGB,2},
                         tag::AprilTag,
                         face=FTFont(joinpath(dirname(dirname(pathof(FreeTypeAbstraction))),"test","hack_regular.ttf") );
-                        sz::Float64=0.6 ) where T <: RGB
+                        sz::Float64=0.6 )
   #
   pminx = round(Int, minimum((x->x[1]).(tag.p)) )
   pminy = round(Int, minimum((x->x[2]).(tag.p)) )
