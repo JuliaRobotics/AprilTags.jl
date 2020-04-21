@@ -9,6 +9,7 @@ function __init__()
 
     # conditional requirement
     @require FreeTypeAbstraction="663a7486-cb36-511b-a19d-713bb74d65c9" begin
+      using .FreeTypeAbstraction
       @info "AprilTags.jl is loading tagtext.jl conditioned on using FreeTypeAbstraction"
       include("tagtext.jl")
     end
