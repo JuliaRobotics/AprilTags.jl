@@ -1,6 +1,6 @@
 The AprilTags.jl package is licensed under the MIT "Expat" License:
 
-> Copyright (c) 2018: Johannes Terblanche and others.
+> Copyright (c) 2018: Johannes Terblanche and other contributors: https://github.com/JuliaRobotics/AprilTags.jl/contributors
 >
 > Permission is hereby granted, free of charge, to any person obtaining a copy
 > of this software and associated documentation files (the "Software"), to deal
