@@ -8,7 +8,7 @@ os:
 dist: xenial
 julia:
   - 1.0
-  - 1.1
+  - 1.5
   - nightly
 notifications:
   email: false
