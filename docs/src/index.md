@@ -72,6 +72,31 @@ Eg. to create a tag image with id 1 from family 'tag36h11' run:
 getAprilTagImage(1, AprilTags.tag36h11)
 ```
 
+## Visualizing Tags
+
+Images can be updated to include the tag detections,
+```julia
+drawTagBox!(image, tag)
+```
+
+Or if the camera matrix `K` is known, the axes can be shown with
+```julia
+drawTagAxes!(image, tag, K)
+```
+
+Furthermore, the tag IDs can also be visualized by first loading a different package:
+```julia
+using FreeTypeAbstraction
+using AprilTags
+using ImageView
+
+# get an image
+img_ = drawTags(image, K)
+imshow(img_)
+
+# drawTags!(image, K, tags)
+```
+
 ## Manual Outline
 ```@contents
 Pages = [

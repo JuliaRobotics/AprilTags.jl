@@ -97,8 +97,10 @@ Draw the tag x, y, and z axes to show the orientation.
 foreach(tag->drawTagAxes!(imageCol, tag, K), tags)
 `
 """
-function drawTagAxes!(image::Array{T,2}, tag::AprilTag, K::Array{Float64,2}) where T <: RGB
-
+function drawTagAxes!(image::AbstractArray{<:AbstractRGB,2}, 
+                      tag::AprilTag, 
+                      K::AbstractArray{<:Real,2} )
+    #
     Kp = [K [0;0]; 0.0 0.0 1.0 0.0]
     pose = AprilTags.homography_to_pose(tag.H, K[1,1], K[2,2], K[1,3], K[2,3])
 
@@ -126,3 +128,5 @@ function drawTagAxes!(image::Array{T,2}, tag::AprilTag, K::Array{Float64,2}) whe
     draw!(image, LineSegment(ip0, ip3), RGB{N0f8}(0.0, 0.0, 1.0), boundedBresenham)
     image
 end
+
+

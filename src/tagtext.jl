@@ -1,5 +1,9 @@
 # text and tags and images
 
+using .FreeTypeAbstraction
+@info "AprilTags.jl is loading tagtext.jl conditioned on using FreeTypeAbstraction"
+      
+
 export drawTagID!, drawTagNumber!
 
 """
