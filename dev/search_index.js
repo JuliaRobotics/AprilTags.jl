@@ -97,6 +97,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "#Visualizing-Tags-1",
+    "page": "Home",
+    "title": "Visualizing Tags",
+    "category": "section",
+    "text": "Images can be updated to include the tag detections,drawTagBox!(image, tag)Or if the camera matrix K is known, the axes can be shown withdrawTagAxes!(image, tag, K)Furthermore, the tag IDs can also be visualized by first loading a different package:using FreeTypeAbstraction\nusing AprilTags\nusing ImageView\n\n# get an image\nimg_ = drawTags(image, K)\nimshow(img_)\n\n# drawTags!(image, K, tags)"
+},
+
+{
     "location": "#Manual-Outline-1",
     "page": "Home",
     "title": "Manual Outline",
