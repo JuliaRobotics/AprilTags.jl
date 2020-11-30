@@ -747,8 +747,15 @@ end
 Run the orthoganal iteration algorithm on the poses. See apriltag_pose.h
 [2]: Lu, G. D. Hager and E. Mjolsness, "Fast and globally convergent pose estimation from video images," in IEEE Transactions on Pattern Analysis and Machine Intelligence, vol. 22, no. 6, pp. 610-622, June 2000. doi: 10.1109/34.862199
 """
-function tagOrthogonalIteration(tag::AprilTag, fx::Float64, fy::Float64, cx::Float64, cy::Float64; taglength::Float64 = 2.0, nIters::Int = 50)
-
+function tagOrthogonalIteration(corners::Union{<:AbstractVector,<:Tuple},
+                                H::Matrix{<:Real}, 
+                                fx::Float64, 
+                                fy::Float64, 
+                                cx::Float64, 
+                                cy::Float64; 
+                                taglength::Float64 = 2.0, 
+                                nIters::Int = 50 )
+    #
     Ki = [[1/fx  0    -cx/fx];
           [0     1/fy -cy/fy];
           [0     0     1]]
@@ -759,12 +766,21 @@ function tagOrthogonalIteration(tag::AprilTag, fx::Float64, fy::Float64, cx::Flo
          [ scale,-scale, 0],
          [-scale,-scale, 0]]
 
-    v = [Ki*[tag.p[1];1], Ki*[tag.p[2];1], Ki*[tag.p[3];1], Ki*[tag.p[4];1]]
+    v = [Ki*[corners[1]...;1], Ki*[corners[2]...;1], Ki*[corners[3]...;1], Ki*[corners[4]...;1]]
 
-    M = homographytopose(tag.H, fx, fy, cx, cy, taglength=taglength)
+    M = homographytopose(H, fx, fy, cx, cy, taglength=taglength)
 
     R = M[1:3,1:3]
     t = M[1:3,4]
 
     return AprilTags.orthogonalIteration(v, p, t, R, 4, nIters)
 end
+
+tagOrthogonalIteration( tag::AprilTag, 
+                        fx::Float64, 
+                        fy::Float64, 
+                        cx::Float64, 
+                        cy::Float64; 
+                        taglength::Float64 = 2.0, 
+                        nIters::Int = 50 ) = tagOrthogonalIteration(tag.p, tag.H, fx, fy, cx, cy, taglength=taglength, nIters=nIters)
+#
