@@ -97,6 +97,26 @@ imshow(img_)
 # drawTags!(image, K, tags)
 ```
 
+## Example from Tests
+
+```julia
+# see data/tagtest.jpg
+
+detector = AprilTagDetector()
+fx = 524.040
+fy = 524.040
+cx = 251.227
+cy = 319.254
+taglength = 0.172
+(tags, poses) = detectAndPose(detector, image, fx, fy, cx, cy, taglength)
+# TODO test here
+@test all(isapprox.(poses[1], [ 0.657276  -0.43653   0.614354  -0.236778;
+                                0.180276   0.882573  0.434242   0.268374;
+                               -0.731771  -0.174663  0.65879    1.65107],
+                              atol = 0.01))
+freeDetector!(detector)
+```
+
 ## Manual Outline
 ```@contents
 Pages = [
