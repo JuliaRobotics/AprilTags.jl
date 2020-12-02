@@ -105,6 +105,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "#Example-from-Tests-1",
+    "page": "Home",
+    "title": "Example from Tests",
+    "category": "section",
+    "text": "# see data/tagtest.jpg\n\ndetector = AprilTagDetector()\nfx = 524.040\nfy = 524.040\ncx = 251.227\ncy = 319.254\ntaglength = 0.172\n(tags, poses) = detectAndPose(detector, image, fx, fy, cx, cy, taglength)\n# TODO test here\n@test all(isapprox.(poses[1], [ 0.657276  -0.43653   0.614354  -0.236778;\n                                0.180276   0.882573  0.434242   0.268374;\n                               -0.731771  -0.174663  0.65879    1.65107],\n                              atol = 0.01))\nfreeDetector!(detector)"
+},
+
+{
     "location": "#Manual-Outline-1",
     "page": "Home",
     "title": "Manual Outline",
