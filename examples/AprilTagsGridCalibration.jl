@@ -231,17 +231,22 @@ result = optimize(obj_, [fx_,fy_,cx_,cy_], BFGS())
 ## current best guess
 
 # iPhone 8 rear camera (coarse calibration)
-fx_ = 3346.1894
-fy_ = 3346.1894
-cx_ = 2021.11068
-cy_ = 1471.0241
+# fx_ = 3346.1894
+# fy_ = 3346.1894
+# cx_ = 2021.11068
+# cy_ = 1471.0241
+
+fx_ = 3371.2553294118493
+fy_ = 3353.696574041437
+cx_ = 2007.7796750349364
+cy_ = 1496.4523912712611
 
 minim = obj(fx_, fy_, cx_, cy_)
 
 
 ## draw what is going on
 
-SEL = 6
+SEL = 1
 
 cimg_ = deepcopy(arr[SEL])
 _calcCornerProjectionsAprilTags!( cimg_, ARR[SEL],
@@ -252,6 +257,9 @@ _calcCornerProjectionsAprilTags!( cimg_, ARR[SEL],
                                   cy=cy_,
                                   dodraw=true )
 #
+
+
+##
 
 imshow(cimg_)
 
