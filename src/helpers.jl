@@ -179,18 +179,19 @@ end
 	freeDetector!(apriltagdetector)
 Free the allocated memmory
 """
-function freeDetector!(detector::AprilTagDetector)::Nothing
+function freeDetector!(detector::AprilTagDetector, verbose::Bool=true)
 
     if detector.td == C_NULL
-        @warn "AprilTags Detector does not exist"
+        verbose && @warn("AprilTags Detector does not exist")
     else
         apriltag_detector_destroy(detector.td)
     end
 
     if detector.tf == C_NULL
-        @warn "AprilTags family does not exist"
+        verbose && @warn("AprilTags family does not exist")
     else
-        tag36h11_destroy(detector.tf) #gebruik die ene sommer vir almal vir nou, dit lyk inelkgeval dieselfde in c kode
+        # use this one for now, c code is similar
+        tag36h11_destroy(detector.tf) 
     end
 
     #TODO: how do I destroy the detector itself, for now just nulls
