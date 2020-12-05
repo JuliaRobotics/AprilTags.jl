@@ -19,8 +19,8 @@ calibfiles = [
   ENV["HOME"]*"/data/cameracalib/CommonData/IMG_2911.jpg";
   ENV["HOME"]*"/data/cameracalib/CommonData/IMG_2913.jpg";
   ENV["HOME"]*"/data/cameracalib/CommonData/IMG_2914.jpg";
-  ENV["HOME"]*"/data/cameracalib/CommonData/IMG_2915.jpg";
   ENV["HOME"]*"/data/cameracalib/CommonData/IMG_2916.jpg";
+  ENV["HOME"]*"/data/cameracalib/CommonData/IMG_2920.jpg";
 ]
 
 
@@ -172,7 +172,7 @@ end
 
 arr = Vector{typeof(INITTEST)}()
 
-for i in [1:5; 7]
+for i in 1:length(calibfiles)
   push!(arr, load(calibfiles[i]))
 end
 
@@ -211,21 +211,16 @@ obj_ = (fcxy) -> obj(fcxy...)
 
 ##
 
-
+# check that it works
 obj_([fx, fy, cx, cy])
 
-
-
-
-## Do the actual parameter search here
-
 # start with any available parameters
-fx_, fy_, cx_, cy_ = fx, fy, cx, cy
-
+# fx_, fy_, cx_, cy_ = fx, fy, cx, cy
 
 ##
 
-result = optimize(obj_, [fx_,fy_,cx_,cy_], BFGS())
+
+result = optimize(obj_, [fx_; fy_ ;cx_ ;cy_ ], BFGS())
 
 
 ## current best guess
@@ -236,17 +231,22 @@ result = optimize(obj_, [fx_,fy_,cx_,cy_], BFGS())
 # cx_ = 2021.11068
 # cy_ = 1471.0241
 
-fx_ = 3371.2553294118493
-fy_ = 3353.696574041437
-cx_ = 2007.7796750349364
-cy_ = 1496.4523912712611
+# fx_ = 3371.2553294118493
+# fy_ = 3353.696574041437
+# cx_ = 2007.7796750349364
+# cy_ = 1496.4523912712611
+
+fx_ = 3370.4878918701756
+fy_ = 3352.8348099534364
+cx_ = 2005.641610450976
+cy_ = 1494.8282013012076
 
 minim = obj(fx_, fy_, cx_, cy_)
 
 
 ## draw what is going on
 
-SEL = 1
+SEL = 2
 
 cimg_ = deepcopy(arr[SEL])
 _calcCornerProjectionsAprilTags!( cimg_, ARR[SEL],
@@ -258,8 +258,8 @@ _calcCornerProjectionsAprilTags!( cimg_, ARR[SEL],
                                   dodraw=true )
 #
 
-
 ##
+
 
 imshow(cimg_)
 
