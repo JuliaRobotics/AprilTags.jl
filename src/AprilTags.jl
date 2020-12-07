@@ -11,6 +11,7 @@ function __init__()
     @require FreeTypeAbstraction="663a7486-cb36-511b-a19d-713bb74d65c9" include("tagtext.jl")
 end
 
+using DocStringExtensions
 using LinearAlgebra, Statistics
 using Colors, ImageDraw, FixedPointNumbers
 import Base.convert
@@ -46,5 +47,6 @@ include("wrapper.jl")
 include("helpers.jl")
 include("tagdraw.jl")
 include("additionalutils.jl")
+include("calibrationutils.jl")
 
 end # module
