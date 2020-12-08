@@ -32,8 +32,7 @@ INITTEST = load(calibfiles[1])
 
 cx = size(INITTEST,1) / 2
 cy = size(INITTEST,2) / 2
-
-fx = 2900.0
+fx = size(INITTEST,1)
 fy=fx
 
 s = 0.0
@@ -55,8 +54,7 @@ end
 
 
 detector = AprilTagDetector()
-tags = deepcopy(detector.(arr))
-freeDetector!(detector)
+tags = detector.(arr)
 
 
 #
@@ -140,3 +138,8 @@ imshow(cimg_)
 
 ##
 
+
+
+freeDetector!(detector)
+
+##

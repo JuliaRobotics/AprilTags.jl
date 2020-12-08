@@ -750,11 +750,11 @@ Run the orthoganal iteration algorithm on the poses. See apriltag_pose.h
 """
 function tagOrthogonalIteration(corners::Union{<:AbstractVector,<:Tuple},
                                 H::Matrix{<:Real}, 
-                                fx::Float64, 
-                                fy::Float64, 
-                                cx::Float64, 
-                                cy::Float64; 
-                                taglength::Float64 = 2.0, 
+                                fx::Real, 
+                                fy::Real, 
+                                cx::Real, 
+                                cy::Real; 
+                                taglength::Real = 2.0, 
                                 nIters::Int = 50 )
     #
     Ki = [[1/fx  0    -cx/fx];
@@ -769,7 +769,8 @@ function tagOrthogonalIteration(corners::Union{<:AbstractVector,<:Tuple},
 
     v = [Ki*[corners[1]...;1], Ki*[corners[2]...;1], Ki*[corners[3]...;1], Ki*[corners[4]...;1]]
 
-    M = homographytopose(H, fx, fy, cx, cy, taglength=taglength)
+    # must have floats before doing ccall
+    M = homographytopose(H, float(fx), float(fy), float(cx), float(cy), taglength=taglength)
 
     R = M[1:3,1:3]
     t = M[1:3,4]
