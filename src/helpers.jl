@@ -507,23 +507,24 @@ end
 
 """
     homographytopose(H, f_width, f_height, c_width, c_height, [taglength = 2.0])
+
 Given a 3x3 homography matrix and the camera model (focal length and centre), compute the pose of the tag.
-The focal lengths should be given in pixels.
-The returned units are those of the tag size,
-therefore the translational components should be scaled with the tag size.
-Note: the tag coordinates are from (-1,-1) to (1,1), i.e. the tag size has length of 2 units.
-Optionally, the tag length (in metre) can be passed to return a scaled value.
-The camara coordinate system: camera looking in positive Z axis with x to the right and y down.
 
 Notes
-- Images.jl uses the Julia column major (i.e. vertical major) convention, that is `size(img) == (480, 640)`
-  - This is opposite from the `ccall` wrapped AprilTags library underneath -- see example below.
+- Images.jl uses `::Array` in Julia as column-major (i.e. vertical major) convention, that is `size(img) == (480, 640)`
+  - Axes start top left-corner of the image plane (i.e. the image-frame):
+  - `width` is from left to right,
+  - `height` is from top downward.
+- The low-level `ccall` wrapped C-library underneath uses the convention (i.e. the camera-frame): 
+  - `fx == f_width`, 
+  - `cy == c_height`, and
+  - C-library camara coordinate system: camera looking along positive Z axis with `x` to the right and `y` down.
+    - C-library internally follows: https://docs.opencv.org/3.4/d9/d0c/group__calib3d.html
+- The focal lengths should be given in pixels.
+- The returned units are those of the tag size, therefore the translational components should be scaled with the tag size.
+- The tag coordinates are from (-1,-1) to (1,1), i.e. the tag size has length of 2 units.
+  - Optionally, the tag length (in metre) can be passed to return a scaled value.
 - Returns `::Matrix{Float64}`
-
-Example
-```julia
-[cx, cy] == [640, 480] ./ 2 == [320, 240]
-# similarly for this function call `fx,fy` follows the same as `cx,cy`, but this is different from Images.jl convention.
 ```
 """
 function homographytopose(  H::Matrix{Float64}, 
@@ -591,7 +592,8 @@ end
 
 
 """
-    detectAndPose(detector, image, f_width, f_height, c_width, c_height, taglength)
+    $SIGNATURES
+
 Detect tags and calcuate the pose on them.
 """
 function detectAndPose( detector::AprilTagDetector, 
@@ -656,7 +658,15 @@ function detectAndPose( detector::AprilTagDetector,
 
 end
 
+"""
+    $SIGNATURES
 
+Higher level API to estimate the pose based on orthogonal vectors in the pose estimate.  This is a
+higher accuracy function that [`homographytopose`](@ref).
+
+Notes
+- The low level C-library uses the convention `fx==f_width`.
+"""
 function estimateTagPoseOrthogonalIteration(tag::AprilTag, 
                                             f_width::Float64, 
                                             f_height::Float64, 
@@ -718,7 +728,11 @@ function calculate_F(v)
 end
 
 
+"""
+    $SIGNATURES
 
+Utility function that iterates to make vectors orthogonal?
+"""
 function orthogonalIteration(v, p, t, R, n_points=4, n_steps=50)
 
     p_mean = mean(p)
@@ -777,9 +791,16 @@ function orthogonalIteration(v, p, t, R, n_points=4, n_steps=50)
 end
 
 """
-    tagOrthogonalIteration
-Run the orthoganal iteration algorithm on the poses. See apriltag_pose.h
-[2]: Lu, G. D. Hager and E. Mjolsness, "Fast and globally convergent pose estimation from video images," in IEEE Transactions on Pattern Analysis and Machine Intelligence, vol. 22, no. 6, pp. 610-622, June 2000. doi: 10.1109/34.862199
+    $SIGNATURES
+
+Run the orthoganal iteration algorithm on the poses. 
+
+Notes
+- See apriltag_pose.h
+- [2]: Lu, G. D. Hager and E. Mjolsness, "Fast and globally convergent pose estimation from video images," 
+  in IEEE Transactions on Pattern Analysis and Machine Intelligence, vol. 22, no. 6, pp. 610-622, June 2000. 
+  doi: 10.1109/34.862199
+- The low level C-library uses `fx=f_width`.
 """
 function tagOrthogonalIteration(corners::Union{<:AbstractVector,<:Tuple},
                                 H::Matrix{<:Real}, 

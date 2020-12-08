@@ -30,10 +30,10 @@ calibfiles = [
 INITTEST = load(calibfiles[1])
 
 
-cx = size(INITTEST,1) / 2
-cy = size(INITTEST,2) / 2
-fx = size(INITTEST,1)
-fy=fx
+c_height = size(INITTEST,1) / 2
+c_width = size(INITTEST,2) / 2
+f_height = size(INITTEST,1)
+f_width=f_height
 
 s = 0.0
 
@@ -68,52 +68,52 @@ end
 
 ##
 
-resid = calcCalibResidualAprilTags!( arr, ARR, fx=fx, taglength=taglength )
+resid = calcCalibResidualAprilTags!( arr, ARR, f_height=f_height, taglength=taglength )
 
 
 ##
 
 
 
-obj = (fx, fy, cx, cy) -> calcCalibResidualAprilTags!( arr, ARR, fx=fx, fy=fy, cx=cx, cy=cy, taglength=taglength )[1]
+obj = (f_height, f_width, c_height, c_width) -> calcCalibResidualAprilTags!( arr, ARR, f_height=f_height, f_width=f_width, c_height=c_height, c_width=c_width, taglength=taglength )[1]
 
-obj_ = (fcxy) -> obj(fcxy...)
+obj_ = (fc_heighty) -> obj(fc_heighty...)
 
 
 
 ##
 
 # check that it works
-obj_([fx, fy, cx, cy])
+obj_([f_height, f_width, c_height, c_width])
 
 # start with any available parameters
-# fx_, fy_, cx_, cy_ = fx, fy, cx, cy
+# f_height_, f_width_, c_height_, c_width_ = f_height, f_width, c_height, c_width
 
 ##
 
 
-result = optimize(obj_, [fx_; fy_ ;cx_ ;cy_ ], BFGS())
+result = optimize(obj_, [f_height_; f_width_ ;c_height_ ;c_width_ ], BFGS())
 
 
 ## current best guess
 
 # iPhone 8 rear camera (coarse calibration)
-# fx_ = 3346.1894
-# fy_ = 3346.1894
-# cx_ = 2021.11068
-# cy_ = 1471.0241
+# f_height_ = 3346.1894
+# f_width_ = 3346.1894
+# c_height_ = 2021.11068
+# c_width_ = 1471.0241
 
-# fx_ = 3371.2553294118493
-# fy_ = 3353.696574041437
-# cx_ = 2007.7796750349364
-# cy_ = 1496.4523912712611
+# f_height_ = 3371.2553294118493
+# f_width_ = 3353.696574041437
+# c_height_ = 2007.7796750349364
+# c_width_ = 1496.4523912712611
 
-fx_ = 3370.4878918701756
-fy_ = 3352.8348099534364
-cx_ = 2005.641610450976
-cy_ = 1494.8282013012076
+f_height_ = 3370.4878918701756
+f_width_ = 3352.8348099534364
+c_height_ = 2005.641610450976
+c_width_ = 1494.8282013012076
 
-minim = obj(fx_, fy_, cx_, cy_)
+minim = obj(f_height_, f_width_, c_height_, c_width_)
 
 
 ## draw what is going on
@@ -123,10 +123,10 @@ SEL = 1
 cimg_ = deepcopy(arr[SEL])
 _calcCornerProjectionsAprilTags!( cimg_, ARR[SEL],
                                   taglength=0.0315,
-                                  fx=fx_,
-                                  fy=fy_,
-                                  cx=cx_,
-                                  cy=cy_,
+                                  f_height=f_height_,
+                                  f_width=f_width_,
+                                  c_height=c_height_,
+                                  c_width=c_width_,
                                   dodraw=true )
 #
 
