@@ -511,9 +511,20 @@ Given a 3x3 homography matrix and the camera model (focal length and centre), co
 The focal lengths should be given in pixels.
 The returned units are those of the tag size,
 therefore the translational components should be scaled with the tag size.
-Note: the tag coordinates are from (-1,-1) to (1,1), i.e. the tag size has lenght of 2 units.
+Note: the tag coordinates are from (-1,-1) to (1,1), i.e. the tag size has length of 2 units.
 Optionally, the tag length (in metre) can be passed to return a scaled value.
 The camara coordinate system: camera looking in positive Z axis with x to the right and y down.
+
+Notes
+- Images.jl uses the Julia column major (i.e. vertical major) convention, that is `size(img) == (480, 640)`
+  - This is opposite from the `ccall` wrapped AprilTags library underneath -- see example below.
+- Returns `::Matrix{Float64}`
+
+Example
+```julia
+[cx, cy] == [640, 480] ./ 2 == [320, 240]
+# similarly for this function call `fx,fy` follows the same as `cx,cy`, but this is different from Images.jl convention.
+```
 """
 function homographytopose(  H::Matrix{Float64}, 
                             f_width::Float64, 
