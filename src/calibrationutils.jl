@@ -14,8 +14,8 @@ function calcCornerProjectionsAprilTags!(cimg_::AbstractMatrix{<:Colorant},
                                           taglength::Real=0.0315,
                                           f_width::Real = size(cimg_,1),
                                           f_height::Real = f_width,
-                                          c_width::Real = size(cimg_,1)/2,
-                                          c_height::Real = size(cimg_,2)/2,
+                                          c_width::Real = size(cimg_,2)/2,
+                                          c_height::Real = size(cimg_,1)/2,
                                           s::Real=0.0,
                                           VERT::Int=5,
                                           HORI::Int=8,
@@ -64,14 +64,14 @@ function calcCornerProjectionsAprilTags!(cimg_::AbstractMatrix{<:Colorant},
       # get corners in camera frame
       cP_ = (cTt_*tC)[1:3,:]
       # get corners in image reference frame (iPc)
-      # do the inverse transform?
       # very basic pinhole camera model 
       iPc_ = cP_[1:2,:]
       for c in 1:4
-        iPc_[:,c] .*= fx/cP_[3,c]
+        # inverse camera transform? should more than just f_width
+        iPc_[:,c] .*= f_width/cP_[3,c]
       end
-      iPc_[1,:] .+= cx
-      iPc_[2,:] .+= cy
+      iPc_[1,:] .+= c_width
+      iPc_[2,:] .+= c_height
       
       # get the right tag reference measurement
       j_ = VERT*(horid-1) + verid
@@ -105,7 +105,7 @@ by any method, including `Optim.opimize`.  The cost function is constructed by a
 are of equal size and on a common co-planar surface like a computer screen.  
 
 The cost function is constructed by predicting from each tag detection individually where the corners of all 
-other 39 tags should be on the co-planar surface.  The discrepancy between the predicted and detected tag 
+other 39 tags should be on the co-planar surface.  The discrepanc_height between the predicted and detected tag 
 positions are square accumulated. 
 
 ### Notes
@@ -142,16 +142,16 @@ filepaths = [photo1.jpg; photo2.jpg;...]
 # load the images into memory
 imgs = load.(filepaths)
 
-# It's imporant that you measure and specify the tag length correctly here
+# It's imporant that you measure and specif_height the tag length correctly here
 # 30 mm is just a guess, insert your own correct tag measurements here.
 taglength = 0.03
 
 # rough guess of what calibration parameters might be
 # x,y <==> rows,colums
-cx = size(imgs[1],1) / 2 # rows down in Images.jl
-cy = size(imgs[1],2) / 2 # columns across in Images.jl
-fx = size(imgs[1],1)
-fy=fx
+c_width = size(imgs[1],2) / 2 # columns across in Images.jl
+c_height = size(imgs[1],1) / 2 # rows down in Images.jl
+f_width = size(imgs[1],1)
+f_height=f_width
 
 #  detect the tags and duplicate the memory before freeing the detector
 detector = AprilTagDetector()
@@ -159,32 +159,32 @@ tags = detector.(imgs) .|> deepcopy
 # remember to free detector later
 
 # setup the cost function, you can add more parameters here if you like
-obj = (fx, fy, cx, cy) -> calcCalibResidualAprilTags!( imgs, tags, taglength=taglength, fx=fx, fy=fy, cx=cx, cy=cy, dodraw=false )[1]
-obj_ = (fcxy) -> obj(fcxy...)
+obj = (f_width, f_height, c_width, c_height) -> calcCalibResidualAprilTags!( imgs, tags, taglength=taglength, f_width=f_width, f_height=f_height, c_width=c_width, c_height=c_height, dodraw=false )[1]
+obj_ = (fc_widthy) -> obj(fc_widthy...)
 
 # check that it works
-obj_([fx, fy, cx, cy])
+obj_([f_width, f_height, c_width, c_height])
 
 ## Bring in the Optim.jl optimization routines
 using Optim
 
 # Run the optimization. BFGS is slower by more precise, it's okay to mix and match as coarse and fine optimization stages
-result = optimize(obj_, [fx; fy; cx; cy], BFGS())
+result = optimize(obj_, [f_width; f_height; c_width; c_height], BFGS())
 
 # see the optimized calibration parameters
-@show fx_, fy_, cx_, cy_ = (result.minimizer...,)
+@show f_width_, f_height_, c_width_, c_height_ = (result.minimizer...,)
 
 ## show the before and after images to visually confirm things are working
 using ImageView
 
 # bad calibration
 img1_before = deepcopy(imgs[1])
-calcCornerProjectionsAprilTags!(img1_before, taglength=taglength, fx=fx, fy=fy, cx=cx, cy=cy, dodraw=true)
+calcCornerProjectionsAprilTags!(img1_before, taglength=taglength, f_width=f_width, f_height=f_height, c_width=c_width, c_height=c_height, dodraw=true)
 imshow(img1_before)
 
 # new calibration
 img1_after = deepcopy(imgs[1])
-calcCornerProjectionsAprilTags!(img1_after, taglength=taglength, fx=fx_, fy=fy_, cx=cx_, cy=cy_, dodraw=true)
+calcCornerProjectionsAprilTags!(img1_after, taglength=taglength, f_width=f_width_, f_height=f_height_, c_width=c_width_, c_height=c_height_, dodraw=true)
 imshow(img1_after)
 
 # free the detector memory
@@ -206,10 +206,10 @@ function calcCalibResidualAprilTags!( images::AbstractVector,
                                       taglength = 0.0315,
                                       VERT = 5,
                                       HORI = 8,
-                                      fx::Real=size(images[1],1),
-                                      fy::Real=fx,
-                                      cx::Real = size(images[1],1) / 2,
-                                      cy::Real = size(images[1],2) / 2,
+                                      f_width::Real=size(images[1],2),
+                                      f_height::Real=f_width,
+                                      c_width::Real = size(images[1],2) / 2,
+                                      c_height::Real = size(images[1],1) / 2,
                                       s::Real=0.0,
                                       boardPattern = reshape(1:(5*8), VERT, HORI),
                                       dodraw = false  )
@@ -227,10 +227,10 @@ function calcCalibResidualAprilTags!( images::AbstractVector,
     # do the actual calculations
     resid += calcCornerProjectionsAprilTags!(cimg_, tags_,
                                               taglength=taglength,
-                                              fx=fx,
-                                              fy=fy,
-                                              cx=cx,
-                                              cy=cy,
+                                              f_width=f_width,
+                                              f_height=f_height,
+                                              c_width=c_width,
+                                              c_height=c_height,
                                               s=s,
                                               VERT=VERT, HORI=HORI,  # excessive
                                               boardPattern=boardPattern,
