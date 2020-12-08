@@ -12,10 +12,10 @@ See [`calcCalibResidualAprilTags!`](@ref) for details.
 function calcCornerProjectionsAprilTags!(cimg_::AbstractMatrix{<:Colorant}, 
                                           tags_::AbstractVector;
                                           taglength::Real=0.0315,
-                                          fx::Real=size(cimg_,1)/2,
-                                          fy::Real=fx,
-                                          cx::Real = size(cimg_,1)/2,
-                                          cy::Real = size(cimg_,2)/2,
+                                          f_width::Real = size(cimg_,1),
+                                          f_height::Real = f_width,
+                                          c_width::Real = size(cimg_,1)/2,
+                                          c_height::Real = size(cimg_,2)/2,
                                           s::Real=0.0,
                                           VERT::Int=5,
                                           HORI::Int=8,
@@ -27,18 +27,19 @@ function calcCornerProjectionsAprilTags!(cimg_::AbstractMatrix{<:Colorant},
   tl = taglength
   tl_2 = tl/2
   
-  K_ = [fx s cx;
-        0 fy cy]
+  # FIXME use standard CameraModels.jl package
+  K_ = [f_width s c_width;
+        0 f_height c_height]
 
   @assert length(tags_) == HORI*VERT "Number of detected tags must equal HORI*VERT=$(HORI*VERT) but only finding $(length(tags_))"
   # loop through all 40 tags
   for j in 1:length(tags_)
     cTt, err1 = AprilTags.tagOrthogonalIteration( tags_[j].p, 
                                                   tags_[j].H, 
-                                                  fx, 
-                                                  fy, 
-                                                  cx, 
-                                                  cy, 
+                                                  f_width,
+                                                  f_height,
+                                                  c_width, 
+                                                  c_height, 
                                                   taglength = taglength)  
     #
     cTt_ = [cTt; 0 0 0 1]
