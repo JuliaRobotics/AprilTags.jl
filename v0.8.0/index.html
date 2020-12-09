@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Home · AprilTags.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="assets/documenter.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link href="assets/documenter.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><a href="index.html"><img class="logo" src="assets/logo.png" alt="AprilTags.jl logo"/></a><h1>AprilTags.jl</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" id="search-form" action="search/"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li class="current"><a class="toctext" href>Home</a><ul class="internal"><li><a class="toctext" href="#Installation-1">Installation</a></li><li><a class="toctext" href="#Usage-1">Usage</a></li><li><a class="toctext" href="#Visualizing-Tags-1">Visualizing Tags</a></li><li><a class="toctext" href="#Example-from-Tests-1">Example from Tests</a></li><li><a class="toctext" href="#Camera-Calibration-1">Camera Calibration</a></li><li><a class="toctext" href="#Manual-Outline-1">Manual Outline</a></li></ul></li><li><a class="toctext" href="func_ref/">Functions</a></li></ul></nav><article id="docs"><header><nav><ul><li><a href>Home</a></li></ul><a class="edit-page" href="https://github.com/JuliaRobotics/AprilTags.jl/blob/master/docs/src/index.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>Home</span><a class="fa fa-bars" href="#"></a></div></header><h1><a class="nav-anchor" id="AprilTags-1" href="#AprilTags-1">AprilTags</a></h1><p><a href="https://travis-ci.org/JuliaRobotics/AprilTags.jl"><img src="https://travis-ci.org/JuliaRobotics/AprilTags.jl.svg?branch=master" alt="Build Status"/></a></p><p><a href="http://codecov.io/github/JuliaRobotics/AprilTags.jl?branch=master"><img src="http://codecov.io/github/JuliaRobotics/AprilTags.jl/coverage.svg?branch=master" alt="codecov.io"/></a></p><p>This package is a ccall wrapper for the <a href="https://april.eecs.umich.edu/software/apriltag.html">AprilTags</a> library tailored for Julia.</p><h2><a class="nav-anchor" id="Installation-1" href="#Installation-1">Installation</a></h2><p>AprilTags.jl can be installed in Julia 0.7 and Julia 1.0 with:</p><pre><code class="language-julia">#enter &#39;]&#39; to get the package manager and then type:
+(v1.0) pkg&gt; add AprilTags
+# or
+using Pkg
+Pkg.add(&quot;AprilTags&quot;)</code></pre><p>Note that Julia 0.6 is no longer supprted going forward. Please use v0.0.2 for julia 0.6.  </p><h2><a class="nav-anchor" id="Usage-1" href="#Usage-1">Usage</a></h2><h3><a class="nav-anchor" id="Examples-1" href="#Examples-1">Examples</a></h3><p>See examples and test folder for basic AprilTag usage examples.</p><h3><a class="nav-anchor" id="Initialization-1" href="#Initialization-1">Initialization</a></h3><p>Initialize a detector with the default (tag36h11) tag family.</p><pre><code class="language-julia"># Create default detector
+detector = AprilTagDetector()</code></pre><p>The tag detector parameters can be set as shown bellow. The default parameters are the recommended starting point.</p><pre><code class="language-julia">detector.nThreads = 4 #number of threads to use
+detector.quad_decimate =  1.0 #&quot;Decimate input image by this factor&quot;
+detector.quad_sigma = 0.0 #&quot;Apply low-pass blur to input; negative sharpens&quot;
+detector.refine_edges = 1 #&quot;Set to 1 to spend more time to align edges of tags&quot;
+detector.decode_sharpening = 0.25</code></pre><h4><a class="nav-anchor" id="quad_decimate-1" href="#quad_decimate-1">quad_decimate</a></h4><p>Detection of quads can be done on a lower-resolution image, improving speed at a cost of pose accuracy and a slight decrease in detection rate. Decoding the binary payload is still done at full resolution.   Increase the image decimation if faster processing is required. A factor of 1.0 means the full-size input image is used.</p><h4><a class="nav-anchor" id="quad_sigma-1" href="#quad_sigma-1">quad_sigma</a></h4><p>What Gaussian blur should be applied to the segmented image (used for quad detection?).   Parameter is the standard deviation in pixels. Very noisy images benefit from non-zero values (e.g. 0.8).</p><h4><a class="nav-anchor" id="refine_edges-1" href="#refine_edges-1">refine_edges</a></h4><p>When non-zero, the edges of the each quad are adjusted to &quot;snap to&quot; strong gradients nearby. This is useful when decimation is employed, as it can increase the quality of the initial quad estimate substantially. Generally recommended to be on (1). Very computationally inexpensive. Option is ignored if quad_decimate = 1.</p><h4><a class="nav-anchor" id="decode_sharpening-1" href="#decode_sharpening-1">decode_sharpening</a></h4><p>How much sharpening should be done to decoded images? This can help decode small tags but may or may not help in odd lighting conditions or low light conditions. The default value is 0.25.</p><h3><a class="nav-anchor" id="Detection-1" href="#Detection-1">Detection</a></h3><p>Process an input image and return a vector of detections. The input image can be loaded with the <code>Images</code> package.</p><pre><code class="language-julia">image = load(&quot;example_image.jpg&quot;)
+tags = detector(image)
+#do something with tags here</code></pre><p>The caller is responsible for freeing the memmory by calling</p><pre><code class="language-julia">freeDetector!(detector)</code></pre><h3><a class="nav-anchor" id="Creating-the-AprilTag-Images-1" href="#Creating-the-AprilTag-Images-1">Creating the AprilTag Images</a></h3><p>The AprilTag images can be created using the <code>getAprilTagImage</code> function.   Eg. to create a tag image with id 1 from family &#39;tag36h11&#39; run:</p><pre><code class="language-julia">getAprilTagImage(1, AprilTags.tag36h11)</code></pre><h2><a class="nav-anchor" id="Visualizing-Tags-1" href="#Visualizing-Tags-1">Visualizing Tags</a></h2><p>Images can be updated to include the tag detections,</p><pre><code class="language-julia">drawTagBox!(image, tag)</code></pre><p>Or if the camera matrix <code>K</code> is known, the axes can be shown with</p><pre><code class="language-julia">drawTagAxes!(image, tag, K)</code></pre><p>Furthermore, the tag IDs can also be visualized by first loading a different package:</p><pre><code class="language-julia">using FreeTypeAbstraction
+using AprilTags
+using ImageView
+
+# get an image
+img_ = drawTags(image, K)
+imshow(img_)
+
+# drawTags!(image, K, tags)</code></pre><h2><a class="nav-anchor" id="Example-from-Tests-1" href="#Example-from-Tests-1">Example from Tests</a></h2><pre><code class="language-julia"># see data/tagtest.jpg
+
+detector = AprilTagDetector()
+fx = 524.040
+fy = 524.040
+cx = 251.227
+cy = 319.254
+taglength = 0.172
+(tags, poses) = detectAndPose(detector, image, fx, fy, cx, cy, taglength)
+# TODO test here
+@test all(isapprox.(poses[1], [ 0.657276  -0.43653   0.614354  -0.236778;
+                                0.180276   0.882573  0.434242   0.268374;
+                               -0.731771  -0.174663  0.65879    1.65107],
+                              atol = 0.01))
+freeDetector!(detector)</code></pre><h2><a class="nav-anchor" id="Camera-Calibration-1" href="#Camera-Calibration-1">Camera Calibration</a></h2><p>Using a AprilTag grid, it is possible to take a series of photographs for estimating the camera intrinsic calibration parameters:</p><p align="center">
+<img src="https://user-images.githubusercontent.com/6412556/101559167-930a5800-398e-11eb-934d-e880c014c873.png" width="600" border="0" />
+</p><p>See the <a href="https://github.com/JuliaRobotics/AprilTags.jl/blob/master/examples/AprilTagsGridCalibration.jl">Calibration example</a> file for more details, as well as function documentation:</p><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="AprilTags.calcCalibResidualAprilTags!" href="#AprilTags.calcCalibResidualAprilTags!"><code>AprilTags.calcCalibResidualAprilTags!</code></a> — <span class="docstring-category">Function</span>.</div><div><div><pre><code class="language-julia">calcCalibResidualAprilTags!(images, allTags; tagList, taglength, VERT, HORI, f_width, f_height, c_width, c_height, s, boardPattern, dodraw)
+</code></pre><p>Grid of AprilTags calibration helper function.  This function sets up a squared cost to be minimized  by any method, including <code>Optim.opimize</code>.  The cost function is constructed by assuming a grid of 40 AprilTags are of equal size and on a common co-planar surface like a computer screen.  </p><p>The cost function is constructed by predicting from each tag detection individually where the corners of all  other 39 tags should be on the co-planar surface.  The discrepanc_height between the predicted and detected tag  positions are square accumulated. </p><p><strong>Notes</strong></p><ul><li>Assume regular spacing grid of 40 AprilTags 36h11, ids=1:40,<ul><li>down 1:5 by 8 columns 1:5:40 across where taglength and spacing gap are equal.</li><li>See grid file at AprilTags/data/CameraCalibration/AprilTagGrid1to40.png</li></ul></li><li>Current implementation requires all 40 tags to be visible and detected<ul><li>Contributions welcome to allow a few missed detections.</li></ul></li><li>Take pictures of the grid with the camera you want to calibrate, making sure all tags are clearly visible.<ul><li>Combinations of the grid nearer and further, centered and slanted around the edges of the field of view are best.</li><li>Any number of images can be used, the more the better.  </li><li>Note that half a doen high-res images might take up to 20 mins or so to optimize.</li></ul></li><li>Julia Images.jl follows the common `<code>::Array</code> column-major–-i.e. vertical-major–-index convention<ul><li>That is <code>img[vertical, horizontal]</code></li><li>See https://evizero.github.io/Augmentor.jl/images/#Vertical-Major-vs-Horizontal-Major-1</li></ul></li><li>This function has the ability to draw the predicted tag corners, see keyword <code>dodraw=true</code>.</li><li>This is not a copy of any other AprilCal or such software, this was newly written code out of pure frustration when getting stuff to work.  The more native Julia code the better, because Julia is much more mobile and versatile than any of the other calibration software out there.  See DevNotes below for roadmap of features to add,  contributions welcome.</li></ul><p><strong>Example</strong></p><p>Also see <code>AprilTags/examples/AprilTagsGridClibration.jl</code>.</p><p>This example shows how a series of photos of the tag grid image (just use your computer screen, not a projector)  can be used to calibrate a camera.  This example only shows the basic pinhole parameters, although more are possible,  see keyword arguments for which calibration parameters are available.  The latter part shows how to draw crosses to see before and after result.  </p><pre><code class="language-julia">using AprilTags
+using FileIO
+
+# where are the photos of the calibration files
+filepaths = [photo1.jpg; photo2.jpg;...]
+# load the images into memory
+imgs = load.(filepaths)
+
+# It&#39;s imporant that you measure and specif_height the tag length correctly here
+# 30 mm is just a guess, insert your own correct tag measurements here.
+taglength = 0.03
+
+# rough guess of what calibration parameters might be
+# x,y &lt;==&gt; rows,colums
+c_width = size(imgs[1],2) / 2 # columns across in Images.jl
+c_height = size(imgs[1],1) / 2 # rows down in Images.jl
+f_width = size(imgs[1],1)
+f_height=f_width
+
+#  detect the tags and duplicate the memory before freeing the detector
+detector = AprilTagDetector()
+tags = detector.(imgs) .|&gt; deepcopy
+# remember to free detector later
+
+# setup the cost function, you can add more parameters here if you like
+obj = (f_width, f_height, c_width, c_height) -&gt; calcCalibResidualAprilTags!( imgs, tags, taglength=taglength, f_width=f_width, f_height=f_height, c_width=c_width, c_height=c_height, dodraw=false )
+obj_ = (fc_wh) -&gt; obj(fc_wh...)
+
+# check that it works
+obj_([f_width, f_height, c_width, c_height])
+
+## Bring in the Optim.jl optimization routines
+using Optim
+
+# Run the optimization. BFGS is slower by more precise, it&#39;s okay to mix and match as coarse and fine optimization stages
+result = optimize(obj_, [f_width; f_height; c_width; c_height], BFGS())
+
+# see the optimized calibration parameters
+@show f_width_, f_height_, c_width_, c_height_ = (result.minimizer...,)
+
+## show the before and after images to visually confirm things are working
+using ImageView
+
+# bad calibration
+img1_before = deepcopy(imgs[1])
+calcCornerProjectionsAprilTags!(img1_before, taglength=taglength, f_width=f_width, f_height=f_height, c_width=c_width, c_height=c_height, dodraw=true)
+imshow(img1_before)
+
+# new calibration
+img1_after = deepcopy(imgs[1])
+calcCornerProjectionsAprilTags!(img1_after, taglength=taglength, f_width=f_width_, f_height=f_height_, c_width=c_width_, c_height=c_height_, dodraw=true)
+imshow(img1_after)
+
+# free the detector memory
+freeDetector!(detector) # could also use a deepcopy to duplicate the memory to a secondary location and free the primary immediately</code></pre><p><strong>DevNotes</strong></p><ul><li>FIXME common JuliaRobotics/CameraModels.jl package shoudl be made</li><li>TODO Radial distortion parameters should be added, see https://en.wikipedia.org/wiki/Distortion_(optics)</li><li>TODO allow missed detections on grid of 40 tags</li><li>TODO auto-detect the grid so that any grid can be used (still assuming regular spacing)</li></ul><p><strong>Related</strong></p><p><a href="@ref"><code>calcCornerProjectionsAprilTags</code></a></p></div></div><a class="source-link" target="_blank" href="https://github.com/JuliaRobotics/AprilTags.jl/blob/246ba1bf6f0b6a9e780ef929dc4b364628292602/src/calibrationutils.jl#L119-L224">source</a></section><h2><a class="nav-anchor" id="Manual-Outline-1" href="#Manual-Outline-1">Manual Outline</a></h2><ul><li><a href="#AprilTags-1">AprilTags</a></li><ul><li><a href="#Installation-1">Installation</a></li><li><a href="#Usage-1">Usage</a></li><li><a href="#Visualizing-Tags-1">Visualizing Tags</a></li><li><a href="#Example-from-Tests-1">Example from Tests</a></li><li><a href="#Camera-Calibration-1">Camera Calibration</a></li><li><a href="#Manual-Outline-1">Manual Outline</a></li><li><a href="func_ref/#Function-Reference-1">Function Reference</a></li><li><a href="func_ref/#Index-1">Index</a></li></ul></ul><footer><hr/><a class="next" href="func_ref/"><span class="direction">Next</span><span class="title">Functions</span></a></footer></article></body></html>
