@@ -47,10 +47,10 @@ obj = (fc_wh) -> calcCalibResidualAprilTags!(IMGS, tags,
 # f_height = f_width
 
 # nearby calibration
-f_width  = 3370.4878918701756 # + 5
-f_height = 3352.8348099534364 # + 5
-c_width  = 2005.641610450976  # + 5
-c_height = 1494.8282013012076 # + 5
+f_width  = 3370.4878918701756 + 5
+f_height = 3352.8348099534364 + 5
+c_width  = 2005.641610450976  + 5
+c_height = 1494.8282013012076 + 5
 # the physical size of the tag
 # taglength = 0.0315
 
@@ -73,7 +73,7 @@ calcCornerProjectionsAprilTags!( cimg_, tags[SEL],
                                   dodraw=true )
 #
 
-imshow(cimg_)
+# imshow(cimg_)
 
 
 
