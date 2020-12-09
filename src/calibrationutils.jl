@@ -190,7 +190,7 @@ obj_([f_width, f_height, c_width, c_height])
 using Optim
 
 # Run the optimization. BFGS is slower by more precise, it's okay to mix and match as coarse and fine optimization stages
-result = optimize(obj_, [f_width; f_height; c_width; c_height], BFGS())
+result = optimize(obj_, [f_width; f_height; c_width; c_height], BFGS(), Optim.Options(x_tol=1e-8))
 
 # see the optimized calibration parameters
 @show f_width_, f_height_, c_width_, c_height_ = (result.minimizer...,)
