@@ -117,6 +117,21 @@ taglength = 0.172
 freeDetector!(detector)
 ```
 
+## Camera Calibration
+
+Using a AprilTag grid, it is possible to take a series of photographs for estimating the camera intrinsic calibration parameters:
+```@raw html
+<p align="center">
+<img src="https://user-images.githubusercontent.com/6412556/101559167-930a5800-398e-11eb-934d-e880c014c873.png" width="600" border="0" />
+</p>
+```
+
+See the [Calibration example](https://github.com/JuliaRobotics/AprilTags.jl/blob/master/examples/AprilTagsGridCalibration.jl) file for more details, as well as function documentation:
+
+```@docs
+calcCalibResidualAprilTags!
+```
+
 ## Manual Outline
 ```@contents
 Pages = [

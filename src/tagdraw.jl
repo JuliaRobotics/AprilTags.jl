@@ -129,4 +129,16 @@ function drawTagAxes!(image::AbstractArray{<:AbstractRGB,2},
     image
 end
 
+"""
+    $SIGNATURES
+
+Draw a cross on the image at a specified location.
+"""
+function _drawCrossOnImg!(  cimg_::AbstractMatrix{<:AbstractRGB}, 
+                            location::Tuple{Int,Int},
+                            len::Real=50, 
+                            color::AbstractRGB=RGB{N0f8}(1,0,0))
+    #
+    draw!(cimg_, Cross(Point(location...), len), color)  
+end
 

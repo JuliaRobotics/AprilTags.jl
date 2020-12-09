@@ -195,7 +195,7 @@ function freeDetector!(detector::AprilTagDetector, verbose::Bool=true)
     end
 
     #TODO: how do I destroy the detector itself, for now just nulls
-    # eg. somethin like detector = nothing but modify input
+    # eg. somethin like detector = nothing but modif_height input
     detector.td = C_NULL
     detector.tf = C_NULL
     return nothing
@@ -433,25 +433,46 @@ end
 
 
 """
-    homography_to_pose(H, fx, fy, cx, cy, [taglength = 2.0])
+    homography_to_pose(H, f_width, f_height, c_width, c_height, [taglength = 2.0])
+
 Given a 3x3 homography matrix and the camera model (focal length and centre), compute the pose of the tag.
-The focal lengths should be given in pixels.
-The returned units are those of the tag size,
-therefore the translational components should be scaled with the tag size.
-Note: the tag coordinates are from (-1,-1) to (1,1), i.e. the tag size has lenght of 2 units.
-Optionally, the tag length (in metre) can be passed to return a scaled value.
+
+Notes
+- Images.jl uses `::Array` in Julia as column-major (i.e. vertical major) convention, that is `size(img) == (480, 640)`
+  - Axes start top left-corner of the image plane (i.e. the image-frame):
+  - `width` is from left to right,
+  - `height` is from top downward.
+- The low-level `ccall` wrapped C-library underneath uses the convention (i.e. the camera-frame): 
+  - `fx == f_width`, 
+  - `cy == c_height`, and
+  - C-library camara coordinate system: camera looking along positive Z axis with `x` to the right and `y` down.
+    - C-library internally follows: https://docs.opencv.org/3.4/d9/d0c/group__calib3d.html
+- The focal lengths should be given in pixels.
+- The returned units are those of the tag size, therefore the translational components should be scaled with the tag size.
+- The tag coordinates are from (-1,-1) to (1,1), i.e. the tag size has length of 2 units.
+  - Optionally, the tag length (in metre) can be passed to return a scaled value.
+- Returns `::Matrix{Float64}`
+
+Related
+
+`homographytopose`
 """
-function homography_to_pose(H::Matrix{Float64}, fx::Float64, fy::Float64, cx::Float64, cy::Float64; taglength::Float64 = 2.0)::Matrix{Float64}
+function homography_to_pose(H::Matrix{Float64}, 
+                            f_width::Float64, 
+                            f_height::Float64, 
+                            c_width::Float64, 
+                            c_height::Float64; 
+                            taglength::Float64 = 2.0)
     # Note that every variable that we compute is proportional to the scale factor of H.
     R31 = H[3, 1]
     R32 = H[3, 2]
     TZ  = H[3, 3]
-    R11 = (H[1, 1] - cx*R31) / fx
-    R12 = (H[1, 2] - cx*R32) / fx
-    TX  = (H[1, 3] - cx*TZ)  / fx
-    R21 = (H[2, 1] - cy*R31) / fy
-    R22 = (H[2, 2] - cy*R32) / fy
-    TY  = (H[2, 3] - cy*TZ)  / fy
+    R11 = (H[1, 1] - c_width*R31) / f_width
+    R12 = (H[1, 2] - c_width*R32) / f_width
+    TX  = (H[1, 3] - c_width*TZ)  / f_width
+    R21 = (H[2, 1] - c_height*R31) / f_height
+    R22 = (H[2, 2] - c_height*R32) / f_height
+    TY  = (H[2, 3] - c_height*TZ)  / f_height
 
     # compute the scale by requiring that the rotation columns are unit length
     # (Use geometric average of the two length vectors we have)
@@ -501,44 +522,47 @@ end
 
 
 """
-    homographytopose(H, fx, fy, cx, cy, [taglength = 2.0])
+    homographytopose(H, f_width, f_height, c_width, c_height, [taglength = 2.0])
 
 Given a 3x3 homography matrix and the camera model (focal length and centre), compute the pose of the tag.
-The focal lengths should be given in pixels.
-The returned units are those of the tag size,
-therefore the translational components should be scaled with the tag size.
-Note: the tag coordinates are from (-1,-1) to (1,1), i.e. the tag size has length of 2 units.
-Optionally, the tag length (in metre) can be passed to return a scaled value.
-The camara coordinate system: camera looking in positive Z axis with x to the right and y down.
 
 Notes
-- Images.jl uses the Julia column major (i.e. vertical major) convention, that is `size(img) == (480, 640)`
-  - This is opposite from the `ccall` wrapped AprilTags library underneath -- see example below.
+- Images.jl uses `::Array` in Julia as column-major (i.e. vertical major) convention, that is `size(img) == (480, 640)`
+  - Axes start top left-corner of the image plane (i.e. the image-frame):
+  - `width` is from left to right,
+  - `height` is from top downward.
+- The low-level `ccall` wrapped C-library underneath uses the convention (i.e. the camera-frame): 
+  - `fx == f_width`, 
+  - `cy == c_height`, and
+  - C-library camara coordinate system: camera looking along positive Z axis with `x` to the right and `y` down.
+    - C-library internally follows: https://docs.opencv.org/3.4/d9/d0c/group__calib3d.html
+- The focal lengths should be given in pixels.
+- The returned units are those of the tag size, therefore the translational components should be scaled with the tag size.
+- The tag coordinates are from (-1,-1) to (1,1), i.e. the tag size has length of 2 units.
+  - Optionally, the tag length (in metre) can be passed to return a scaled value.
 - Returns `::Matrix{Float64}`
-
-Example
-```julia
-[cx, cy] == [640, 480] ./ 2 == [320, 240]
-# similarly for this function call `fx,fy` follows the same as `cx,cy`, but this is different from Images.jl convention.
 ```
+
+Related:
+
+`homography_to_pose`
 """
-function homographytopose(H::Matrix{Float64}, 
-			fx::Float64, 
-			fy::Float64, 
-			cx::Float64, 
-			cy::Float64; 
-			taglength::Float64 = 2.0)
-    #
+function homographytopose(  H::Matrix{Float64}, 
+                            f_width::Float64, 
+                            f_height::Float64, 
+                            c_width::Float64, 
+                            c_height::Float64; 
+                            taglength::Float64 = 2.0)
     # Note that every variable that we compute is proportional to the scale factor of H.
     R31 = H[3, 1]
     R32 = H[3, 2]
     TZ  = H[3, 3]
-    R11 = (H[1, 1] - cx*R31) / fx
-    R12 = (H[1, 2] - cx*R32) / fx
-    TX  = (H[1, 3] - cx*TZ)  / fx
-    R21 = (H[2, 1] - cy*R31) / fy
-    R22 = (H[2, 2] - cy*R32) / fy
-    TY  = (H[2, 3] - cy*TZ)  / fy
+    R11 = (H[1, 1] - c_width*R31) / f_width
+    R12 = (H[1, 2] - c_width*R32) / f_width
+    TX  = (H[1, 3] - c_width*TZ)  / f_width
+    R21 = (H[2, 1] - c_height*R31) / f_height
+    R22 = (H[2, 2] - c_height*R32) / f_height
+    TY  = (H[2, 3] - c_height*TZ)  / f_height
 
     # compute the scale by requiring that the rotation columns are unit length
     # (Use geometric average of the two length vectors we have)
@@ -588,11 +612,18 @@ end
 
 
 """
-    detectAndPose(detector, image, fx, fy, cx, cy, taglength)
+    $SIGNATURES
+
 Detect tags and calcuate the pose on them.
 """
-function detectAndPose(detector::AprilTagDetector, image::Array{T, 2}, fx, fy, cx, cy, taglength) where T <: U8Types
-
+function detectAndPose( detector::AprilTagDetector, 
+                        image::Array{T,2}, 
+                        f_width, 
+                        f_height, 
+                        c_width, 
+                        c_height, 
+                        taglength ) where T <: U8Types
+    #
     if detector.td == C_NULL
         error("AprilTags Detector does not exist")
     end
@@ -615,7 +646,7 @@ function detectAndPose(detector::AprilTagDetector, image::Array{T, 2}, fx, fy, c
         for i=1:detzarray.size
             det = unsafe_load(convert(Ptr{Ptr{AprilTags.apriltag_detection_t}}, detzarray.data),i)
 
-            detinfo = AprilTags.apriltag_detection_info_t(det, taglength, fx, fy, cx, cy)
+            detinfo = AprilTags.apriltag_detection_info_t(det, taglength, f_width, f_height, c_width, c_height)
 
             pose_p = AprilTags.apriltag_pose_t()
 
@@ -644,14 +675,27 @@ function detectAndPose(detector::AprilTagDetector, image::Array{T, 2}, fx, fy, c
     apriltag_detections_destroy(detections)
 
     return tags, poses
-
 end
 
+"""
+    $SIGNATURES
 
-function estimateTagPoseOrthogonalIteration(tag::AprilTag, fx::Float64, fy::Float64, cx::Float64, cy::Float64; taglength::Float64 = 2.0, nIters::Int = 50)
+Higher level API to estimate the pose based on orthogonal vectors in the pose estimate.  This is a
+higher accuracy function that [`homographytopose`](@ref).
 
-    Ki = [[1/fx  0    -cx/fx];
-          [0     1/fy -cy/fy];
+Notes
+- The low level C-library uses the convention `fx==f_width`.
+"""
+function estimateTagPoseOrthogonalIteration(tag::AprilTag, 
+                                            f_width::Float64, 
+                                            f_height::Float64, 
+                                            c_width::Float64, 
+                                            c_height::Float64; 
+                                            taglength::Float64 = 2.0, 
+                                            nIters::Int = 50)
+    #
+    Ki = [[1/f_width  0    -c_width/f_width];
+          [0     1/f_height -c_height/f_height];
           [0     0     1]]
     scale = taglength/2.0
 
@@ -662,7 +706,7 @@ function estimateTagPoseOrthogonalIteration(tag::AprilTag, fx::Float64, fy::Floa
 
     v = (Matd3x1(Ki*[tag.p[1];1]), Matd3x1(Ki*[tag.p[2];1]), Matd3x1(Ki*[tag.p[3];1]), Matd3x1(Ki*[tag.p[4];1]))
 
-    M = AprilTags.homographytopose(tag.H, fx, fy, cx, cy, taglength=taglength)
+    M = AprilTags.homographytopose(tag.H, f_width, f_height, c_width, c_height, taglength=taglength)
 
     R = (Matd3x3(M[1:3,1:3]), )
     t = (Matd3x1(M[1:3,4]), )
@@ -703,7 +747,11 @@ function calculate_F(v)
 end
 
 
+"""
+    $SIGNATURES
 
+Utility function that iterates to make vectors orthogonal?
+"""
 function orthogonalIteration(v, p, t, R, n_points=4, n_steps=50)
 
     p_mean = mean(p)
@@ -762,21 +810,28 @@ function orthogonalIteration(v, p, t, R, n_points=4, n_steps=50)
 end
 
 """
-    tagOrthogonalIteration
-Run the orthoganal iteration algorithm on the poses. See apriltag_pose.h
-[2]: Lu, G. D. Hager and E. Mjolsness, "Fast and globally convergent pose estimation from video images," in IEEE Transactions on Pattern Analysis and Machine Intelligence, vol. 22, no. 6, pp. 610-622, June 2000. doi: 10.1109/34.862199
+    $SIGNATURES
+
+Run the orthoganal iteration algorithm on the poses. 
+
+Notes
+- See apriltag_pose.h
+- [2]: Lu, G. D. Hager and E. Mjolsness, "Fast and globally convergent pose estimation from video images," 
+  in IEEE Transactions on Pattern Analysis and Machine Intelligence, vol. 22, no. 6, pp. 610-622, June 2000. 
+  doi: 10.1109/34.862199
+- The low level C-library uses `fx=f_width`.
 """
 function tagOrthogonalIteration(corners::Union{<:AbstractVector,<:Tuple},
                                 H::Matrix{<:Real}, 
-                                fx::Float64, 
-                                fy::Float64, 
-                                cx::Float64, 
-                                cy::Float64; 
-                                taglength::Float64 = 2.0, 
+                                f_width::Real, 
+                                f_height::Real, 
+                                c_width::Real, 
+                                c_height::Real; 
+                                taglength::Real = 2.0, 
                                 nIters::Int = 50 )
     #
-    Ki = [[1/fx  0    -cx/fx];
-          [0     1/fy -cy/fy];
+    Ki = [[1/f_width  0    -c_width/f_width];
+          [0     1/f_height -c_height/f_height];
           [0     0     1]]
     scale = taglength/2.0
 
@@ -787,7 +842,8 @@ function tagOrthogonalIteration(corners::Union{<:AbstractVector,<:Tuple},
 
     v = [Ki*[corners[1]...;1], Ki*[corners[2]...;1], Ki*[corners[3]...;1], Ki*[corners[4]...;1]]
 
-    M = homographytopose(H, fx, fy, cx, cy, taglength=taglength)
+    # must have floats before doing ccall
+    M = homographytopose(H, float(f_width), float(f_height), float(c_width), float(c_height), taglength=taglength)
 
     R = M[1:3,1:3]
     t = M[1:3,4]
@@ -796,10 +852,10 @@ function tagOrthogonalIteration(corners::Union{<:AbstractVector,<:Tuple},
 end
 
 tagOrthogonalIteration( tag::AprilTag, 
-                        fx::Float64, 
-                        fy::Float64, 
-                        cx::Float64, 
-                        cy::Float64; 
+                        f_width::Float64, 
+                        f_height::Float64, 
+                        c_width::Float64, 
+                        c_height::Float64; 
                         taglength::Float64 = 2.0, 
-                        nIters::Int = 50 ) = tagOrthogonalIteration(tag.p, tag.H, fx, fy, cx, cy, taglength=taglength, nIters=nIters)
+                        nIters::Int = 50 ) = tagOrthogonalIteration(tag.p, tag.H, f_width, f_height, c_width, c_height, taglength=taglength, nIters=nIters)
 #
