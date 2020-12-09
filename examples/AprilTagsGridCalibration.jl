@@ -30,10 +30,10 @@ calibfiles = [
 INITTEST = load(calibfiles[1])
 
 
-c_height = size(INITTEST,1) / 2
-c_width = size(INITTEST,2) / 2
-f_height = size(INITTEST,1)
-f_width=f_height
+f_width  = size(INITTEST,1) + 0.0
+f_height = f_width  + 0.0
+c_width  = size(INITTEST,2) / 2 + 0.0
+c_height = size(INITTEST,1) / 2 + 0.0
 
 s = 0.0
 
@@ -74,28 +74,47 @@ resid = calcCalibResidualAprilTags!( arr, ARR, f_height=f_height, taglength=tagl
 ##
 
 
+obj = (f_w, f_h, c_w, c_h) -> calcCalibResidualAprilTags!(arr, ARR,
+                                                          # tagList=40:40;
+                                                          f_width=f_w, 
+                                                          f_height=f_h, 
+                                                          c_width=c_w, 
+                                                          c_height=c_h, 
+                                                          taglength=taglength )
 
-obj = (f_height, f_width, c_height, c_width) -> calcCalibResidualAprilTags!( arr, ARR, f_height=f_height, f_width=f_width, c_height=c_height, c_width=c_width, taglength=taglength )[1]
+obj_ = (fc_wh) -> obj(fc_wh...)
 
-obj_ = (fc_heighty) -> obj(fc_heighty...)
 
+
+
+## current best guess
+
+f_width_  = f_width
+f_height_ = f_height
+c_width_  = c_width
+c_height_ = c_height
 
 
 ##
 
 # check that it works
-obj_([f_height, f_width, c_height, c_width])
+obj_([f_width_, f_height_, c_width_, c_height_])
 
-# start with any available parameters
-# f_height_, f_width_, c_height_, c_width_ = f_height, f_width, c_height, c_width
+
+##
+
+result = optimize(obj_, [f_width_; f_height_; c_width_; c_height_ ], BFGS(), Optim.Options(iterations = 100, show_trace=true, x_tol=1e-8))
 
 ##
 
 
-result = optimize(obj_, [f_height_; f_width_ ;c_height_ ;c_width_ ], BFGS())
+f_width_  = result.minimizer[1]
+f_height_ = result.minimizer[2]
+c_width_  = result.minimizer[3]
+c_height_ = result.minimizer[4]
 
 
-## current best guess
+##
 
 # iPhone 8 rear camera (coarse calibration)
 # f_height_ = 3346.1894
@@ -108,32 +127,40 @@ result = optimize(obj_, [f_height_; f_width_ ;c_height_ ;c_width_ ], BFGS())
 # c_height_ = 2007.7796750349364
 # c_width_ = 1496.4523912712611
 
-f_height_ = 3370.4878918701756
-f_width_ = 3352.8348099534364
-c_height_ = 2005.641610450976
-c_width_ = 1494.8282013012076
+# f_height_ = 3370.4878918701756
+# f_width_  = 3352.8348099534364
+# c_height_ = 2005.641610450976
+# c_width_  = 1494.8282013012076
 
-minim = obj(f_height_, f_width_, c_height_, c_width_)
+# f_height_ = 3431.554669353193
+# f_width_  = 3411.8526620805414
+# c_height_ = 2016.7496065830883
+# c_width_  = 1501.0475003688337
+
+
+minim = obj(f_width_, f_height_, c_width_, c_height_)
 
 
 ## draw what is going on
 
-SEL = 1
+SEL = 4
+
 
 cimg_ = deepcopy(arr[SEL])
-_calcCornerProjectionsAprilTags!( cimg_, ARR[SEL],
-                                  taglength=0.0315,
-                                  f_height=f_height_,
-                                  f_width=f_width_,
-                                  c_height=c_height_,
-                                  c_width=c_width_,
-                                  dodraw=true )
+calcCornerProjectionsAprilTags!(cimg_, ARR[SEL],
+                                # tagList=18:18,
+                                taglength=0.0315,
+                                f_width=f_width_,
+                                f_height=f_height_,
+                                c_width=c_width_,
+                                c_height=c_height_,
+                                dodraw=true )
 #
+
 
 ##
 
-
-imshow(cimg_)
+ImageView.imshow(cimg_)
 
 
 ##

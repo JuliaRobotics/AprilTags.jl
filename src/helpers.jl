@@ -434,19 +434,35 @@ end
 
 """
     homography_to_pose(H, f_width, f_height, c_width, c_height, [taglength = 2.0])
+
 Given a 3x3 homography matrix and the camera model (focal length and centre), compute the pose of the tag.
-The focal lengths should be given in pixels.
-The returned units are those of the tag size,
-therefore the translational components should be scaled with the tag size.
-Note: the tag coordinates are from (-1,-1) to (1,1), i.e. the tag size has lenght of 2 units.
-Optionally, the tag length (in metre) can be passed to return a scaled value.
+
+Notes
+- Images.jl uses `::Array` in Julia as column-major (i.e. vertical major) convention, that is `size(img) == (480, 640)`
+  - Axes start top left-corner of the image plane (i.e. the image-frame):
+  - `width` is from left to right,
+  - `height` is from top downward.
+- The low-level `ccall` wrapped C-library underneath uses the convention (i.e. the camera-frame): 
+  - `fx == f_width`, 
+  - `cy == c_height`, and
+  - C-library camara coordinate system: camera looking along positive Z axis with `x` to the right and `y` down.
+    - C-library internally follows: https://docs.opencv.org/3.4/d9/d0c/group__calib3d.html
+- The focal lengths should be given in pixels.
+- The returned units are those of the tag size, therefore the translational components should be scaled with the tag size.
+- The tag coordinates are from (-1,-1) to (1,1), i.e. the tag size has length of 2 units.
+  - Optionally, the tag length (in metre) can be passed to return a scaled value.
+- Returns `::Matrix{Float64}`
+
+Related
+
+`homographytopose`
 """
 function homography_to_pose(H::Matrix{Float64}, 
                             f_width::Float64, 
                             f_height::Float64, 
                             c_width::Float64, 
                             c_height::Float64; 
-                            taglength::Float64 = 2.0)::Matrix{Float64}
+                            taglength::Float64 = 2.0)
     # Note that every variable that we compute is proportional to the scale factor of H.
     R31 = H[3, 1]
     R32 = H[3, 2]
@@ -526,13 +542,17 @@ Notes
   - Optionally, the tag length (in metre) can be passed to return a scaled value.
 - Returns `::Matrix{Float64}`
 ```
+
+Related:
+
+`homography_to_pose`
 """
 function homographytopose(  H::Matrix{Float64}, 
                             f_width::Float64, 
                             f_height::Float64, 
                             c_width::Float64, 
                             c_height::Float64; 
-                            taglength::Float64 = 2.0)::Matrix{Float64}
+                            taglength::Float64 = 2.0)
     # Note that every variable that we compute is proportional to the scale factor of H.
     R31 = H[3, 1]
     R32 = H[3, 2]
@@ -655,7 +675,6 @@ function detectAndPose( detector::AprilTagDetector,
     apriltag_detections_destroy(detections)
 
     return tags, poses
-
 end
 
 """

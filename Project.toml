@@ -29,7 +29,8 @@ FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
 FreeTypeAbstraction = "663a7486-cb36-511b-a19d-713bb74d65c9"
 ImageCore = "a09fc81d-aa75-5fe9-8630-4744c3626534"
 ImageMagick = "6218d12a-5da1-5696-b52f-db25d2ecc6d1"
+Optim = "429524aa-4258-5aef-a3af-852621145aeb"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "FileIO", "ImageCore", "ImageMagick"]
+test = ["Test", "FileIO", "ImageCore", "ImageMagick", "Optim"]

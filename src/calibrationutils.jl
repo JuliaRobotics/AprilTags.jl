@@ -1,6 +1,61 @@
 
 export calcCalibResidualAprilTags!, calcCornerProjectionsAprilTags!
 
+
+function _calcCornerProjectionsAprilTag!( cimg_, tags_, idx, horid, verid, tl, tl_2, cTt_,
+                                          f_width, f_height, c_width, c_height,
+                                          HORI::Int, VERT::Int;
+                                          dodraw::Bool=false    )
+  #
+  resid = 0.0
+
+  verz = (verid - idx.I[1])*(2*tl)
+  horz = (horid - idx.I[2])*(2*tl)
+  
+  # reproject the corners
+  tC = [-tl_2  tl_2   tl_2 -tl_2;
+        tl_2  tl_2  -tl_2 -tl_2;
+          0     0     0     0;
+          1     1     1     1]
+  #
+  
+  # offset to the specific tag on board
+  tC[1,:] .+= horz
+  tC[2,:] .+= verz
+  
+  # get corners in camera frame
+  cP_ = (cTt_*tC)[1:3,:]
+  # get corners in image reference frame (iPc)
+  # very basic pinhole camera model 
+  iPc_ = cP_[1:2,:]
+  for c in 1:4
+    # inverse camera transform? should more than just f_width
+    iPc_[:,c] .*= f_width/cP_[3,c]
+  end
+  iPc_[1,:] .+= c_width
+  iPc_[2,:] .+= c_height
+  
+  # get the right tag reference measurement
+  j_ = VERT*(horid-1) + verid
+  # where are the measured corners
+  for c in 1:4
+    resid += (tags_[j_].p[c] - iPc_[1:2,c]).^2 |> sum
+  end
+  
+  # also draw the new positions if desired
+  if dodraw
+    # drawing requires Int
+    iPc_I = round.(Int, iPc_)
+    for c in 1:4
+      # consolidate all drawing functions in the same prior src file
+      _drawCrossOnImg!(cimg_, (iPc_I[1,c],iPc_I[2,c]), 50, RGB{N0f8}(1,0,0))
+    end
+  end
+
+  return resid
+end
+
+
 """
     $SIGNATURES
 
@@ -11,6 +66,7 @@ See [`calcCalibResidualAprilTags!`](@ref) for details.
 """
 function calcCornerProjectionsAprilTags!(cimg_::AbstractMatrix{<:Colorant}, 
                                           tags_::AbstractVector;
+                                          tagList::AbstractVector=1:length(tags_),
                                           taglength::Real=0.0315,
                                           f_width::Real = size(cimg_,1),
                                           f_height::Real = f_width,
@@ -19,7 +75,7 @@ function calcCornerProjectionsAprilTags!(cimg_::AbstractMatrix{<:Colorant},
                                           s::Real=0.0,
                                           VERT::Int=5,
                                           HORI::Int=8,
-                                          boardPattern = reshape(1:(5*8), VERT, HORI),
+                                          boardPattern = reshape(1:(VERT*HORI), VERT, HORI),
                                           dodraw = false )
   #
   resid = 0.0
@@ -33,7 +89,7 @@ function calcCornerProjectionsAprilTags!(cimg_::AbstractMatrix{<:Colorant},
 
   @assert length(tags_) == HORI*VERT "Number of detected tags must equal HORI*VERT=$(HORI*VERT) but only finding $(length(tags_))"
   # loop through all 40 tags
-  for j in 1:length(tags_)
+  for j in tagList
     cTt, err1 = AprilTags.tagOrthogonalIteration( tags_[j].p, 
                                                   tags_[j].H, 
                                                   f_width,
@@ -47,47 +103,10 @@ function calcCornerProjectionsAprilTags!(cimg_::AbstractMatrix{<:Colorant},
     
     # go through all the tags on the grid, to compare against this one idx tags[j]
     for verid in 1:VERT, horid in 1:HORI
-      verz = (verid - idx.I[1])*(2*tl)
-      horz = (horid - idx.I[2])*(2*tl)
-      
-      # reproject the corners
-      tC = [-tl_2  tl_2   tl_2 -tl_2;
-            tl_2  tl_2  -tl_2 -tl_2;
-              0     0     0     0;
-              1     1     1     1]
-      #
-      
-      # offset to the specific tag on board
-      tC[1,:] .+= horz
-      tC[2,:] .+= verz
-      
-      # get corners in camera frame
-      cP_ = (cTt_*tC)[1:3,:]
-      # get corners in image reference frame (iPc)
-      # very basic pinhole camera model 
-      iPc_ = cP_[1:2,:]
-      for c in 1:4
-        # inverse camera transform? should more than just f_width
-        iPc_[:,c] .*= f_width/cP_[3,c]
-      end
-      iPc_[1,:] .+= c_width
-      iPc_[2,:] .+= c_height
-      
-      # get the right tag reference measurement
-      j_ = VERT*(horid-1) + verid
-      # where are the measured corners
-      for c in 1:4
-        resid += (tags_[j_].p[c] - iPc_[1:2,c]).^2 |> sum
-      end
-      
-      if dodraw
-        # drawing requires Int
-        iPc_I = round.(Int, iPc_)
-        for c in 1:4
-          _drawCrossOnImg!(cimg_, (iPc_I[1,c],iPc_I[2,c]), 50, RGB{N0f8}(1,0,0))
-          # draw!(cimg_, Cross(Point(iPc_I[1,c],iPc_I[2,c]), 50), RGB{N0f8}(1,0,0))
-        end
-      end
+      resid += _calcCornerProjectionsAprilTag!( cimg_, tags_, idx, horid, verid, tl, tl_2, cTt_,
+                                                f_width, f_height, c_width, c_height,
+                                                HORI, VERT;
+                                                dodraw=dodraw    )
     end
   end
 
@@ -203,6 +222,7 @@ freeDetector!(detector) # could also use a deepcopy to duplicate the memory to a
 """
 function calcCalibResidualAprilTags!( images::AbstractVector,
                                       allTags::AbstractVector;
+                                      tagList::AbstractVector=1:length(allTags),
                                       taglength = 0.0315,
                                       VERT = 5,
                                       HORI = 8,
@@ -211,7 +231,7 @@ function calcCalibResidualAprilTags!( images::AbstractVector,
                                       c_width::Real = size(images[1],2) / 2,
                                       c_height::Real = size(images[1],1) / 2,
                                       s::Real=0.0,
-                                      boardPattern = reshape(1:(5*8), VERT, HORI),
+                                      boardPattern = reshape(1:(VERT*HORI), VERT, HORI),
                                       dodraw = false  )
   #
 
@@ -225,14 +245,15 @@ function calcCalibResidualAprilTags!( images::AbstractVector,
     tags_ = allTags[count]
 
     # do the actual calculations
-    resid += calcCornerProjectionsAprilTags!(cimg_, tags_,
+    resid += calcCornerProjectionsAprilTags!( cimg_, tags_,
+                                              tagList=tagList,
                                               taglength=taglength,
                                               f_width=f_width,
                                               f_height=f_height,
                                               c_width=c_width,
                                               c_height=c_height,
                                               s=s,
-                                              VERT=VERT, HORI=HORI,  # excessive
+                                              VERT=VERT, HORI=HORI,
                                               boardPattern=boardPattern,
                                               dodraw=false )
     #

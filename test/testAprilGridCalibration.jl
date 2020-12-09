@@ -10,7 +10,7 @@ using Optim
 
 ##
 
-@test "April grid camera calibration test" begin
+@testset "April grid camera calibration test" begin
 
 ##
 
@@ -31,29 +31,49 @@ tags = detector.(IMGS);
 
 taglength = 0.0315
 
-# assume obj([fx, fy, cx, cy])
-obj = (x) -> calcCalibResidualAprilTags!(IMGS, tags, taglength=taglength, fx=x[1], fy=x[2], cx=x[3], cy=x[4])
+# assume obj([f_width, f_height, c_width, c_height])
+obj = (fc_wh) -> calcCalibResidualAprilTags!(IMGS, tags, 
+                                            taglength=taglength, 
+                                            f_width =fc_wh[1], 
+                                            f_height=fc_wh[2], 
+                                            c_width =fc_wh[3], 
+                                            c_height=fc_wh[4]  )
+#
+
 
 ## Run the optimization
 
-# fx, cx, cy = size(img, 1), size(img, 1)/2, size(img, 2)/2
-# fy = fx
+# f_width, c_width, c_height = size(img, 1), size(img, 1)/2, size(img, 2)/2
+# f_height = f_width
 
 # nearby calibration
-fx = 3370.4878918701756 + 5
-fy = 3352.8348099534364 + 5
-cx = 2005.641610450976  + 5
-cy = 1494.8282013012076 + 5
+f_width = 3370.4878918701756 + 5
+f_height = 3352.8348099534364 + 5
+c_width = 2005.641610450976  + 5
+c_height = 1494.8282013012076 + 5
 # the physical size of the tag
 # taglength = 0.0315
 
-result = optimize(obj, [fx, fy, cx, cy], BFGS())
+result = optimize(obj, [f_width, f_height, c_width, c_height], BFGS(), Optim.Options(iterations = 10, x_tol=1e-6, show_trace=true))
 
 
 result.minimizer
 
 ## draw the result
 
+# SEL = 1
+
+# cimg_ = deepcopy(IMGS[SEL])
+# _calcCornerProjectionsAprilTags!( cimg_, ARR[SEL],
+#                                   taglength=0.0315,
+#                                   f_width=f_width_,
+#                                   f_height=f_height_,
+#                                   c_width=c_width_,
+#                                   c_height=c_height_,
+#                                   dodraw=true )
+# #
+
+# imshow(cimg_)
 
 
 
