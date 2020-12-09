@@ -178,8 +178,8 @@ tags = detector.(imgs) .|> deepcopy
 # remember to free detector later
 
 # setup the cost function, you can add more parameters here if you like
-obj = (f_width, f_height, c_width, c_height) -> calcCalibResidualAprilTags!( imgs, tags, taglength=taglength, f_width=f_width, f_height=f_height, c_width=c_width, c_height=c_height, dodraw=false )[1]
-obj_ = (fc_widthy) -> obj(fc_widthy...)
+obj = (f_width, f_height, c_width, c_height) -> calcCalibResidualAprilTags!( imgs, tags, taglength=taglength, f_width=f_width, f_height=f_height, c_width=c_width, c_height=c_height, dodraw=false )
+obj_ = (fc_wh) -> obj(fc_wh...)
 
 # check that it works
 obj_([f_width, f_height, c_width, c_height])
