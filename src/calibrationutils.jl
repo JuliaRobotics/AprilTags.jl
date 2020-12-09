@@ -148,10 +148,12 @@ positions are square accumulated.
 
 ### Example
 
+Also see `AprilTags/examples/AprilTagsGridClibration.jl`.
+
 This example shows how a series of photos of the tag grid image (just use your computer screen, not a projector) 
 can be used to calibrate a camera.  This example only shows the basic pinhole parameters, although more are possible, 
-see keyword arguments for which calibration parameters are available.  A second example will show how to draw crosses
-to see before and after result. 
+see keyword arguments for which calibration parameters are available.  The latter part shows how to draw crosses
+to see before and after result.  
 ```julia
 using AprilTags
 using FileIO
