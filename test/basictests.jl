@@ -81,7 +81,7 @@ using Test
 
         #getters -- compare with default
         @test detector.nThreads == 1
-        @test detector.quad_decimate == 1.0
+        @test detector.quad_decimate == 2.0 # TODO: default changed to 2 - consider changing back
         @test detector.quad_sigma == 0.0
         @test detector.refine_edges == 1
         @test detector.decode_sharpening == 0.25
@@ -205,6 +205,7 @@ using Test
 
         # TODO test, just placeholder for now
         detector = AprilTagDetector()
+        detector.quad_decimate = 1.0 #NOTE see line 84
         fx = 524.040
         fy = 524.040
         cx = 251.227
@@ -255,6 +256,7 @@ using Test
 
     @testset "Color Image Conversion" begin
         detector = AprilTagDetector()
+        detector.quad_decimate = 1.0 #NOTE see line 84
         tags = detector(imageCol)
         @test length(tags) == 1
         freeDetector!(detector)
