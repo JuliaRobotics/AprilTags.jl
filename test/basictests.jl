@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 using AprilTags
 using ImageCore
 using FileIO
@@ -82,7 +81,7 @@ using Test
 
         #getters -- compare with default
         @test detector.nThreads == 1
-        @test detector.quad_decimate == 2.0 # TODO: default changed to 2 - consider changing back
+        @test detector.quad_decimate == 1.0
         @test detector.quad_sigma == 0.0
         @test detector.refine_edges == 1
         @test detector.decode_sharpening == 0.25
@@ -206,7 +205,6 @@ using Test
 
         # TODO test, just placeholder for now
         detector = AprilTagDetector()
-        detector.quad_decimate = 1.0 #NOTE see line 84
         fx = 524.040
         fy = 524.040
         cx = 251.227
@@ -237,23 +235,28 @@ using Test
         @test_throws ErrorException AprilTags.setdecode_sharpening(detector,0.2)
         # @test_throws ErrorException AprilTags.setrefine_decode(detector,1)
         # @test_throws ErrorException AprilTags.setrefine_pose(detector,1)
-=======
 
-using Test
->>>>>>> master
+        @test_throws ErrorException AprilTags.getnThreads(detector)
+        @test_throws ErrorException AprilTags.getquad_decimate(detector)
+        @test_throws ErrorException AprilTags.getquad_sigma(detector)
+        @test_throws ErrorException AprilTags.getrefine_edges(detector)
+        @test_throws ErrorException AprilTags.getdecode_sharpening(detector)
+        # @test_throws ErrorException AprilTags.getrefine_decode(detector)
+        # @test_throws ErrorException AprilTags.getrefine_pose(detector)
 
+        @test freeDetector!(detector) == nothing
+        #testing NULL tag families errors
+        detector = AprilTagDetector()
+        detector.tf = C_NULL
+        @test_throws ErrorException tags = detector(image)
+        @test_throws ErrorException tags = AprilTags.threadcalldetect(detector, image)
+        @test freeDetector!(detector) == nothing
+    end
 
-include("basictests.jl")
-
-<<<<<<< HEAD
     @testset "Color Image Conversion" begin
         detector = AprilTagDetector()
-        detector.quad_decimate = 1.0 #NOTE see line 84
         tags = detector(imageCol)
         @test length(tags) == 1
         freeDetector!(detector)
     end
 end
-=======
-include("testAprilGridCalibration.jl")
->>>>>>> master

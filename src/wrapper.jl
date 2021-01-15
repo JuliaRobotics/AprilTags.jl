@@ -437,7 +437,22 @@ function homography_to_pose(H, fx, fy, cx, cy)
 end
 
 
-# new pose estimation from apriltag 3
+"""
+    $TYPEDEF
+
+new pose estimation from apriltag 3
+
+Notes:
+- This low-level `ccall` wrapped C-library type uses the convention (i.e. the camera-frame):
+  - `fx == f_width`, 
+  - `cy == c_height`, and
+  - C-library camara coordinate system: camera looking along positive Z axis with `x` to the right and `y` down.
+    - C-library internally follows: https://docs.opencv.org/3.4/d9/d0c/group__calib3d.html
+- Images.jl uses `::Array` in Julia as column-major (i.e. vertical major) convention, that is `size(img) == (480, 640)`
+  - Axes start top left-corner of the image plane (i.e. the image-frame):
+  - `width` is from left to right,
+  - `height` is from top downward.
+"""
 mutable struct apriltag_detection_info_t
     det::Ptr{apriltag_detection_t}
     tagsize::Cdouble
