@@ -112,7 +112,7 @@ tag0 = kron(getAprilTagImage(0), ones(Gray{N0f8}, 4,4))
 projImg[221:260,301:340] = tag0
 projImg
 
-# `img[i,j]` implies `width == x == j`, and `height == y == i`
+# `img[i,j]` implies `width == x == j`, and `height == y == i`, top left corner `(0,0)`
 fx = 1000.
 fy = 1000.
 cx = 320.
