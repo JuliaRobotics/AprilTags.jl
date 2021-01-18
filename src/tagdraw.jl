@@ -102,7 +102,7 @@ function drawTagAxes!(image::AbstractArray{<:AbstractRGB,2},
                       K::AbstractArray{<:Real,2} )
     #
     Kp = [K [0;0]; 0.0 0.0 1.0 0.0]
-    pose = AprilTags.homography_to_pose(tag.H, K[1,1], K[2,2], K[1,3], K[2,3])
+    pose = AprilTags.homographytopose(tag.H, Kp[1,1], Kp[2,2], Kp[1,3], Kp[2,3])
 
     # calculate and project
     p0 = Kp*pose[:,4]
