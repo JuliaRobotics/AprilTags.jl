@@ -97,25 +97,48 @@ imshow(img_)
 # drawTags!(image, K, tags)
 ```
 
-## Example from Tests
+## Example
+
+An easy (synthetic) verification example to test:
 
 ```julia
-# see data/tagtest.jpg
+using AprilTags
+using Images
 
 detector = AprilTagDetector()
-fx = 524.040
-fy = 524.040
-cx = 251.227
-cy = 319.254
-taglength = 0.172
-(tags, poses) = detectAndPose(detector, image, fx, fy, cx, cy, taglength)
-# TODO test here
-@test all(isapprox.(poses[1], [ 0.657276  -0.43653   0.614354  -0.236778;
-                                0.180276   0.882573  0.434242   0.268374;
-                               -0.731771  -0.174663  0.65879    1.65107],
-                              atol = 0.01))
-freeDetector!(detector)
+
+projImg = zeros(Gray{N0f8}, 480,640)
+tag0 = kron(getAprilTagImage(0), ones(Gray{N0f8}, 4,4))
+projImg[221:260,301:340] = tag0
+projImg
+
+# `img[i,j]` implies `width == x == j`, and `height == y == i`, top left corner `(0,0)`
+fx = 1000.
+fy = 1000.
+cx = 320.
+cy = 240.
+
+K = [fx 0  cx;
+      0 fy cy]
+
+tags = detector(projImg)
+
+imCol = RGB.(projImg)
+foreach(tag->drawTagBox!(imCol, tag), tags)
+
+taglength = 0.1
+(tags, poses) = detectAndPose(detector, projImg, fx, fy, cx, cy, taglength)
+
+poses[1]
 ```
+results
+```
+3×4 Array{Float64,2}:
+  0.996868    0.00273632   0.079042   -0.000300523
+  0.00256118  0.99776     -0.0668423  -0.000417185
+ -0.0790478   0.0668353    0.994628    3.1166
+```
+[copied from an issue discussion]
 
 ## Camera Calibration
 

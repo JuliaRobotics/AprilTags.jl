@@ -81,7 +81,7 @@ using Test
 
         #getters -- compare with default
         @test detector.nThreads == 1
-        @test detector.quad_decimate == 1.0
+        @test detector.quad_decimate == 2.0 # TODO: default changed to 2 - consider changing back
         @test detector.quad_sigma == 0.0
         @test detector.refine_edges == 1
         @test detector.decode_sharpening == 0.25
@@ -125,8 +125,8 @@ using Test
         #test drawing functions
         fx = 524.040
         fy = 524.040
-        cy = 319.254
-        cx = 251.227
+        cx = 319.254
+        cy = 251.227
         K = [fx 0  cx;
               0 fy cy]
         imCol = RGB.(image)
@@ -205,16 +205,17 @@ using Test
 
         # TODO test, just placeholder for now
         detector = AprilTagDetector()
+        detector.quad_decimate = 1.0 #NOTE see line 84
         fx = 524.040
         fy = 524.040
-        cx = 251.227
-        cy = 319.254
+        cx = 319.254
+        cy = 251.227
         taglength = 0.172
         (tags, poses) = detectAndPose(detector, image, fx, fy, cx, cy, taglength)
-        # TODO test here
-        @test all(isapprox.(poses[1], [ 0.657276  -0.43653   0.614354  -0.236778;
-                                        0.180276   0.882573  0.434242   0.268374;
-                                       -0.731771  -0.174663  0.65879    1.65107],
+        # TODO test here, this is just result used as test.
+        @test all(isapprox.(poses[1], [ 0.630532  -0.391638  0.670111  -0.461887;
+                                        0.118082   0.901717  0.415889   0.494238;
+                                       -0.767128  -0.183103  0.614807   1.69053],
                                       atol = 0.01))
         freeDetector!(detector)
 
@@ -255,6 +256,7 @@ using Test
 
     @testset "Color Image Conversion" begin
         detector = AprilTagDetector()
+        detector.quad_decimate = 1.0 #NOTE see line 84
         tags = detector(imageCol)
         @test length(tags) == 1
         freeDetector!(detector)

@@ -18,6 +18,7 @@ PixPos(pix::UInt8, pos::Array{Float64,1}) = PixPos(pix, (x=pos[1], y=pos[2], z=p
     C = [K; 0 0 1]
 
     detector = AprilTagDetector()
+    detector.quad_decimate = 1.0 #NOTE see line 84 in runtest.jl
 
     #_____________________________________________________________________
 

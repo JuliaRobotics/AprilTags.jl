@@ -1,16 +1,7 @@
-__precompile__()
 module AprilTags
 
+using AprilTags_jll
 using Requires
-
-function __init__()
-    depfile = joinpath(dirname(@__FILE__),"../deps/loadpath.jl")
-    isfile(depfile) ? include(depfile) : error("AprilTags.jl not properly installed. Please run: Pkg.build(\"AprilTags\")")
-
-    # conditional requirement
-    @require FreeTypeAbstraction="663a7486-cb36-511b-a19d-713bb74d65c9" include("tagtext.jl")
-end
-
 using DocStringExtensions
 using LinearAlgebra, Statistics
 using Colors, ImageDraw, FixedPointNumbers
@@ -48,5 +39,10 @@ include("helpers.jl")
 include("tagdraw.jl")
 include("additionalutils.jl")
 include("calibrationutils.jl")
+
+function __init__()
+    # conditional requirement
+    @require FreeTypeAbstraction="663a7486-cb36-511b-a19d-713bb74d65c9" include("tagtext.jl")
+end
 
 end # module
