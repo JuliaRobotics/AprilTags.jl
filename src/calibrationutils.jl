@@ -220,7 +220,7 @@ freeDetector!(detector) # could also use a deepcopy to duplicate the memory to a
 
 ### Related
 
-[`calcCornerProjectionsAprilTags`](@ref)
+[`calcCornerProjectionsAprilTags!`](@ref)
 """
 function calcCalibResidualAprilTags!( images::AbstractVector,
                                       allTags::AbstractVector;

@@ -153,6 +153,7 @@ See the [Calibration example](https://github.com/JuliaRobotics/AprilTags.jl/blob
 
 ```@docs
 calcCalibResidualAprilTags!
+calcCornerProjectionsAprilTags!
 ```
 
 ## Manual Outline
