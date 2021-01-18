@@ -105,11 +105,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "#Example-from-Tests-1",
+    "location": "#Example-1",
     "page": "Home",
-    "title": "Example from Tests",
+    "title": "Example",
     "category": "section",
-    "text": "# see data/tagtest.jpg\n\ndetector = AprilTagDetector()\nfx = 524.040\nfy = 524.040\ncx = 251.227\ncy = 319.254\ntaglength = 0.172\n(tags, poses) = detectAndPose(detector, image, fx, fy, cx, cy, taglength)\n# TODO test here\n@test all(isapprox.(poses[1], [ 0.657276  -0.43653   0.614354  -0.236778;\n                                0.180276   0.882573  0.434242   0.268374;\n                               -0.731771  -0.174663  0.65879    1.65107],\n                              atol = 0.01))\nfreeDetector!(detector)"
+    "text": "An easy (synthetic) verification example to test:using AprilTags\nusing Images\n\ndetector = AprilTagDetector()\n\nprojImg = zeros(Gray{N0f8}, 480,640)\ntag0 = kron(getAprilTagImage(0), ones(Gray{N0f8}, 4,4))\nprojImg[221:260,301:340] = tag0\nprojImg\n\n# `img[i,j]` implies `width == x == j`, and `height == y == i`, top left corner `(0,0)`\nfx = 1000.\nfy = 1000.\ncx = 320.\ncy = 240.\n\nK = [fx 0  cx;\n      0 fy cy]\n\ntags = detector(projImg)\n\nimCol = RGB.(projImg)\nforeach(tag->drawTagBox!(imCol, tag), tags)\n\ntaglength = 0.1\n(tags, poses) = detectAndPose(detector, projImg, fx, fy, cx, cy, taglength)\n\nposes[1]results3×4 Array{Float64,2}:\n  0.996868    0.00273632   0.079042   -0.000300523\n  0.00256118  0.99776     -0.0668423  -0.000417185\n -0.0790478   0.0668353    0.994628    3.1166[copied from an issue discussion]"
 },
 
 {
