@@ -1,5 +1,12 @@
 @enum TagFamilies tag36h11 tag25h9 tag16h5
 
+"""
+    $(TYPEDEF)
+Represents the detected April tag.
+---
+Fields:
+    $(TYPEDFIELDS)
+"""
 struct AprilTag
     "The family of the tag."
     family::String
@@ -9,7 +16,6 @@ struct AprilTag
        Note: accepting large numbers of corrected errors leads to greatly increased false positive rates. 
        NOTE: As of this implementation, the detector cannot detect tags with a Hamming distance greater than 2."""
     hamming::Int
-    # goodness::Float32
     """A measure of the quality of the binary decoding process: the average difference between the intensity of a data bit versus
        the decision threshold. Higher numbers roughly indicate better decodes. This is a reasonable measure of detection accuracy
        only for very small tags-- not effective for larger tags (where we could have sampled anywhere within a bit cell and still
