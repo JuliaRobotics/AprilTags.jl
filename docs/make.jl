@@ -1,20 +1,20 @@
-using Pkg
-Pkg.build("AprilTags")
-using Documenter, AprilTags
+using AprilTags
+using Documenter
 
 makedocs(
     modules = [AprilTags],
-    format = :html,
+    format=Documenter.HTML(;
+        prettyurls=get(ENV, "CI", "false") == "true",
+    ),
     sitename = "AprilTags.jl",
     pages = Any[
         "Home" => "index.md",
         "Functions" => "func_ref.md"
     ]
-    # html_prettyurls = !("local" in ARGS),
     )
 
 
 deploydocs(
     repo   = "github.com/JuliaRobotics/AprilTags.jl.git",
     target = "build"
-)
+    )
