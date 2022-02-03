@@ -1,13 +1,26 @@
 @enum TagFamilies tag36h11 tag25h9 tag16h5
 
 struct AprilTag
+    "The family of the tag."
     family::String
+    "The decoded ID of the tag."
     id::Int
+    """How many error bits were corrected? 
+       Note: accepting large numbers of corrected errors leads to greatly increased false positive rates. 
+       NOTE: As of this implementation, the detector cannot detect tags with a Hamming distance greater than 2."""
     hamming::Int
     # goodness::Float32
+    """A measure of the quality of the binary decoding process: the average difference between the intensity of a data bit versus
+       the decision threshold. Higher numbers roughly indicate better decodes. This is a reasonable measure of detection accuracy
+       only for very small tags-- not effective for larger tags (where we could have sampled anywhere within a bit cell and still
+       gotten a good detection.)"""
     decision_margin::Float32
+    """The 3x3 homography matrix describing the projection from an "ideal" tag (with corners at (-1,1), (1,1), (1,-1), and (-1,-1))
+	to pixels in the image."""
     H::Matrix{Float64}
+    "The center of the detection in image pixel coordinates"
     c::Vector{Float64}
+    "The corners of the tag in image pixel coordinates. These always wrap counter-clock wise around the tag."
     p::Vector{Vector{Float64}}
 end
 
