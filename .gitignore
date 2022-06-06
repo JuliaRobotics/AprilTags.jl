@@ -9,4 +9,5 @@ docs/build
 sandbox
 deps/deps.jl
 deps/build.log
+deps/loadpath.jl
 deps/usr

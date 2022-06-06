@@ -12,6 +12,7 @@ function _calcCornerProjectionsAprilTag!( cimg_, tags_, idx, horid, verid, tl, t
   verz = (verid - idx.I[1])*(2*tl)
   horz = (horid - idx.I[2])*(2*tl)
   
+  ## FIXME Consolidate with JuliaRobotics/CameraModels.jl
   # reproject the corners
   tC = [-tl_2  tl_2   tl_2 -tl_2;
         tl_2  tl_2  -tl_2 -tl_2;
