@@ -142,8 +142,8 @@ positions are square accumulated.
   - That is `img[vertical, horizontal]`
   - See https://evizero.github.io/Augmentor.jl/images/#Vertical-Major-vs-Horizontal-Major-1
 - This function has the ability to draw the predicted tag corners, see keyword `dodraw=true`.
-- This is not a copy of any other AprilCal or such software, this was newly written code out of pure frustration
-  when getting stuff to work.  The more native Julia code the better, because Julia is much more mobile and versatile
+- This is not a copy of any other calibration software, this was newly written code bore out of pure frustration
+  in getting stuff to work.  The more native Julia code the better, because Julia is much more mobile and versatile
   than any of the other calibration software out there.  See DevNotes below for roadmap of features to add, 
   contributions welcome.
 
@@ -151,7 +151,7 @@ positions are square accumulated.
 
 Also see `AprilTags/examples/AprilTagsGridClibration.jl`.
 
-This example shows how a series of photos of the tag grid image (just use your computer screen, not a projector) 
+This example shows how a series of photos of the tag grid image (just use your computer screen, projectors will skew the image) 
 can be used to calibrate a camera.  This example only shows the basic pinhole parameters, although more are possible, 
 see keyword arguments for which calibration parameters are available.  The latter part shows how to draw crosses
 to see before and after result.  
@@ -214,7 +214,7 @@ freeDetector!(detector) # could also use a deepcopy to duplicate the memory to a
 ```
 
 ### DevNotes
-- FIXME common JuliaRobotics/CameraModels.jl package shoudl be made
+- FIXME common JuliaRobotics/CameraModels.jl package should be made
 - TODO Radial distortion parameters should be added, see https://en.wikipedia.org/wiki/Distortion_(optics)
 - TODO allow missed detections on grid of 40 tags
 - TODO auto-detect the grid so that any grid can be used (still assuming regular spacing)
