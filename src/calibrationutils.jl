@@ -159,16 +159,16 @@ using AprilTags
 using FileIO
 
 # where are the photos of the calibration files
-filepaths = [photo1.jpg; photo2.jpg;...]
+filepaths = ["photo1.jpg"; "photo2.jpg";...]
 # load the images into memory
 imgs = load.(filepaths)
 
-# It's imporant that you measure and specif_height the tag length correctly here
+# It's imporant that you measure and specify the tag length correctly here
 # 30 mm is just a guess, insert your own correct tag measurements here.
 taglength = 0.03
 
 # rough guess of what calibration parameters might be
-# x,y <==> rows,colums
+# img[rows,columns] <==> img[height, width]
 c_width = size(imgs[1],2) / 2 # columns across in Images.jl
 c_height = size(imgs[1],1) / 2 # rows down in Images.jl
 f_width = size(imgs[1],1)
@@ -220,7 +220,7 @@ freeDetector!(detector) # could also use a deepcopy to duplicate the memory to a
 
 ### Related
 
-[`calcCornerProjectionsAprilTags`](@ref)
+[`calcCornerProjectionsAprilTags!`](@ref)
 """
 function calcCalibResidualAprilTags!( images::AbstractVector,
                                       allTags::AbstractVector;
