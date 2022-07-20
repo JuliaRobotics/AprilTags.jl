@@ -2,7 +2,7 @@ name = "AprilTags"
 uuid = "f0fec3d5-a81e-5a6a-8c28-d2b34f3659de"
 keywords = ["AprilTags", "fiducials", "markers", "camera", "calibration"]
 desc = "Visual fiducial marking system"
-version = "0.9.0"
+version = "0.9.1"
 
 [deps]
 AprilTags_jll = "49f4e9a8-0306-5d58-91df-e9c3c0e42747"
