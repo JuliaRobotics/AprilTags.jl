@@ -1,4 +1,4 @@
-@enum TagFamilies tag36h11 tag25h9 tag16h5
+@enum TagFamilies tag36h11 tag25h9 tag16h5 tagStandard41h12 #tagStandard52h13 #tagCircle49h12
 
 """
     $(TYPEDEF)
@@ -115,6 +115,12 @@ function AprilTagDetector(tagfamily::TagFamilies = tag36h11)
         tf = tag25h9_create()
     elseif tagfamily == tag16h5
         tf = tag16h5_create()
+    elseif tagfamily == tagStandard41h12
+        tf = tagStandard41h12_create()
+    # elseif tagfamily == tagStandard52h13
+    #     tf = tagStandard52h13_create()
+    # elseif tagfamily == tagCircle49h12
+    #     tf = tagCircle49h12_create()
     end
 
     #add family to detector
@@ -313,6 +319,12 @@ function  getAprilTagImage(tagIndex::Int, tagfamily::TagFamilies = tag36h11; bla
         tf = tag25h9_create()
     elseif tagfamily == tag16h5
         tf = tag16h5_create()
+    elseif tagfamily == tagStandard41h12
+        tf = tagStandard41h12_create()
+    # elseif tagfamily == tagStandard52h13
+    #     tf = tagStandard52h13_create()
+    # elseif tagfamily == tagCircle49h12
+    #     tf = tagCircle49h12_create()
     end
 
     tagptr = AprilTags.apriltag_to_image(tf, Int32(tagIndex))

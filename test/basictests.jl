@@ -155,6 +155,12 @@ using Test
         detector2 = AprilTagDetector(AprilTags.tag36h11)
         freeDetector!(detector2)
 
+        detector2 = AprilTagDetector(AprilTags.tagStandard41h12)
+        freeDetector!(detector2)
+
+        # detector2 = AprilTagDetector(AprilTags.tagStandard52h13)
+        # freeDetector!(detector2)
+
         # detector2 = AprilTagDetector(AprilTags.tag36h10)
         # freeDetector!(detector2)
 
@@ -202,6 +208,17 @@ using Test
                                     1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 1.0;
                                     1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0]
         @test reftag25h9_0 == getAprilTagImage(0, AprilTags.tag25h9)
+
+        reftagStandard41h12_0 = Gray{N0f8}[1.0 1.0 0.0 1.0 1.0 1.0 1.0 0.0 0.0;
+                                           0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0;
+                                           1.0 0.0 1.0 1.0 1.0 1.0 1.0 0.0 0.0;
+                                           0.0 0.0 1.0 1.0 1.0 1.0 1.0 0.0 1.0;
+                                           0.0 0.0 1.0 0.0 0.0 1.0 1.0 0.0 0.0;
+                                           0.0 0.0 1.0 0.0 1.0 0.0 1.0 0.0 1.0;
+                                           1.0 0.0 1.0 1.0 1.0 1.0 1.0 0.0 0.0;
+                                           0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0;
+                                           1.0 1.0 0.0 1.0 0.0 0.0 1.0 0.0 0.0]
+        @test reftagStandard41h12_0 == getAprilTagImage(0, AprilTags.tagStandard41h12, blackborder=false)
 
         # TODO test, just placeholder for now
         detector = AprilTagDetector()
