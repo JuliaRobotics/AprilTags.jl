@@ -359,6 +359,32 @@ function tag16h5_destroy(tf)
     ccall((:tag16h5_destroy, libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
 end
 
+function tagStandard41h12_create()
+    ccall((:tagStandard41h12_create, libapriltag), Ptr{apriltag_family_t}, ())
+end
+
+function tagStandard41h12_destroy(tf)
+    ccall((:tagStandard41h12_destroy, libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
+end
+
+# # this family segfaults for `apriltag_detector_add_family(td, tf)
+# function tagStandard52h13_create()
+#     ccall((:tagStandard52h13_create, libapriltag), Ptr{apriltag_family_t}, ())
+# end
+#
+# function tagStandard52h13_destroy(tf)
+#     ccall((:tagStandard52h13_destroy, libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
+# end
+
+# # circular tags are problematic because they require a mask of white pixels around the circle
+# function tagCircle49h12_create()
+#     ccall((:tagCircle49h12_create, libapriltag), Ptr{apriltag_family_t}, ())
+# end
+#
+# function tagCircle49h12_destroy(tf)
+#     ccall((:tagCircle49h12_destroy, libapriltag), Nothing, (Ptr{apriltag_family_t},), tf)
+# end
+
 """
 	apriltag_detector_create()
 Create a AprilTag Detector object with all fields set to default value.
