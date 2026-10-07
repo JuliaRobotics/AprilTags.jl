@@ -144,11 +144,10 @@ function (detector::AprilTagDetector)(image::Array{T, 2}) where T <: U8Types
     if detector.tf == C_NULL
         error("AprilTags family does not exist")
     end
-    #create image8 object for april tags
-    image8 = convert(AprilTags.image_u8_t, image)
-
-    # run detector on image
-    detections =  apriltag_detector_detect(detector.td, image8)
+    # run detector on image, its pixels kept alive for the whole call
+    detections = with_image_u8(image) do image8
+        apriltag_detector_detect(detector.td, image8)
+    end
 
     # copy and return detections julia struct
     tags = AprilTags.copyAprilTagDetections(detections)
@@ -182,11 +181,10 @@ function threadcalldetect(detector::AprilTagDetector, image::Array{T, 2}) where 
     if detector.tf == C_NULL
         error("AprilTags family does not exist")
     end
-    #create image8 object for april tags
-    image8 = convert(AprilTags.image_u8_t, image)
-
-    # run detector on image
-    detections =  threadcall_apriltag_detector_detect(detector.td, image8)
+    # run detector on image, its pixels kept alive for the whole call
+    detections = with_image_u8(image) do image8
+        threadcall_apriltag_detector_detect(detector.td, image8)
+    end
 
     # copy and return detections julia struct
     tags = AprilTags.copyAprilTagDetections(detections)
@@ -234,6 +232,23 @@ end
 #     imbuf = reinterpret(UInt8, image'[:])
 #     return AprilTags.image_u8_t(Int32(cols), Int32(rows), Int32(cols), Base.unsafe_convert(Ptr{UInt8}, imbuf))
 # end
+"""
+    with_image_u8(f, image)
+
+Call `f(image8)` with `image8::image_u8_t`, a C view of `image`'s pixels, and keep those pixels
+alive until `f` returns. `image8` points into a row-major copy of `image` that nothing else
+references, so a garbage collection while C reads it would free it under the detector (on
+another thread, during a long `apriltag_detector_detect`): `GC.@preserve` prevents that.
+`image8` must not outlive `f`.
+"""
+function with_image_u8(f, image::AbstractMatrix{T}) where T <: U8Types
+    (rows, cols) = size(image)
+    imbuf = reinterpret(UInt8, vec(permutedims(image)))
+    return GC.@preserve imbuf f(image_u8_t(Int32(cols), Int32(rows), Int32(cols), Base.unsafe_convert(Ptr{UInt8}, imbuf)))
+end
+
+# Unsafe: the returned `image_u8_t` points into a copy of `image` that nothing keeps alive, so
+# the pointer can dangle as soon as this returns. Detection goes through `with_image_u8`.
 function convert(::Type{image_u8_t}, image::Array{UInt8, 2})
 #create image8 opject for april tags
     (rows,cols) = size(image)
@@ -662,11 +677,10 @@ function detectAndPose( detector::AprilTagDetector,
     if detector.tf == C_NULL
         error("AprilTags family does not exist")
     end
-    #create image8 object for april tags
-    image8 = convert(AprilTags.image_u8_t, image)
-
-    # run detector on image
-    detections =  apriltag_detector_detect(detector.td, image8)
+    # run detector on image, its pixels kept alive for the whole call
+    detections = with_image_u8(image) do image8
+        apriltag_detector_detect(detector.td, image8)
+    end
 
     # copy and return detections julia struct
     tags = AprilTags.copyAprilTagDetections(detections)

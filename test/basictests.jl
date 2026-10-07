@@ -278,4 +278,37 @@ using Test
         @test length(tags) == 1
         freeDetector!(detector)
     end
+
+    # The detector reads a row-major copy of the image through a raw pointer. Unless that copy is
+    # kept alive, a garbage collection on another thread during the detection frees it: tags go
+    # missing, or the process segfaults on unmapped memory. Other threads allocating and collecting
+    # provoke it. With one thread nothing can collect during the C call, so this needs
+    # JULIA_NUM_THREADS > 1 to test anything.
+    @testset "Detection survives garbage collection on other threads" begin
+        scene = fill(0xff, 480, 640)
+        for (id, (r, c)) in enumerate([(50, 50), (150, 250), (250, 450)])
+            tag = kron(reinterpret(UInt8, getAprilTagImage(id - 1)), ones(UInt8, 3, 3))
+            scene[r .+ axes(tag, 1), c .+ axes(tag, 2)] .= tag
+        end
+        scene = Gray.(reinterpret(N0f8, scene))
+        detector = AprilTagDetector()
+        stop = Threads.Atomic{Bool}(false)
+        churn = map(1:8) do _
+            Threads.@spawn while !stop[]
+                # several sizes: which one lands on the freed copy depends on the allocator
+                for bytes in (100_000, 300_000, 1_000_000)
+                    fill!(Vector{UInt8}(undef, bytes), 0x01)
+                    GC.gc(false)
+                end
+            end
+        end
+        found = try
+            [length(detector(scene)) for _ in 1:300]
+        finally
+            stop[] = true
+            foreach(wait, churn)
+            freeDetector!(detector)
+        end
+        @test all(==(3), found)
+    end
 end
